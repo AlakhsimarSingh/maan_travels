@@ -1,0 +1,77 @@
+# Node
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Next.js / frontend build outputs
+frontend/.next/
+frontend/out/
+**/.next
+out/
+dist/
+build/
+
+# TypeScript
+*.tsbuildinfo
+
+# Environment / secrets
+.env
+.env.*
+.env.local
+.env.*.local
+!*.env.example
+
+# Prisma
+.prisma/
+node_modules/.prisma
+
+# Logs & coverage
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+coverage/
+coverage/**
+*.lcov
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE/editor
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Lockfiles (usually keep these for reproducible installs)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Misc caches and temp
+.cache/
+.parcel-cache/
+.turbo/
+.next/cache/
+tmp/
+temp/
+*.local
+*.pid
+*.seed
+
+# Local uploads / generated assets (adjust if you intentionally commit uploads)
+uploads/
+uploads/**
+
+# Database files
+*.sqlite
+*.db
+*.sqlite3
+

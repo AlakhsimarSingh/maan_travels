@@ -1,0 +1,3 @@
+D:\Maantravels\frontend\app\globals.css:96: --primary: yellow;
+D:\Maantravels\frontend\app\globals.css:105: --accent: yellow;
+D:\Maantravels\frontend\app\globals.css:110: --ring: yellow;
