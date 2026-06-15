@@ -15,19 +15,15 @@ import { tourPackages } from "@/src/data/packages";
 const services = [
   {
     label: "Luxury Cars",
-    href: "/category/luxury-cars",
+    href: "/luxury-cars",
   },
   {
     label: "Self Drive Rentals",
     href: "/self-drive",
   },
   {
-    label: "Tempo Traveller",
-    href: "/category/tempo-traveller",
-  },
-  {
-    label: "Coach & Bus Rental",
-    href: "/category/coach-bus",
+    label: "Tempo/Urbania Travellers",
+    href: "/tempo-traveller-urbania",
   },
   {
     label: "Airport Transfer",
@@ -35,7 +31,7 @@ const services = [
   },
   {
     label: "Wedding Cars",
-    href: "/category/wedding-cars",
+    href: "/wedding-cars",
   },
 ];
 
@@ -73,7 +69,7 @@ export default function Navbar() {
   const packageMenuItems = tourPackages.map(
     (pkg)=>({
       label: pkg.title,
-      href: `/package/${pkg.slug}`,
+      href: `/packages/${pkg.slug}`,
     })
   );
 

@@ -20,6 +20,7 @@ export default async function PackageDetailsPage({
   params,
 }:Props){
 
+
   const {slug}=await params;
 
 
@@ -40,13 +41,13 @@ export default async function PackageDetailsPage({
     <main className="pt-24 pb-24">
 
 
-      {/* Hero */}
+      {/* HERO */}
 
       <section
         className="
-          relative
-          h-[70vh]
-          overflow-hidden
+        relative
+        h-[70vh]
+        overflow-hidden
         "
       >
 
@@ -55,32 +56,30 @@ export default async function PackageDetailsPage({
           alt={pkg.title}
           fill
           priority
+          className="object-cover"
+        />
+
+
+        <div
           className="
-            object-cover
+          absolute
+          inset-0
+          bg-black/70
           "
         />
 
 
         <div
           className="
-            absolute
-            inset-0
-            bg-black/70
-          "
-        />
-
-
-        <div
-          className="
-            relative
-            z-10
-            mx-auto
-            flex
-            h-full
-            max-w-7xl
-            items-end
-            px-6
-            pb-16
+          relative
+          z-10
+          mx-auto
+          flex
+          h-full
+          max-w-7xl
+          items-end
+          px-6
+          pb-16
           "
         >
 
@@ -89,9 +88,9 @@ export default async function PackageDetailsPage({
 
             <p
               className="
-                uppercase
-                tracking-[0.35em]
-                text-[#ecb100]
+              uppercase
+              tracking-[0.35em]
+              text-[#ecb100]
               "
             >
               {pkg.duration}
@@ -100,11 +99,11 @@ export default async function PackageDetailsPage({
 
             <h1
               className="
-                mt-4
-                text-5xl
-                font-bold
-                text-white
-                md:text-6xl
+              mt-4
+              text-5xl
+              font-bold
+              text-white
+              md:text-6xl
               "
             >
               {pkg.title}
@@ -113,10 +112,10 @@ export default async function PackageDetailsPage({
 
             <p
               className="
-                mt-5
-                max-w-2xl
-                text-lg
-                text-[#c7c7c7]
+              mt-5
+              max-w-3xl
+              text-lg
+              text-[#c7c7c7]
               "
             >
               {pkg.shortDescription}
@@ -124,6 +123,7 @@ export default async function PackageDetailsPage({
 
 
           </div>
+
 
         </div>
 
@@ -136,12 +136,13 @@ export default async function PackageDetailsPage({
 
       <section
         className="
-          mx-auto
-          max-w-7xl
-          px-6
-          py-12
+        mx-auto
+        max-w-7xl
+        px-6
+        py-12
         "
       >
+
 
         <Breadcrumbs
           items={[
@@ -161,43 +162,47 @@ export default async function PackageDetailsPage({
 
 
 
+
         <div
           className="
-            mt-10
-            grid
-            gap-10
-            lg:grid-cols-3
+          mt-10
+          grid
+          gap-10
+          lg:grid-cols-3
           "
         >
 
 
 
-          {/* Main Content */}
+          {/* CONTENT */}
+
 
           <div
             className="
-              lg:col-span-2
+            lg:col-span-2
             "
           >
 
 
+
             <h2
               className="
-                text-3xl
-                font-bold
-                text-white
+              text-3xl
+              font-bold
+              text-white
               "
             >
               Tour Highlights
             </h2>
 
 
+
             <div
               className="
-                mt-6
-                flex
-                flex-wrap
-                gap-3
+              mt-6
+              flex
+              flex-wrap
+              gap-3
               "
             >
 
@@ -207,14 +212,14 @@ export default async function PackageDetailsPage({
                   <span
                     key={item}
                     className="
-                      rounded-full
-                      border
-                      border-[#252525]
-                      bg-[#141414]
-                      px-4
-                      py-2
-                      text-sm
-                      text-[#c7c7c7]
+                    rounded-full
+                    border
+                    border-[#252525]
+                    bg-[#141414]
+                    px-4
+                    py-2
+                    text-sm
+                    text-[#c7c7c7]
                     "
                   >
                     {item}
@@ -222,6 +227,7 @@ export default async function PackageDetailsPage({
 
                 ))
               }
+
 
             </div>
 
@@ -231,10 +237,10 @@ export default async function PackageDetailsPage({
 
             <h2
               className="
-                mt-14
-                text-3xl
-                font-bold
-                text-white
+              mt-14
+              text-3xl
+              font-bold
+              text-white
               "
             >
               Day Wise Itinerary
@@ -242,31 +248,34 @@ export default async function PackageDetailsPage({
 
 
 
+
             <div
               className="
-                mt-8
-                space-y-6
+              mt-8
+              space-y-6
               "
             >
 
             {
               pkg.itinerary.map(day=>(
 
+
                 <div
                   key={day.day}
                   className="
-                    rounded-3xl
-                    border
-                    border-[#252525]
-                    bg-[#141414]
-                    p-6
+                  rounded-3xl
+                  border
+                  border-[#252525]
+                  bg-[#141414]
+                  p-6
                   "
                 >
 
+
                   <p
                     className="
-                      text-[#ecb100]
-                      font-semibold
+                    text-[#ecb100]
+                    font-semibold
                     "
                   >
                     {day.day}
@@ -275,43 +284,46 @@ export default async function PackageDetailsPage({
 
                   <h3
                     className="
-                      mt-2
-                      text-xl
-                      font-semibold
-                      text-white
+                    mt-2
+                    text-xl
+                    font-semibold
+                    text-white
                     "
                   >
                     {day.title}
                   </h3>
 
 
+
                   {
                     day.description && (
 
-                    <p
-                      className="
+                      <p
+                        className="
                         mt-3
                         text-[#8a8a8a]
-                      "
-                    >
-                      {day.description}
-                    </p>
+                        "
+                      >
+                        {day.description}
+                      </p>
 
                     )
                   }
 
 
 
+
                   {
-                    day.places && (
+                    day.places &&
+                    (
 
                     <ul
                       className="
-                        mt-4
-                        list-disc
-                        space-y-1
-                        pl-5
-                        text-[#c7c7c7]
+                      mt-4
+                      list-disc
+                      pl-5
+                      space-y-1
+                      text-[#c7c7c7]
                       "
                     >
 
@@ -331,12 +343,16 @@ export default async function PackageDetailsPage({
                   }
 
 
+
                 </div>
+
 
               ))
             }
 
+
             </div>
+
 
 
           </div>
@@ -345,61 +361,73 @@ export default async function PackageDetailsPage({
 
 
 
-          {/* CTA */}
+          {/* BOOKING CTA */}
+
 
           <aside>
 
+
             <div
               className="
-                sticky
-                top-28
-                rounded-3xl
-                border
-                border-[#252525]
-                bg-[#141414]
-                p-8
+              sticky
+              top-28
+              rounded-3xl
+              border
+              border-[#252525]
+              bg-[#141414]
+              p-8
               "
             >
 
+
               <h3
                 className="
-                  text-2xl
-                  font-bold
-                  text-white
+                text-2xl
+                font-bold
+                text-white
                 "
               >
                 Plan This Journey
               </h3>
 
 
+
               <p
                 className="
-                  mt-3
-                  text-[#8a8a8a]
+                mt-3
+                text-[#8a8a8a]
                 "
               >
-                Get a customized quote with the best vehicle options.
+                Submit your details and our travel expert will contact you with vehicle options and pricing.
               </p>
+
 
 
               <Button
                 asChild
                 className="
-                  mt-6
-                  w-full
-                  bg-[#ecb100]
-                  text-black
+                mt-6
+                w-full
+                bg-[#ecb100]
+                text-black
+                hover:bg-[#f6c94c]
                 "
               >
 
-                <Link href="/booking">
+                <Link
+                  href={`/package-booking/${pkg.slug}`}
+                >
+
                   Book Package
+
                 </Link>
+
 
               </Button>
 
 
             </div>
+
 
           </aside>
 
@@ -408,34 +436,44 @@ export default async function PackageDetailsPage({
         </div>
 
 
+
       </section>
+
 
 
     </main>
 
   );
+
 }
 
+
+
+
+
 export async function generateMetadata({
-  params,
-}: Props) {
-
-  const { slug } = await params;
+ params,
+}:Props){
 
 
-  const pkg =
-    tourPackages.find(
-      item => item.slug === slug
-    );
+ const {slug}=await params;
 
 
-  if (!pkg) {
-    return {};
-  }
+ const pkg =
+ tourPackages.find(
+ item=>item.slug===slug
+ );
 
 
-  return {
-    title: `${pkg.title} | Maan Travels`,
-    description: pkg.shortDescription,
-  };
+ if(!pkg)
+ return {};
+
+
+ return {
+
+   title:`${pkg.title} | Maan Travels`,
+   description:pkg.shortDescription,
+
+ };
+
 }

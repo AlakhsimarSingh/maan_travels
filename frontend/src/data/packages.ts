@@ -1,25 +1,27 @@
-export type ItineraryDay = {
-  day: string;
-  title: string;
-  description?: string;
-  places?: string[];
-};
-
-
 export type TourPackage = {
-  id: string;
-  title: string;
   slug: string;
+  title: string;
+  shortDescription: string;
   duration: string;
   location: string;
   image: string;
-  shortDescription: string;
 
   highlights: string[];
 
-  itinerary: ItineraryDay[];
+  itinerary: {
+    day: string;
+    title: string;
+    description: string;
+    places: string[];
+  }[];
 
-  vehicles: string[];
+  pricing: {
+    vehicle: string;
+    price: number;
+  }[];
+
+  metaTitle: string;
+  metaDescription: string;
 };
 
 
@@ -27,210 +29,271 @@ export type TourPackage = {
 export const tourPackages: TourPackage[] = [
 
 
-/* -------------------------------------------------
-   AMRITSAR DARSHAN
--------------------------------------------------- */
+{
+slug:"amritsar-darshan-tour",
+
+title:"Amritsar Darshan Tour",
+
+shortDescription:
+"Explore the spiritual and cultural heart of Punjab covering Golden Temple, Jallianwala Bagh, Wagah Border and famous attractions of Amritsar.",
+
+duration:"1 Day",
+
+location:"Amritsar",
+
+image:"/images/packages/amritsar.jpg",
+
+
+highlights:[
+"Golden Temple",
+"Jallianwala Bagh",
+"Durgiana Temple",
+"Wagah Border Ceremony",
+"Hall Bazaar Shopping"
+],
+
+
+
+itinerary:[
 
 {
-  id:"amritsar-darshan",
+day:"Day 1",
 
-  title:"Amritsar Darshan Tour",
+title:"Complete Amritsar Sightseeing",
 
-  slug:"amritsar-darshan",
-
-  duration:"1 Day",
-
-  location:"Amritsar, Punjab",
-
-  image:"/images/packages/amritsar.jpg",
+description:
+"Start your journey with hotel, airport or railway station pickup and explore the major attractions of Amritsar.",
 
 
-  shortDescription:
-  "Experience the spiritual and cultural heritage of Amritsar with Golden Temple, Wagah Border and historic landmarks.",
+places:[
+
+"Golden Temple (Sri Harmandir Sahib)",
+"Langar Hall",
+"Jallianwala Bagh",
+"Durgiana Temple",
+"Maharaja Ranjit Singh Museum",
+"Ram Tirath Temple",
+"Wagah Border Ceremony",
+"Hall Bazaar"
+
+]
+
+}
+
+],
 
 
-  highlights:[
-    "Golden Temple",
-    "Jallianwala Bagh",
-    "Durgiana Temple",
-    "Wagah Border",
-    "Hall Bazaar"
-  ],
+
+pricing:[
+
+{
+vehicle:"Sedan",
+price:3500
+},
+
+{
+vehicle:"SUV",
+price:4500
+},
+
+{
+vehicle:"Toyota Innova Crysta",
+price:5500
+}
+
+],
 
 
-  itinerary:[
 
-    {
-      day:"Day 1",
+metaTitle:
+"Amritsar Darshan Tour Package | Maan Travels",
 
-      title:"Complete Amritsar Sightseeing",
-
-      description:
-      "Pickup from your preferred location and explore the famous spiritual, historical and cultural attractions of Amritsar.",
-
-      places:[
-        "Golden Temple (Sri Harmandir Sahib)",
-        "Langar Hall",
-        "Jallianwala Bagh",
-        "Durgiana Temple",
-        "Maharaja Ranjit Singh Museum",
-        "Ram Tirath Temple",
-        "Wagah Border Retreat Ceremony",
-        "Hall Bazaar Shopping"
-      ]
-    }
-
-  ],
-
-
-  vehicles:[
-    "Sedan",
-    "SUV",
-    "Innova Crysta",
-    "Tempo Traveller"
-  ]
+metaDescription:
+"Book Amritsar sightseeing taxi tour covering Golden Temple, Wagah Border, Jallianwala Bagh and major attractions."
 
 },
 
 
 
-/* -------------------------------------------------
- AMRITSAR DALHOUSIE DHARAMSHALA
--------------------------------------------------- */
 
 
 {
- id:"amritsar-dalhousie-dharamshala",
+slug:"amritsar-dalhousie-dharamshala-tour",
 
- title:"Amritsar Dalhousie Dharamshala Tour",
+title:"Amritsar Dalhousie Dharamshala Tour",
 
- slug:"amritsar-dalhousie-dharamshala",
-
- duration:"5 Days / 4 Nights",
-
- location:"Punjab & Himachal Pradesh",
-
- image:"/images/packages/dalhousie.jpg",
+shortDescription:
+"Experience Punjab and Himachal with a scenic journey covering Dalhousie, Khajjiar, Chamba and Dharamshala.",
 
 
- shortDescription:
- "A beautiful Himachal journey covering Dalhousie, Khajjiar, Dharamshala and the spiritual city of Amritsar.",
+duration:"5 Days / 4 Nights",
+
+location:"Punjab & Himachal Pradesh",
+
+image:"/images/packages/dalhousie.jpg",
 
 
- highlights:[
-   "Amritsar Sightseeing",
-   "Khajjiar Mini Switzerland",
-   "Dalhousie Hills",
-   "McLeod Ganj",
-   "Dalai Lama Temple"
- ],
+
+highlights:[
+
+"Dalhousie Sightseeing",
+"Khajjiar Mini Switzerland",
+"Chamba",
+"McLeodganj",
+"Dharamshala"
+
+],
 
 
- itinerary:[
 
- {
-   day:"Day 1",
-
-   title:"Amritsar To Dalhousie",
-
-   description:
-   "Pickup from Amritsar Railway Station/Airport and drive towards Dalhousie.",
-
-   places:[
-    "Golden Temple",
-    "Jallianwala Bagh",
-    "Dalhousie Churches",
-    "Gandhi Chowk",
-    "Bakrota Hills",
-    "Satdhara",
-    "Panjpulla"
-   ]
- },
+itinerary:[
 
 
- {
-   day:"Day 2",
+{
+day:"Day 1",
 
-   title:"Khajjiar & Chamba Sightseeing",
+title:"Amritsar to Dalhousie",
 
-   description:
-   "Explore the scenic beauty of Khajjiar, famous as Mini Switzerland of India.",
+description:
+"Pickup from Amritsar Railway Station or Airport and transfer to Dalhousie. Explore local attractions.",
 
-   places:[
-    "Khajjiar Lake",
-    "Khajji Nag Temple",
-    "Horse Riding",
-    "Adventure Activities",
-    "Chamba Valley"
-   ]
- },
+places:[
 
+"Churches of Dalhousie",
+"Jandhri Ghat",
+"Bakrota Hills",
+"Gandhi Chowk",
+"Subash Bowli",
+"Satdhara",
+"Panjpulla"
 
- {
-   day:"Day 3",
-
-   title:"Dalhousie To Dharamshala",
-
-   description:
-   "Drive towards Dharamshala and enjoy the peaceful Himalayan surroundings.",
-
-   places:[
-    "Dharamshala",
-    "Local Market",
-    "Relaxation Time"
-   ]
- },
-
-
- {
-   day:"Day 4",
-
-   title:"Dharamshala & McLeod Ganj Sightseeing",
-
-   places:[
-    "Bhagsunag Temple",
-    "Dalai Lama Monastery",
-    "Dal Lake",
-    "McLeod Ganj Bazaar"
-   ]
- },
-
-
- {
-   day:"Day 5",
-
-   title:"Dharamshala To Jalandhar Drop",
-
-   description:
-   "After breakfast proceed towards Jalandhar for onward journey."
- }
-
-
- ],
-
-
- vehicles:[
-  "Sedan",
-  "SUV",
-  "Innova Crysta",
-  "Tempo Traveller"
- ]
+]
 
 },
 
 
 
-/* -------------------------------------------------
- KASHMIR TOUR
--------------------------------------------------- */
+{
+day:"Day 2",
+
+title:"Khajjiar and Chamba Excursion",
+
+description:
+"Visit the beautiful landscapes of Khajjiar, known as Mini Switzerland of India, followed by Chamba sightseeing.",
+
+places:[
+
+"Khajjiar Lake",
+"Kalatop Sanctuary",
+"Horse Riding",
+"Chamba Town"
+
+]
+
+},
+
 
 
 {
-id:"amritsar-patnitop-srinagar",
+day:"Day 3",
+
+title:"Dalhousie to Dharamshala",
+
+description:
+"Drive towards Dharamshala and enjoy a peaceful evening.",
+
+places:[
+
+"Dharamshala",
+"Local Market",
+"Relaxation Time"
+
+]
+
+},
+
+
+
+{
+day:"Day 4",
+
+title:"Dharamshala Sightseeing",
+
+description:
+"Explore spiritual and scenic attractions around McLeodganj.",
+
+places:[
+
+"Bhagsunag Temple",
+"Dalai Lama Monastery",
+"Dal Lake",
+"McLeodganj Bazaar"
+
+]
+
+},
+
+
+
+{
+day:"Day 5",
+
+title:"Return Journey",
+
+description:
+"After breakfast proceed towards Jalandhar for onward journey.",
+
+places:[
+
+"Hotel Checkout",
+"Jalandhar Drop"
+
+]
+
+}
+
+
+],
+
+
+
+pricing:[
+
+{
+vehicle:"Sedan",
+price:18000
+},
+
+{
+vehicle:"SUV",
+price:23000
+},
+
+{
+vehicle:"Innova Crysta",
+price:28000
+}
+
+],
+
+
+
+metaTitle:
+"Amritsar Dalhousie Dharamshala Tour Package | Maan Travels",
+
+metaDescription:
+"Book a 5 day Himachal tour covering Dalhousie, Khajjiar, Chamba and Dharamshala."
+
+},
+
+
+{
+slug:"amritsar-patnitop-srinagar-kashmir-tour",
 
 title:"Amritsar Patnitop Srinagar Kashmir Tour",
 
-slug:"amritsar-patnitop-srinagar",
+shortDescription:
+"Experience the beauty of Jammu and Kashmir covering Patnitop, Pahalgam, Srinagar, Gulmarg and Sonamarg with comfortable taxi services.",
 
 duration:"7 Days / 6 Nights",
 
@@ -239,220 +302,200 @@ location:"Jammu & Kashmir",
 image:"/images/packages/kashmir.jpg",
 
 
-shortDescription:
-"Discover the beauty of Kashmir with Patnitop, Pahalgam, Srinagar, Gulmarg and Sonamarg sightseeing.",
-
-
 highlights:[
- "Patnitop",
- "Pahalgam Valley",
- "Srinagar Lakes",
- "Gulmarg",
- "Sonamarg"
+
+"Patnitop Sightseeing",
+"Pahalgam Valley",
+"Srinagar Lakes & Gardens",
+"Gulmarg Snow Point",
+"Sonamarg Golden Meadow"
+
 ],
+
 
 
 itinerary:[
 
+
 {
 day:"Day 1",
-title:"Amritsar To Patnitop",
+
+title:"Amritsar to Patnitop",
+
+description:
+"Pickup from Amritsar and drive towards Patnitop. Explore the beautiful hill station and enjoy local sightseeing.",
 
 places:[
+
 "Patnitop Local Sightseeing",
-"Nag Temple",
 "Nathatop",
+"Nag Temple",
 "Horse Riding"
+
 ]
+
 },
+
 
 
 {
 day:"Day 2",
-title:"Patnitop To Pahalgam",
+
+title:"Patnitop to Pahalgam Excursion",
+
+description:
+"Enjoy a full day excursion to the beautiful valley of Pahalgam surrounded by mountains and nature.",
 
 places:[
+
 "Pahalgam Valley",
-"Nature Sightseeing"
+"River Views",
+"Local Sightseeing"
+
 ]
+
 },
+
 
 
 {
 day:"Day 3",
-title:"Pahalgam To Srinagar",
+
+title:"Pahalgam to Srinagar",
+
+description:
+"Travel towards Srinagar, the beautiful valley famous for lakes, gardens and houseboats.",
 
 places:[
-"Srinagar",
-"Dallake",
-"Shikara Ride",
-"Nehru Park"
+
+"Srinagar Arrival",
+"Hotel Check-in",
+"Shikara Ride to Nehru Park"
+
 ]
+
 },
+
 
 
 {
 day:"Day 4",
+
 title:"Srinagar Local Sightseeing",
 
+description:
+"Explore the famous Mughal gardens, religious places and scenic locations of Srinagar.",
+
 places:[
+
 "Chashme Shahi Garden",
 "Nishat Garden",
 "Shalimar Garden",
 "Nagin Lake",
 "Shankaracharya Temple",
-"Hazratbal Shrine"
+"Hazratbal Shrine",
+"Pari Mahal",
+"Jama Masjid"
+
 ]
+
 },
+
 
 
 {
 day:"Day 5",
+
 title:"Gulmarg Excursion",
 
+description:
+"Visit Gulmarg, the famous meadow of flowers and enjoy snow activities.",
+
 places:[
-"Gulmarg Valley",
+
+"Gulmarg",
+"Tangmarg",
 "Snow Point",
-"Ski Slopes",
-"Sled Riding"
+"Sled Riding",
+"Gulmarg Golf Course"
+
 ]
+
 },
+
 
 
 {
 day:"Day 6",
+
 title:"Sonamarg Excursion",
 
+description:
+"Visit Sonamarg, known as the Golden Meadow surrounded by glaciers and mountains.",
+
 places:[
-"Golden Meadow",
-"Mountain Views",
-"Glacier Views"
+
+"Sonamarg",
+"Sind Valley",
+"Trout Fishing Spots",
+"Mountain Views"
+
 ]
+
 },
+
 
 
 {
 day:"Day 7",
-title:"Srinagar To Amritsar Drop"
+
+title:"Srinagar to Amritsar Drop",
+
+description:
+"After breakfast proceed back towards Amritsar for onward journey.",
+
+places:[
+
+"Srinagar Departure",
+"Amritsar Drop"
+
+]
+
+}
+
+
+],
+
+
+
+pricing:[
+
+{
+vehicle:"Sedan",
+price:32000
+},
+
+{
+vehicle:"SUV",
+price:42000
+},
+
+{
+vehicle:"Toyota Innova Crysta",
+price:50000
 }
 
 ],
 
 
-vehicles:[
-"Sedan",
-"SUV",
-"Innova Crysta",
-"Tempo Traveller"
-]
+
+metaTitle:
+"Amritsar Patnitop Srinagar Kashmir Tour Package | Maan Travels",
+
+metaDescription:
+"Book a Kashmir tour package from Amritsar covering Patnitop, Pahalgam, Srinagar, Gulmarg and Sonamarg."
 
 },
 
-
-
-/* -------------------------------------------------
- SHIMLA MANALI
--------------------------------------------------- */
-
-
-{
-id:"shimla-manali",
-
-title:"Chandigarh Shimla Manali Tour",
-
-slug:"shimla-manali",
-
-duration:"5 Days / 4 Nights",
-
-location:"Himachal Pradesh",
-
-image:"/images/packages/shimla-manali.jpg",
-
-
-shortDescription:
-"Explore Shimla and Manali with scenic valleys, adventure destinations and Himalayan sightseeing.",
-
-
-highlights:[
-"Shimla Mall Road",
-"Kufri",
-"Manali",
-"Solang Valley",
-"Rohtang Pass"
-],
-
-
-itinerary:[
-
-{
-day:"Day 1",
-title:"Chandigarh To Shimla",
-
-places:[
-"Shimla Arrival",
-"Hotel Check-in",
-"Mountain Drive"
-]
-},
-
-
-{
-day:"Day 2",
-title:"Shimla Sightseeing",
-
-places:[
-"Kufri",
-"Wild Flower Hall",
-"Kali Bari Temple",
-"Mall Road",
-"The Ridge"
-]
-},
-
-
-{
-day:"Day 3",
-title:"Shimla To Manali",
-
-places:[
-"Sundernagar Lake",
-"Pandoh Dam",
-"Kullu Valley",
-"Vaishno Devi Temple"
-]
-},
-
-
-{
-day:"Day 4",
-title:"Manali Sightseeing",
-
-places:[
-"Hadimba Temple",
-"Club House",
-"Tibetan Monastery",
-"Vashisht Temple",
-"Solang Valley",
-"Rohtang Pass"
-]
-},
-
-
-{
-day:"Day 5",
-title:"Manali To Chandigarh Drop"
-}
-
-],
-
-
-vehicles:[
-"Sedan",
-"SUV",
-"Innova Crysta",
-"Tempo Traveller"
-]
-
-}
 
 ];

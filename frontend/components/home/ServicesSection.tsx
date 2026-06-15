@@ -14,35 +14,28 @@ const services = [
     description:
       "Premium sedans and SUVs for business, leisure and VIP travel.",
     icon: Crown,
-    href: "/services/luxury-cars",
+    href: "/luxury-cars",
   },
   {
     title: "Airport Transfers",
     description:
       "Reliable pickup and drop services with professional chauffeurs.",
     icon: Plane,
-    href: "/services/airport-transfer",
+    href: "/airport-transfer",
   },
   {
     title: "Tempo Traveller",
     description:
       "Comfortable group transportation for tours and family trips.",
     icon: Bus,
-    href: "/services/tempo-traveller",
-  },
-  {
-    title: "Coach & Bus Rental",
-    description:
-      "Luxury buses for corporate events, pilgrimages and large groups.",
-    icon: Bus,
-    href: "/services/bus-rental",
+    href: "/tempo-traveller-urbania",
   },
   {
     title: "Wedding Cars",
     description:
       "Elegant luxury vehicles for weddings and special occasions.",
     icon: HeartHandshake,
-    href: "/services/wedding-cars",
+    href: "/wedding-cars",
   },
   {
     title: "Tour Packages",
