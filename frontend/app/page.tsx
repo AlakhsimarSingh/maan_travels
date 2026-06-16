@@ -7,15 +7,15 @@ import CTASection from "@/components/home/CTASection";
 import PopularDestinations from "@/components/home/PopularDestinations";
 import TravelCostCalculator
 from "@/components/calculator/TravelCostCalculator";
+import BookingForm from "@/components/home/BookingForm";
 
 export default function Home() {
   return (
     <>
       <Hero />
-
-<section className="pt-10 pb-8">
-  <TravelCostCalculator />
-</section>
+      <section className="pt-10 pb-8">
+      <BookingForm />
+      </section>
 
       <FleetSection />
 
@@ -24,8 +24,11 @@ export default function Home() {
       <PopularDestinations />
 
       <PopularPackages />
-
       <Testimonials />
+
+<section className="pt-10 pb-8">
+  <TravelCostCalculator />
+</section>
 
       <CTASection />
 

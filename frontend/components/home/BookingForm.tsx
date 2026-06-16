@@ -1,100 +1,120 @@
 "use client";
 
+import { useState } from "react";
 
 import {
-Tabs,
-TabsContent,
-TabsList,
-TabsTrigger,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
 } from "@/components/ui/tabs";
-
 
 import TaxiBookingForm from "@/components/booking/TaxiBookingForm";
 import TourBookingForm from "@/components/booking/TourBookingForm";
 
+export default function BookingForm() {
+  const [rideMode, setRideMode] = useState<
+    "oneway" | "round" | "local"
+  >("oneway");
 
-export default function BookingForm(){
+  return (
+    <div
+      className="
+      mx-auto
+      max-w-5xl
+      rounded-3xl
+      border
+      border-[#252525]
+      bg-[#141414]
+      p-8
+    "
+    >
+      <h2 className="mb-8 text-3xl font-bold text-white">
+        Book Your Journey
+      </h2>
 
-return (
+      <Tabs defaultValue="taxi">
 
-<div
-className="
-mx-auto
-max-w-5xl
-rounded-3xl
-border
-border-[#252525]
-bg-[#141414]
-p-8
-"
->
+        <TabsList className="mb-8 bg-[#111]">
 
+          <TabsTrigger value="taxi">
+            Taxi / Cab
+          </TabsTrigger>
 
-<h2
-className="
-mb-8
-text-3xl
-font-bold
-text-white
-"
->
-Book Your Journey
-</h2>
+          <TabsTrigger value="tour">
+            Tour Package
+          </TabsTrigger>
 
+        </TabsList>
 
+        {/* 🚖 TAXI TAB */}
+        <TabsContent value="taxi">
 
-<Tabs
-defaultValue="taxi"
->
+          <div className="space-y-6">
 
+            {/* 🔥 FIXED RIDE MODE SELECTOR */}
+            <div className="flex gap-4 text-sm flex-wrap">
 
-<TabsList
-className="
-mb-8
-bg-[#111]
-"
->
+              <button
+                onClick={() => setRideMode("oneway")}
+                className={`
+                  px-4 py-2 rounded-lg border
+                  transition
+                  ${
+                    rideMode === "oneway"
+                      ? "bg-[#ecb100] text-black border-[#ecb100]"
+                      : "bg-[#111] text-white border-[#252525]"
+                  }
+                `}
+              >
+                One Way
+              </button>
 
-<TabsTrigger
-value="taxi"
->
-Taxi / Cab
-</TabsTrigger>
+              <button
+                onClick={() => setRideMode("round")}
+                className={`
+                  px-4 py-2 rounded-lg border
+                  transition
+                  ${
+                    rideMode === "round"
+                      ? "bg-[#ecb100] text-black border-[#ecb100]"
+                      : "bg-[#111] text-white border-[#252525]"
+                  }
+                `}
+              >
+                Round Trip
+              </button>
 
+              <button
+                onClick={() => setRideMode("local")}
+                className={`
+                  px-4 py-2 rounded-lg border
+                  transition
+                  ${
+                    rideMode === "local"
+                      ? "bg-[#ecb100] text-black border-[#ecb100]"
+                      : "bg-[#111] text-white border-[#252525]"
+                  }
+                `}
+              >
+                Local Ride
+              </button>
 
-<TabsTrigger
-value="tour"
->
-Tour Package
-</TabsTrigger>
+            </div>
 
+            {/* PASS MODE TO FORM (optional for next step) */}
+            <TaxiBookingForm rideMode={rideMode} />
 
-</TabsList>
+          </div>
 
+        </TabsContent>
 
+        {/* 🧳 TOUR TAB */}
+        <TabsContent value="tour">
+          <TourBookingForm />
+        </TabsContent>
 
-
-<TabsContent value="taxi">
-
-<TaxiBookingForm />
-
-</TabsContent>
-
-
-
-<TabsContent value="tour">
-
-<TourBookingForm />
-
-</TabsContent>
-
-
-
-</Tabs>
-
-
-</div>
-
-);
-
+      </Tabs>
+    </div>
+  );
 }

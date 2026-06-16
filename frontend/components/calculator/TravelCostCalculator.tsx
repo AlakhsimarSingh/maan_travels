@@ -4,9 +4,11 @@ import { useState, useEffect } from "react";
 
 import ServiceSelector from "./ServiceSelector";
 import VehicleSelector from "./VehicleSelector";
-import CalculatorResult from "./CalculatorResult";
 
 import { travelPricing } from "@/src/data/pricing";
+
+import CalculatorStep from "./CalculatorStep";
+import FairResult from "./FairResult";
 
 export default function TravelCostCalculator() {
   const [service, setService] =
@@ -15,6 +17,12 @@ export default function TravelCostCalculator() {
   const [vehicle, setVehicle] = useState("");
   const [days, setDays] = useState(1);
   const [distance, setDistance] = useState(100);
+
+  // 🌍 Mappls states
+  const [origin, setOrigin] = useState("");
+  const [destination, setDestination] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [liveDistance, setLiveDistance] = useState<number | null>(null);
 
   useEffect(() => {
     setVehicle("");
@@ -27,20 +35,38 @@ export default function TravelCostCalculator() {
     (item: any) => item.id === vehicle
   );
 
-  const calculatePrice = () => {
-    if (!selectedVehicle) return 0;
+  // 🚀 Fetch distance from Mappls API
+  const fetchDistance = async () => {
+    if (!origin || !destination) return;
 
-    if (service === "taxi") {
-      return (
-      selectedVehicle.base +
-        distance * selectedVehicle.perKm
-      );
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/distance", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          origin,
+          destination,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data?.distanceKm) {
+        setLiveDistance(data.distanceKm);
+
+        // 🔥 auto-feed pricing engine
+        setDistance(data.distanceKm);
+      }
+    } catch (err) {
+      console.error("Distance fetch error:", err);
+    } finally {
+      setLoading(false);
     }
-
-    return selectedVehicle.perDay * days;
   };
-
-  const amount = calculatePrice();
 
   return (
     <section className="py-24">
@@ -57,56 +83,73 @@ export default function TravelCostCalculator() {
           </h2>
         </div>
 
-        {/* BOX */}
+        {/* MAIN BOX */}
         <div className="mt-12 rounded-3xl border border-[#252525] bg-[#141414] p-8">
 
-          <ServiceSelector
-            selected={service}
-            setSelected={(value) =>
-              setService(value as any)
-            }
-          />
+          {/* STEP 1 */}
+          <CalculatorStep step={1} title="Choose Service & Vehicle">
+            <ServiceSelector
+              selected={service}
+              setSelected={setService}
+            />
 
-          <VehicleSelector
-            vehicles={vehicles}
-            selected={vehicle}
-            setSelected={setVehicle}
-          />
+            <VehicleSelector
+              vehicles={vehicles}
+              selected={vehicle}
+              setSelected={setVehicle}
+            />
+          </CalculatorStep>
 
-          {/* INPUTS */}
-          {service === "taxi" ? (
-            <div className="mt-8">
-              <label className="text-sm text-[#8a8a8a]">
-                Approx Distance (KM)
-              </label>
+          {/* STEP 2 - MAPPLS ROUTE */}
+          <CalculatorStep step={2} title="Journey Details">
 
-              <input
-                type="number"
-                value={distance}
-                onChange={(e) =>
-                  setDistance(Number(e.target.value))
-                }
-                className="mt-2 w-full rounded-xl border border-[#252525] bg-black/40 p-3 text-white"
-              />
-            </div>
-          ) : (
-            <div className="mt-8">
-              <label className="text-sm text-[#8a8a8a]">
-                Number of Days
-              </label>
+            <div className="grid gap-4">
 
               <input
-                type="number"
-                value={days}
-                onChange={(e) =>
-                  setDays(Number(e.target.value))
-                }
-                className="mt-2 w-full rounded-xl border border-[#252525] bg-black/40 p-3 text-white"
+                placeholder="From (e.g. Amritsar)"
+                value={origin}
+                onChange={(e) => setOrigin(e.target.value)}
+                className="w-full rounded-xl border border-[#252525] bg-black/40 p-3 text-white"
               />
-            </div>
-          )}
 
-          <CalculatorResult amount={amount} />
+              <input
+                placeholder="To (e.g. Dalhousie)"
+                value={destination}
+                onChange={(e) =>
+                  setDestination(e.target.value)
+                }
+                className="w-full rounded-xl border border-[#252525] bg-black/40 p-3 text-white"
+              />
+
+              <button
+                onClick={fetchDistance}
+                className="rounded-xl bg-[#ecb100] px-4 py-3 font-semibold text-black"
+              >
+                {loading
+                  ? "Calculating Route..."
+                  : "Get Distance"}
+              </button>
+
+              {liveDistance !== null && (
+                <p className="text-sm text-[#8a8a8a]">
+                  Distance:{" "}
+                  {liveDistance.toFixed(2)} km
+                </p>
+              )}
+
+            </div>
+          </CalculatorStep>
+
+          {/* STEP 3 - RESULT */}
+          <CalculatorStep step={3} title="Estimated Fare">
+            <FairResult
+              selectedVehicle={selectedVehicle}
+              service={service}
+              distance={distance}
+              days={days}
+            />
+          </CalculatorStep>
+
         </div>
       </div>
     </section>
