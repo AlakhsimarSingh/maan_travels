@@ -4,6 +4,7 @@ import Link from "next/link";
 import {
   LayoutDashboard,
   FolderTree,
+  Car,
   Package,
   CalendarCheck,
   MessageSquare,
@@ -11,6 +12,9 @@ import {
   Newspaper,
   ImageIcon,
   Settings,
+  CarFront,
+  BusFront,
+  MapPin,
 } from "lucide-react";
 
 const items = [
@@ -19,16 +23,26 @@ const items = [
     href: "/admin",
     icon: LayoutDashboard,
   },
+  // {
+  //   title: "Categories",
+  //   href: "/admin/categories",
+  //   icon: FolderTree,
+  // },
   {
-    title: "Categories",
-    href: "/admin/categories",
-    icon: FolderTree,
+    title: "Vehicles",
+    href: "/admin/vehicles",
+    icon: Car,
   },
   {
-    title: "Packages",
-    href: "/admin/packages",
-    icon: Package,
+    title:"Luxury Cars",
+    href:"/admin/luxury-cars",
+    icon:CarFront,
   },
+  {
+  title: "Tempo / Urbania",
+  href: "/admin/tempo",
+  icon: BusFront,
+},
   {
     title: "Bookings",
     href: "/admin/bookings",
@@ -44,16 +58,29 @@ const items = [
     href: "/admin/feedback",
     icon: Star,
   },
-  {
-    title: "News",
-    href: "/admin/news",
-    icon: Newspaper,
+
+    {
+    title: "Route Pricing",
+    href: "/admin/routes",
+    icon: Package,
   },
+
   {
-    title: "Banners",
-    href: "/admin/banners",
-    icon: ImageIcon,
+    title: "Pricing Matrix",
+    href: "/admin/pricing-matrix",
+    icon: FolderTree,
   },
+
+ {
+  title: "Tour Locations",
+  href: "/admin/locations",
+  icon: MapPin,
+},
+  // {
+  //   title: "News",
+  //   href: "/admin/news",
+  //   icon: Newspaper,
+  // },
   {
     title: "Settings",
     href: "/admin/settings",

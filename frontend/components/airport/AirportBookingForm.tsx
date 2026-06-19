@@ -1,266 +1,465 @@
 "use client";
 
-import { CalendarDays, Clock, MapPin, Users, Car } from "lucide-react";
+import { useEffect, useState } from "react";
+
+import {
+  CalendarDays,
+  Clock,
+  MapPin,
+  Users,
+  Car,
+  Plane,
+  Luggage,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 
-import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 
+import { Calendar } from "@/components/ui/calendar";
 
 import { format } from "date-fns";
 
-const vehicles = [
-  "Sedan",
-  "SUV",
-  "Innova Crysta",
-  "Luxury Car",
-  "Tempo Traveller",
+import BookingSuccess from "../common/BookingSuccess";
+
+import {
+  API_URL,
+  createAirportBooking,
+} from "../../src/services/bookingService";
+
+import { useBookingStatus } from "../../src/hooks/useBookingStatus";
+
+
+
+type Vehicle = {
+  id:string;
+  name:string;
+};
+
+
+
+const airports = [
+  "Amritsar Airport",
+  "Chandigarh Airport",
+  "Adampur Airport",
+  "Delhi Airport",
+  "Ludhiana Airport",
 ];
 
 
-export default function AirportBookingForm() {
-const [travelDate, setTravelDate] = useState<Date>();
+
+export default function AirportBookingForm(){
+
+
+const [travelDate,setTravelDate]=
+useState<Date>();
+
+
+const [vehicles,setVehicles]=
+useState<Vehicle[]>([]);
+
+
+
+const [form,setForm]=useState({
+
+pickup:"",
+terminal:"",
+time:"",
+vehicle:"",
+passengers:"",
+name:"",
+phone:"",
+suitcases:"",
+handbags:"",
+
+});
+
+
+
+const {
+loading,
+success,
+bookingId,
+start,
+done,
+reset
+
+}=useBookingStatus();
+
+
+
+
+
+useEffect(()=>{
+
+
+const fetchVehicles=async()=>{
+
+
+try{
+
+
+const res =
+await fetch(
+`${API_URL}/api/vehicles`
+);
+
+
+const data =
+await res.json();
+
+
+setVehicles(
+data.vehicles || []
+);
+
+
+
+}
+
+catch(err){
+
+console.error(
+"Vehicle fetch failed",
+err
+);
+
+}
+
+
+
+};
+
+
+
+fetchVehicles();
+
+
+},[]);
+
+
+
+
+
+
+
+const handleChange=(e:any)=>{
+
+
+setForm({
+
+...form,
+
+[e.target.name]:
+e.target.value
+
+});
+
+
+};
+
+
+
+
+
+
+
+
+const clearForm=()=>{
+
+
+setForm({
+
+pickup:"",
+terminal:"",
+time:"",
+vehicle:"",
+passengers:"",
+name:"",
+phone:"",
+suitcases:"",
+handbags:"",
+
+});
+
+
+setTravelDate(undefined);
+
+
+};
+
+
+
+
+
+
+
+
+const handleSubmit=async()=>{
+
+
+if(
+
+!form.pickup ||
+!form.terminal ||
+!travelDate ||
+!form.time ||
+!form.vehicle ||
+!form.passengers ||
+!form.name ||
+!form.phone ||
+!form.suitcases ||
+!form.handbags
+
+){
+
+alert(
+"Please fill all fields before submitting"
+);
+
+return;
+
+}
+
+
+
+try{
+
+
+start();
+
+
+
+const res =
+await createAirportBooking({
+
+name:
+form.name,
+
+phone:
+form.phone,
+
+pickup:
+form.pickup,
+
+airport:
+form.terminal,
+
+travelDate:
+travelDate.toISOString(),
+
+pickupTime:
+form.time,
+
+vehicle:
+form.vehicle,
+
+passengers:
+Number(form.passengers),
+
+suitcases:
+Number(form.suitcases),
+
+handbags:
+Number(form.handbags),
+
+});
+
+
+
+done(
+(res as any)?.booking?.id
+);
+
+
+
+clearForm();
+
+
+
+}
+
+catch(err){
+
+
+console.error(err);
+
+
+reset();
+
+
+}
+
+
+
+};
+
+
+
+
+
+const fieldClass=`
+
+h-12
+
+w-full
+
+rounded-xl
+
+border
+
+border-[#252525]
+
+bg-[#111]
+
+text-white
+
+placeholder:text-[#777]
+
+outline-none
+
+focus:border-[#ecb100]
+
+`;
+
+
+
+
+
+
 
 return (
 
-<section>
-
 <div
-className="
-mx-auto
-max-w-5xl
-px-6
-"
->
 
-
-<div
-className="
-rounded-3xl
-border
-border-[#252525]
-bg-[#141414]
-p-8
-shadow-[0_0_50px_rgba(236,177,0,0.08)]
-
-md:p-10
-"
->
-
-
-<div className="mb-10">
-
-
-<p
-className="
-uppercase
-tracking-[0.3em]
-text-sm
-text-[#ecb100]
-"
->
-Book Your Transfer
-</p>
-
-
-<h2
-className="
-mt-3
-text-3xl
-font-bold
-text-white
-"
->
-Airport Pickup & Drop
-</h2>
-
-
-<p
-className="
-mt-3
-text-[#8a8a8a]
-"
->
-Fill in your travel details and our team will contact you shortly.
-</p>
-
-
-</div>
-
-
-
-<div
 className="
 grid
-gap-6
+gap-5
 md:grid-cols-2
 "
+
 >
 
 
-{/* Pickup */}
 
-<div>
 
-<label className="mb-2 block text-sm text-[#c7c7c7]">
-Pickup Location
-</label>
 
+{/* PICKUP */}
+
+<Field
+
+icon={
+<MapPin
+size={18}
+className="text-[#ecb100]"
+/>
+}
+
+name="pickup"
+
+value={form.pickup}
+
+onChange={handleChange}
+
+placeholder="Pickup Address"
+
+/>
+
+
+
+
+
+
+
+{/* AIRPORT */}
+
+<SelectField
+
+icon={
+<Plane
+size={18}
+className="text-[#ecb100]"
+/>
+}
+
+value={form.terminal}
+
+onChange={(value:string)=>
+setForm({
+...form,
+terminal:value
+})
+}
+
+options={airports}
+
+placeholder="Select Airport"
+
+/>
+
+
+
+
+
+
+
+{/* DATE */}
 
 <div className="relative">
-
-<MapPin
-className="
-absolute
-left-4
-top-4
-text-[#ecb100]
-"
-size={20}
-/>
-
-
-<input
-
-placeholder="Enter pickup address"
-
-className="
-w-full
-rounded-xl
-border
-border-[#252525]
-bg-black/40
-py-3
-pl-12
-pr-4
-text-white
-
-placeholder:text-[#666]
-
-focus:border-[#ecb100]
-outline-none
-"
-
-/>
-
-</div>
-
-</div>
-
-
-
-
-{/* Drop */}
-
-<div>
-
-<label className="mb-2 block text-sm text-[#c7c7c7]">
-Drop Location
-</label>
-
-
-<div className="relative">
-
-<MapPin
-className="
-absolute
-left-4
-top-4
-text-[#ecb100]
-"
-size={20}
-/>
-
-
-<input
-
-placeholder="Airport / Destination"
-
-className="
-w-full
-rounded-xl
-border
-border-[#252525]
-bg-black/40
-py-3
-pl-12
-pr-4
-text-white
-
-placeholder:text-[#666]
-
-focus:border-[#ecb100]
-outline-none
-"
-
-/>
-
-</div>
-
-</div>
-
-
-
-
-
-
-{/* Date */}
-
-<div>
-
-<label className="mb-2 block text-sm text-[#c7c7c7]">
-Travel Date
-</label>
 
 
 <Popover>
 
+
 <PopoverTrigger asChild>
 
+
 <button
-className="
+
+className={`
+${fieldClass}
+
 flex
-w-full
 items-center
 gap-3
-rounded-xl
-border
-border-[#252525]
-bg-black/40
 px-4
-py-3
 text-left
-text-white
-outline-none
-transition
-hover:border-[#ecb100]
-"
+
+`}
+
 >
 
+
 <CalendarDays
-size={20}
+
+size={18}
+
 className="text-[#ecb100]"
+
 />
 
 
-<span
-className={
-travelDate
-? "text-white"
-: "text-[#666]"
-}
->
+<span>
 
 {
+
 travelDate
-? format(travelDate,"dd MMM yyyy")
-: "Select travel date"
+
+?
+
+format(
+travelDate,
+"dd MMM yyyy"
+)
+
+:
+
+"Select Travel Date"
+
 }
 
 </span>
@@ -268,18 +467,19 @@ travelDate
 
 </button>
 
+
 </PopoverTrigger>
 
 
 
 <PopoverContent
+
 className="
-w-auto
 border-[#252525]
 bg-[#141414]
 p-0
 "
-align="start"
+
 >
 
 
@@ -291,10 +491,6 @@ selected={travelDate}
 
 onSelect={setTravelDate}
 
-disabled={(date)=>
-date < new Date()
-}
-
 />
 
 
@@ -305,26 +501,31 @@ date < new Date()
 
 
 </div>
-{/* Time */}
 
-<div>
 
-<label className="mb-2 block text-sm text-[#c7c7c7]">
-Pickup Time
-</label>
 
+
+
+
+
+{/* TIME */}
 
 <div className="relative">
 
 
 <Clock
+
+size={18}
+
 className="
 absolute
 left-4
-top-4
-text-[#ecb100]
+top-1/2
+-translate-y-1/2
+text-white
+z-10
 "
-size={20}
+
 />
 
 
@@ -332,265 +533,511 @@ size={20}
 
 type="time"
 
-className="
-w-full
-rounded-xl
-border
-border-[#252525]
-bg-black/40
-py-3
-pl-12
-pr-4
-text-white
+name="time"
 
-focus:border-[#ecb100]
-outline-none
-"
+value={form.time}
+
+onChange={handleChange}
+
+className={`
+${fieldClass}
+pl-12
+
+[&::-webkit-calendar-picker-indicator]:invert
+
+`}
 
 />
 
 
 </div>
 
-</div>
 
 
 
 
 
 
+{/* VEHICLE */}
 
-{/* Vehicle */}
+<SelectField
 
-<div>
-
-<label className="mb-2 block text-sm text-[#c7c7c7]">
-Select Vehicle
-</label>
-
-
-<div className="relative">
-
-
+icon={
 <Car
-className="
-absolute
-left-4
-top-4
-text-[#ecb100]
-"
-size={20}
+size={18}
+className="text-[#ecb100]"
 />
-
-
-<select
-
-className="
-w-full
-appearance-none
-rounded-xl
-border
-border-[#252525]
-bg-black/40
-py-3
-pl-12
-pr-4
-text-white
-
-focus:border-[#ecb100]
-outline-none
-"
-
->
-
-
-<option>
-Choose Vehicle
-</option>
-
-
-{
-vehicles.map((vehicle)=>(
-
-<option
-key={vehicle}
->
-{vehicle}
-</option>
-
-))
 }
 
 
-</select>
+value={form.vehicle}
 
 
-</div>
+onChange={(value:string)=>
 
-</div>
+setForm({
+...form,
+vehicle:value
+})
 
-
-
-
-
-
-
-{/* Passengers */}
-
-<div>
-
-<label className="mb-2 block text-sm text-[#c7c7c7]">
-Passengers
-</label>
+}
 
 
-<div className="relative">
+options={
+vehicles.map(
+(v)=>v.name
+)
+}
 
 
-<Users
-className="
-absolute
-left-4
-top-4
-text-[#ecb100]
-"
-size={20}
+placeholder="Select Vehicle"
+
 />
 
 
-<select
-
-className="
-w-full
-rounded-xl
-border
-border-[#252525]
-bg-black/40
-py-3
-pl-12
-pr-4
-text-white
-
-focus:border-[#ecb100]
-outline-none
-"
-
->
-
-<option>
-1 Passenger
-</option>
-
-<option>
-2 Passengers
-</option>
-
-<option>
-4 Passengers
-</option>
-
-<option>
-6+ Passengers
-</option>
-
-
-</select>
-
-
-</div>
-
-</div>
-
-
-
-</div>
 
 
 
 
 
-{/* Customer */}
-
-<div
-className="
-mt-6
-grid
-gap-6
-md:grid-cols-2
-"
->
 
 
-<input
+{/* PASSENGERS */}
+
+<SelectField
+
+icon={
+<Users
+size={18}
+className="text-[#ecb100]"
+/>
+}
+
+
+value={form.passengers}
+
+
+onChange={(value:string)=>
+
+setForm({
+...form,
+passengers:value
+})
+
+}
+
+
+options={[
+"1 Passenger",
+"2-4 Passengers",
+"5-7 Passengers",
+"8+ Passengers"
+
+]}
+
+
+placeholder="Passengers"
+
+/>
+
+
+
+
+
+
+
+
+
+{/* NAME */}
+
+<Field
+
+icon={
+<Users
+size={18}
+className="text-[#ecb100]"
+/>
+}
+
+
+name="name"
+
+value={form.name}
+
+onChange={handleChange}
+
 placeholder="Your Name"
 
-className="
-rounded-xl
-border
-border-[#252525]
-bg-black/40
-px-4
-py-3
-text-white
-outline-none
-focus:border-[#ecb100]
-"
 />
 
 
 
-<input
+
+
+
+
+
+{/* PHONE */}
+
+<Field
+
+name="phone"
+
+value={form.phone}
+
+onChange={handleChange}
+
 placeholder="Phone Number"
 
-className="
-rounded-xl
-border
-border-[#252525]
-bg-black/40
-px-4
-py-3
-text-white
-outline-none
-focus:border-[#ecb100]
-"
 />
 
 
 
-</div>
+
+
+
+
+
+
+{/* SUITCASES */}
+
+<Field
+
+icon={
+<Luggage
+size={18}
+className="text-[#ecb100]"
+/>
+}
+
+
+name="suitcases"
+
+value={form.suitcases}
+
+onChange={handleChange}
+
+placeholder="Suitcases"
+
+type="number"
+
+/>
+
+
+
+
+
+
+
+
+
+{/* HANDBAGS */}
+
+<Field
+
+icon={
+<Luggage
+size={18}
+className="text-[#ecb100]"
+/>
+}
+
+
+name="handbags"
+
+value={form.handbags}
+
+onChange={handleChange}
+
+placeholder="Handbags"
+
+type="number"
+
+/>
+
+
+
+
 
 
 
 
 
 <Button
+
+onClick={handleSubmit}
+
+disabled={loading}
+
 className="
-mt-8
-w-full
+md:col-span-2
+
+h-12
+
+rounded-xl
+
 bg-[#ecb100]
-py-6
-text-lg
+
 font-semibold
+
 text-black
 
 hover:bg-[#f6c94c]
+
 "
+
 >
 
-Request Airport Transfer
+
+{
+loading
+
+?
+
+"Processing..."
+
+:
+
+"Request Airport Transfer"
+
+}
+
 
 </Button>
 
 
 
+
+
+
+<BookingSuccess
+
+open={success}
+
+onClose={reset}
+
+bookingId={bookingId}
+
+/>
+
+
+
+
+
 </div>
 
-
-</div>
-
-
-</section>
 
 );
+
+}
+
+
+
+
+
+
+
+
+
+function Field({
+
+icon,
+...props
+
+}:any){
+
+
+return (
+
+<div className="relative">
+
+
+{
+icon &&
+
+<div
+
+className="
+absolute
+left-4
+top-1/2
+-translate-y-1/2
+z-10
+"
+
+>
+
+{icon}
+
+</div>
+
+}
+
+
+
+<input
+
+{...props}
+
+className={`
+
+h-12
+
+w-full
+
+rounded-xl
+
+border
+
+border-[#252525]
+
+bg-[#111]
+
+text-white
+
+placeholder:text-[#777]
+
+outline-none
+
+focus:border-[#ecb100]
+
+${icon ? "pl-12":"px-4"}
+
+`}
+
+/>
+
+
+</div>
+
+);
+
+
+}
+
+
+
+
+
+
+
+
+
+function SelectField({
+
+icon,
+value,
+onChange,
+options,
+placeholder
+
+}:any){
+
+
+return (
+
+<div className="relative">
+
+
+{
+icon &&
+
+<div
+
+className="
+absolute
+left-4
+top-1/2
+-translate-y-1/2
+z-10
+"
+
+>
+
+{icon}
+
+</div>
+
+}
+
+
+
+<select
+
+value={value}
+
+onChange={(e)=>
+onChange(e.target.value)
+}
+
+className={`
+
+h-12
+
+w-full
+
+rounded-xl
+
+border
+
+border-[#252525]
+
+bg-[#111]
+
+text-white
+
+outline-none
+
+focus:border-[#ecb100]
+
+appearance-none
+
+${icon ? "pl-12":"px-4"}
+
+`}
+
+>
+
+
+<option value="">
+
+{placeholder}
+
+</option>
+
+
+
+{
+
+options.map(
+(option:string)=>(
+
+<option
+
+key={option}
+
+value={option}
+
+>
+
+{option}
+
+</option>
+
+)
+
+)
+
+}
+
+
+
+</select>
+
+
+</div>
+
+);
+
 
 }

@@ -7,8 +7,9 @@ import {
   MapPin,
   Phone,
   User,
-  Users
 } from "lucide-react";
+
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 
@@ -20,7 +21,11 @@ import {
 
 import { Calendar } from "@/components/ui/calendar";
 
-import { useState } from "react";
+import BookingSuccess from "@/components/common/BookingSuccess";
+
+import { createLuxuryBooking } from "@/src/services/bookingService";
+
+import { useBookingStatus } from "@/src/hooks/useBookingStatus";
 
 
 
@@ -29,10 +34,182 @@ export function LuxuryBookingForm({
 }:{
   car:any;
 }){
+console.log("Luxury car:",car);
 
-
-const [eventDate,setEventDate] =
+const [eventDate,setEventDate]=
 useState<Date>();
+
+
+const [form,setForm]=useState({
+
+name:"",
+
+phone:"",
+
+pickup:"",
+
+destination:"",
+
+hours:"",
+
+eventType:"",
+
+requirements:""
+
+});
+
+
+
+
+const {
+loading,
+success,
+bookingId,
+start,
+done,
+reset
+
+}=useBookingStatus();
+
+
+
+
+
+
+
+const updateField=(
+
+field:string,
+
+value:string
+
+)=>{
+
+
+setForm(prev=>({
+
+...prev,
+
+[field]:value
+
+}));
+
+};
+
+
+
+
+
+
+
+
+
+const submitBooking=async()=>{
+
+
+try{
+
+
+start();
+
+
+
+
+const res =
+await createLuxuryBooking({
+
+name:form.name,
+
+phone:form.phone,
+
+
+luxuryCarId:car.id,
+
+
+pickup:form.pickup,
+
+
+destination:form.destination,
+
+
+eventDate:eventDate
+?
+eventDate.toISOString()
+:
+"",
+
+
+
+hours:form.hours,
+
+
+eventType:form.eventType,
+
+
+requirements:form.requirements
+
+
+});
+
+
+
+
+
+const id =
+(res as any)?.bookingId ||
+(res as any)?.booking?.id;
+
+
+done(id);
+
+
+
+
+
+
+setForm({
+
+name:"",
+
+phone:"",
+
+pickup:"",
+
+destination:"",
+
+hours:"",
+
+eventType:"",
+
+requirements:""
+
+});
+
+
+setEventDate(undefined);
+
+
+
+}
+
+
+catch(error){
+
+
+console.log(error);
+
+
+reset();
+
+
+}
+
+
+};
+
+
+
+
 
 
 
@@ -65,8 +242,12 @@ text-[#ecb100]
 "
 
 >
+
 Luxury Car Booking
+
 </p>
+
+
 
 
 
@@ -80,8 +261,12 @@ text-white
 "
 
 >
+
 Book {car.name}
+
 </h2>
+
+
 
 
 
@@ -93,11 +278,16 @@ text-[#8a8a8a]
 "
 
 >
+
 Premium chauffeur driven luxury experience
+
 </p>
 
 
 </div>
+
+
+
 
 
 
@@ -116,37 +306,102 @@ md:grid-cols-2
 >
 
 
+
+
+
 <Input
+
 icon={<User size={18}/>}
+
 placeholder="Full Name"
+
+value={form.name}
+
+onChange={(e:any)=>
+updateField(
+"name",
+e.target.value
+)
+}
+
 />
 
 
 
+
+
+
 <Input
+
 icon={<Phone size={18}/>}
+
 placeholder="Phone Number"
+
+value={form.phone}
+
+onChange={(e:any)=>
+updateField(
+"phone",
+e.target.value
+)
+}
+
 />
 
 
 
+
+
+
 <Input
+
 icon={<MapPin size={18}/>}
+
 placeholder="Pickup Location"
+
+value={form.pickup}
+
+onChange={(e:any)=>
+updateField(
+"pickup",
+e.target.value
+)
+}
+
 />
+
+
+
 
 
 
 <Input
+
 icon={<MapPin size={18}/>}
+
 placeholder="Destination"
+
+value={form.destination}
+
+onChange={(e:any)=>
+updateField(
+"destination",
+e.target.value
+)
+}
+
 />
 
 
 
 
 
-{/* DATE PICKER */}
+
+
+
+
+{/* DATE */}
+
 
 <div className="relative">
 
@@ -162,8 +417,12 @@ z-10
 "
 
 >
+
 <CalendarDays size={18}/>
+
 </div>
+
+
 
 
 
@@ -185,22 +444,25 @@ pl-12
 pr-4
 text-left
 text-[#c7c7c7]
-
 hover:border-[#ecb100]
-
 transition
-
 "
 
 >
 
 
 {
+
 eventDate
+
 ?
+
 eventDate.toLocaleDateString()
+
 :
+
 "Select Event Date"
+
 }
 
 
@@ -208,6 +470,8 @@ eventDate.toLocaleDateString()
 
 
 </PopoverTrigger>
+
+
 
 
 
@@ -256,26 +520,50 @@ text-white
 
 
 
+
+
 <Input
+
 icon={<Clock size={18}/>}
+
 placeholder="Required Hours"
+
+value={form.hours}
+
+onChange={(e:any)=>
+updateField(
+"hours",
+e.target.value
+)
+}
+
 />
 
 
 
 
-<Input
-icon={<Users size={18}/>}
-placeholder="Number of People"
-/>
-
 
 
 
 <Input
+
 icon={<Car size={18}/>}
+
 placeholder="Event Type (Wedding, Corporate etc.)"
+
+value={form.eventType}
+
+onChange={(e:any)=>
+updateField(
+"eventType",
+e.target.value
+)
+}
+
 />
+
+
+
 
 
 
@@ -287,9 +575,24 @@ placeholder="Event Type (Wedding, Corporate etc.)"
 
 
 
+
 <textarea
 
+
 placeholder="Special Requirements"
+
+
+value={form.requirements}
+
+
+onChange={(e:any)=>
+updateField(
+"requirements",
+e.target.value
+)
+}
+
+
 
 className="
 mt-6
@@ -313,7 +616,16 @@ focus:border-[#ecb100]
 
 
 
+
+
+
 <Button
+
+disabled={loading}
+
+
+onClick={submitBooking}
+
 
 className="
 mt-8
@@ -327,9 +639,41 @@ hover:bg-[#f6c94c]
 
 >
 
-Submit Luxury Booking Request
+
+{
+
+loading
+
+?
+
+"Processing..."
+
+:
+
+"Submit Luxury Booking Request"
+
+}
+
 
 </Button>
+
+
+
+
+
+
+
+<BookingSuccess
+
+open={success}
+
+onClose={reset}
+
+bookingId={bookingId}
+
+/>
+
+
 
 
 
@@ -337,7 +681,7 @@ Submit Luxury Booking Request
 </section>
 
 
-)
+);
 
 }
 
@@ -350,12 +694,24 @@ Submit Luxury Booking Request
 
 
 function Input({
+
 icon,
+
 placeholder,
 
+value,
+
+onChange
+
 }:{
+
 icon:React.ReactNode;
+
 placeholder:string;
+
+value:string;
+
+onChange:(e:any)=>void;
 
 }){
 
@@ -389,10 +745,18 @@ text-[#ecb100]
 
 
 
+
 <input
 
 
+value={value}
+
+
+onChange={onChange}
+
+
 placeholder={placeholder}
+
 
 
 className="
@@ -410,8 +774,7 @@ outline-none
 focus:border-[#ecb100]
 "
 
- />
-
+/>
 
 
 </div>

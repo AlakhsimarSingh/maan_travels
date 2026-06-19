@@ -45,4 +45,14 @@ export const airports = [
     description:
       "Convenient airport transfers from Adampur Airport with doorstep pickup.",
   },
+  {
+    id: "ludhaiana",
+    name: "Ludhiana Airport",
+    shortName: "Ludhiana",
+
+    image: "/images/airports/ludhaiana.jpg",
+
+    description:
+      "Convenient airport transfers from Ludhiana Airport with doorstep pickup.",
+  },
 ];

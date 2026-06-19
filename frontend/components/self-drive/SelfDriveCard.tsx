@@ -11,20 +11,19 @@ import {
 
 import { Button } from "@/components/ui/button";
 
-
 type Vehicle = {
   id: number;
   name: string;
-  image: string;
+  image?: string;
+  imageUrl?: string;
   category: string;
-  model: string;
+  model?: string;
   description: string;
-  fuel: string;
-  transmission: string;
-  seats: number;
+  fuel?: string;
+  transmission?: string;
+  seats?: number;
   price: number;
 };
-
 
 export default function SelfDriveCard({
   vehicle,
@@ -38,16 +37,19 @@ export default function SelfDriveCard({
   onBook: () => void;
 }) {
 
+  // ✅ FIX: normalize image source safely
+  const imgSrc =
+    vehicle.imageUrl?.trim() ||
+    vehicle.image?.trim() ||
+    "/placeholder.jpg";
 
   return (
-
     <motion.div
       layout
       transition={{
         duration: 0.4,
         ease: "easeInOut",
       }}
-
       className="
         overflow-hidden
         rounded-3xl
@@ -58,24 +60,17 @@ export default function SelfDriveCard({
       "
     >
 
-
       {!expanded ? (
-
-        /* COLLAPSED CARD */
-
         <>
-
-
+          {/* COLLAPSED CARD */}
           <div className="relative h-60">
 
-
             <Image
-              src={vehicle.image}
-              alt={vehicle.name}
+              src={imgSrc}
+              alt={vehicle.name || "Vehicle"}
               fill
               className="object-cover"
             />
-
 
             <div
               className="
@@ -88,42 +83,20 @@ export default function SelfDriveCard({
               "
             />
 
-
           </div>
-
-
 
           <div className="p-6">
 
-
-            <h3
-              className="
-                text-2xl
-                font-bold
-                text-white
-              "
-            >
+            <h3 className="text-2xl font-bold text-white">
               {vehicle.name}
             </h3>
 
-
-
-            <p
-              className="
-                mt-3
-                text-sm
-                text-[#8a8a8a]
-                line-clamp-2
-              "
-            >
+            <p className="mt-3 text-sm text-[#8a8a8a] line-clamp-2">
               {vehicle.description}
             </p>
 
-
-
             <Button
               onClick={onToggle}
-
               className="
                 mt-6
                 w-full
@@ -135,162 +108,92 @@ export default function SelfDriveCard({
               View Details
             </Button>
 
-
           </div>
-
-
         </>
-
-
       ) : (
 
-
         /* EXPANDED CARD */
-
-
         <motion.div
           layout
-
-          className="
-            grid
-            lg:grid-cols-2
-          "
+          className="grid lg:grid-cols-2"
         >
 
-
           {/* IMAGE */}
-
-          <div
-            className="
-              relative
-              min-h-[420px]
-            "
-          >
+          <div className="relative min-h-[420px]">
 
             <Image
-              src={vehicle.image}
-              alt={vehicle.name}
+              src={imgSrc}
+              alt={vehicle.name || "Vehicle"}
               fill
               className="object-cover"
             />
 
           </div>
 
-
-
-
           {/* DETAILS */}
+          <div className="flex flex-col justify-center p-8">
 
-          <div
-            className="
-              flex
-              flex-col
-              justify-center
-              p-8
-            "
-          >
-
-
-            <h2
-              className="
-                text-4xl
-                font-bold
-                text-white
-              "
-            >
+            <h2 className="text-4xl font-bold text-white">
               {vehicle.name}
             </h2>
 
-
-
-            <p
-              className="
-                mt-4
-                text-[#8a8a8a]
-              "
-            >
+            <p className="mt-4 text-[#8a8a8a]">
               {vehicle.description}
             </p>
 
-
-
-
-
-            <div
-              className="
-                mt-8
-                grid
-                grid-cols-2
-                gap-4
-              "
-            >
-
+            <div className="mt-8 grid grid-cols-2 gap-4">
 
               <Info
-                icon={<Fuel size={18}/>}
+                icon={<Fuel size={18} />}
                 label="Fuel"
-                value={vehicle.fuel}
+                value={vehicle.fuelType || "-"}
               />
 
-
               <Info
-                icon={<Settings size={18}/>}
+                icon={<Settings size={18} />}
                 label="Transmission"
-                value={vehicle.transmission}
+                value={vehicle.transmission || "-"}
               />
 
-
-
               <Info
-                icon={<Users size={18}/>}
+                icon={<Users size={18} />}
                 label="Seats"
-                value={`${vehicle.seats} People`}
+                value={
+                  vehicle.seats
+                    ? `${vehicle.seats} People`
+                    : "-"
+                }
               />
 
-
-
               <Info
-                icon={<CalendarDays size={18}/>}
+                icon={<CalendarDays size={18} />}
                 label="Model"
-                value={vehicle.model}
+                value={vehicle.modelYear ? String(vehicle.modelYear) : "-"}
               />
 
-
-
               <Info
-                icon={<CalendarDays size={18}/>}
+                icon={<CalendarDays size={18} />}
                 label="Rental"
                 value={`₹${vehicle.price}/day`}
               />
 
-
             </div>
 
-
-
-
-
             <Button
-            onClick={onBook}
-            className="
+              onClick={onBook}
+              className="
                 mt-8
                 w-full
                 bg-[#ecb100]
                 text-black
                 hover:bg-[#f6c94c]
-            "
+              "
             >
-            Book Now
+              Book Now
             </Button>
 
-
-
-
-
             <button
-
               onClick={onToggle}
-
               className="
                 mt-4
                 text-sm
@@ -298,32 +201,17 @@ export default function SelfDriveCard({
                 hover:text-white
               "
             >
-
               ← Back to vehicles
-
             </button>
-
-
 
           </div>
 
-
-
         </motion.div>
-
-
       )}
 
-
-
     </motion.div>
-
   );
-
 }
-
-
-
 
 function Info({
   icon,
@@ -334,61 +222,29 @@ function Info({
   label: string;
   value: string;
 }) {
-
-
   return (
-
-    <div
-
-      className="
-        rounded-xl
-        border
-        border-[#252525]
-        bg-black/30
-        p-4
-      "
-
-    >
-
-
-      <div
-        className="
-          flex
-          items-center
-          gap-2
-          text-[#ecb100]
-        "
-      >
-
+    <div className="
+      rounded-xl
+      border
+      border-[#252525]
+      bg-black/30
+      p-4
+    ">
+      <div className="
+        flex
+        items-center
+        gap-2
+        text-[#ecb100]
+      ">
         {icon}
-
-        <span
-          className="
-            text-xs
-            uppercase
-          "
-        >
+        <span className="text-xs uppercase">
           {label}
         </span>
-
-
       </div>
 
-
-
-      <p
-        className="
-          mt-2
-          font-medium
-          text-white
-        "
-      >
+      <p className="mt-2 font-medium text-white">
         {value}
       </p>
-
-
     </div>
-
   );
-
 }

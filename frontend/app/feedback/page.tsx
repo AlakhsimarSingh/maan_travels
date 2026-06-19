@@ -2,99 +2,71 @@ import FeedbackHero from "@/components/feedback/FeedbackHero";
 import FeedbackForm from "@/components/feedback/FeedbackForm";
 import ReviewCard from "@/components/feedback/ReviewCard";
 
+/* ❌ REMOVE STATIC ARRAY — REPLACED WITH API DATA */
+export default async function FeedbackPage() {
 
-const reviews = [
-  {
-    name:"Rahul Sharma",
-    trip:"Manali Tour",
-    rating:5,
-    message:
-      "Excellent service with a very comfortable journey. The driver was professional and punctual."
-  },
+  const res = await fetch(
+    process.env.NEXT_PUBLIC_API_URL + "/api/feedback?visible=true",
+    {
+      cache: "no-store",
+    }
+  );
 
-  {
-    name:"Amit Singh",
-    trip:"Airport Transfer",
-    rating:5,
-    message:
-      "Premium experience. Clean vehicle and smooth pickup."
-  },
+  const data = await res.json();
+  const reviews = data.feedbacks || [];
 
-  {
-    name:"Neha Verma",
-    trip:"Wedding Car Rental",
-    rating:4,
-    message:
-      "Beautiful cars and great coordination."
-  }
-];
+  return (
+    <main>
 
+      <FeedbackHero />
 
-export default function FeedbackPage(){
+      <section className="py-24">
 
-return (
+        <div
+          className="
+            mx-auto
+            grid
+            max-w-7xl
+            gap-14
+            px-6
+            lg:grid-cols-2
+          "
+        >
 
-<main>
+          <FeedbackForm />
 
-<FeedbackHero />
+          <div>
 
+            <h2 className="mb-8 text-3xl font-bold text-white">
+              Customer Experiences
+            </h2>
 
-<section className="py-24">
+            <div className="space-y-6">
 
-<div
-className="
-mx-auto
-grid
-max-w-7xl
-gap-14
-px-6
-lg:grid-cols-2
-"
->
+              {reviews.length === 0 ? (
+                <p className="text-[#8a8a8a]">
+                  No reviews available yet.
+                </p>
+              ) : (
+                reviews.map((review: any) => (
+                  <ReviewCard
+                    key={review.id}
+                    name={review.customerName}
+                    trip={review.route || "Trip Experience"}
+                    rating={review.vehicleRating || 5}
+                    message={review.comments || ""}
+                  />
+                ))
+              )}
 
-<FeedbackForm />
+            </div>
 
+          </div>
 
-<div>
+        </div>
 
-<h2
-className="
-mb-8
-text-3xl
-font-bold
-text-white
-"
->
-Customer Experiences
-</h2>
+      </section>
 
-
-<div className="space-y-6">
-
-{
-reviews.map(review=>(
-<ReviewCard
-key={review.name}
-{...review}
-/>
-))
-}
-
-
-</div>
-
-
-</div>
-
-
-</div>
-
-
-</section>
-
-
-</main>
-
-);
-
+    </main>
+  );
 }

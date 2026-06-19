@@ -6,126 +6,94 @@ import { Crown, Check } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-import { luxuryCars } from "@/src/data/luxuryCars";
-
+import { getLuxuryCarBySlug } from "@/src/services/luxuryCarPublicService";
 
 
 type Props = {
-  params: Promise<{
-    slug:string;
-  }>;
+params:{
+slug:string;
+};
 };
 
 
 
-
 export default async function LuxuryCarDetailsPage({
-  params
+params
 }:Props){
 
-
-const {slug}=await params;
-
-
-
+const { slug } = await params;
 const car =
-luxuryCars.find(
- item=>item.slug===slug
+await getLuxuryCarBySlug(
+slug
 );
 
 
 
-if(!car){
- notFound();
+if(!car?.success){
+
+notFound();
+
 }
 
 
+const luxuryCar =
+car.car;
 
 
 
 return (
 
+<main className="pt-20 pb-24">
 
-<main
-className="
-pt-20
-pb-24
-"
->
-
-
-
-
-{/* HERO */}
 
 
 <section
-
 className="
 relative
-
 h-[75vh]
-
 overflow-hidden
-
 "
-
 >
 
 
 <Image
 
-src={car.image}
+src={luxuryCar.image}
 
-alt={`${car.name} luxury car rental Punjab`}
+alt={luxuryCar.name}
 
 fill
 
 priority
 
-className="
-object-cover
-"
+className="object-cover"
 
 />
 
 
 
 <div
-
 className="
 absolute
 inset-0
-
 bg-black/70
 "
-
 />
 
 
 
-
 <div
-
 className="
 relative
 z-10
-
 mx-auto
-
-flex
-
-h-full
-
 max-w-7xl
-
+h-full
+flex
 items-end
-
 px-6
-
 pb-16
 "
-
 >
 
 
@@ -133,20 +101,14 @@ pb-16
 
 
 <p
-
 className="
 flex
 items-center
 gap-2
-
 uppercase
-
 tracking-[0.35em]
-
 text-[#ecb100]
-
 "
-
 >
 
 <Crown size={16}/>
@@ -157,59 +119,40 @@ Luxury Fleet
 
 
 
-
-
 <h1
-
 className="
 mt-5
-
 text-5xl
-
-font-bold
-
-text-white
-
 md:text-7xl
-
+font-bold
+text-white
 "
-
 >
 
-{car.name}
+{luxuryCar.name}
 
 </h1>
 
 
 
-
-
 <p
-
 className="
 mt-5
-
 max-w-3xl
-
 text-lg
-
 text-[#c7c7c7]
-
 "
-
 >
 
-{car.description}
+{luxuryCar.description}
 
 </p>
 
 
-
 </div>
 
 
 </div>
-
 
 
 </section>
@@ -218,115 +161,68 @@ text-[#c7c7c7]
 
 
 
-
-
-
-
-
 <section
-
 className="
 mx-auto
-
 max-w-7xl
-
 px-6
-
 py-16
-
 "
-
 >
 
 
 <div
-
 className="
 grid
-
 gap-12
-
 lg:grid-cols-3
-
 "
-
 >
 
 
 
-
-{/* DETAILS */}
-
-
-<div
-
-className="
-lg:col-span-2
-"
-
->
+<div className="lg:col-span-2">
 
 
 <h2
-
 className="
 text-3xl
-
 font-bold
-
 text-white
-
 "
-
 >
 
-Experience Premium Travel With {car.name}
+Experience Premium Travel With {luxuryCar.name}
 
 </h2>
 
 
 
-
 <p
-
 className="
 mt-5
-
 leading-relaxed
-
 text-[#8a8a8a]
-
 "
-
 >
 
-Maan Travels provides premium luxury car rental services
-with professional chauffeur support. Whether you need a
-luxury vehicle for weddings, corporate travel, airport
-transfers or special occasions, our fleet ensures comfort,
-style and reliability.
+Maan Travels provides premium luxury car rental
+services with professional chauffeur support.
+Perfect for weddings, corporate travel,
+airport transfers and special occasions.
 
 </p>
 
 
 
 
-
-
-
 <h3
-
 className="
 mt-12
-
 text-2xl
-
 font-bold
-
 text-white
-
 "
-
 >
 
 Features
@@ -335,61 +231,38 @@ Features
 
 
 
-
 <div
-
 className="
 mt-6
-
 grid
-
 gap-4
-
 md:grid-cols-2
-
 "
-
 >
 
 
 {
-car.features.map(feature=>(
-
+luxuryCar.features.map(
+(feature:string)=>(
 
 <div
-
 key={feature}
-
 className="
 flex
 items-center
 gap-3
-
 rounded-xl
-
 border
-
 border-[#252525]
-
 bg-[#141414]
-
 p-4
-
 text-[#c7c7c7]
-
 "
-
 >
 
-
 <Check
-
 size={18}
-
-className="
-text-[#ecb100]
-"
-
+className="text-[#ecb100]"
 />
 
 
@@ -400,14 +273,12 @@ text-[#ecb100]
 
 
 ))
-
 }
 
 
 </div>
 
 
-
 </div>
 
 
@@ -416,49 +287,29 @@ text-[#ecb100]
 
 
 
-
-
-{/* BOOKING CARD */}
-
-
 <aside>
 
 
 <div
-
 className="
 sticky
-
 top-28
-
 rounded-3xl
-
 border
-
 border-[#252525]
-
 bg-[#141414]
-
 p-8
-
 "
-
 >
 
 
 <p
-
 className="
 uppercase
-
 tracking-[0.25em]
-
 text-sm
-
 text-[#ecb100]
-
 "
-
 >
 
 Reserve Vehicle
@@ -467,74 +318,33 @@ Reserve Vehicle
 
 
 
-
-
 <h3
-
 className="
 mt-4
-
 text-2xl
-
 font-bold
-
 text-white
-
 "
-
 >
 
-Book {car.name}
+Book {luxuryCar.name}
 
 </h3>
 
 
 
-
-
-<p
-
-className="
-mt-3
-
-text-[#8a8a8a]
-
-"
-
->
-
-Premium chauffeur driven luxury experience.
-
-</p>
-
-
-
-
-
 <Button
-
 asChild
-
 className="
 mt-8
-
 w-full
-
 bg-[#ecb100]
-
 text-black
-
-hover:bg-[#f6c94c]
-
 "
-
 >
 
-
 <Link
-
-href={`/luxury-booking/${car.slug}`}
-
+href={`/luxury-booking/${luxuryCar.slug}`}
 >
 
 Book This Car
@@ -545,7 +355,6 @@ Book This Car
 </Button>
 
 
-
 </div>
 
 
@@ -554,84 +363,15 @@ Book This Car
 
 
 
-
-
-
 </div>
 
 
-
 </section>
-
-
-
-
 
 
 </main>
 
 
 )
-
-}
-
-
-
-
-
-
-
-
-
-export async function generateStaticParams(){
-
-
-return luxuryCars.map(car=>({
-
-slug:car.slug
-
-}));
-
-
-}
-
-
-
-
-
-
-
-export async function generateMetadata({
-params
-}:Props){
-
-
-const {slug}=await params;
-
-
-
-const car =
-luxuryCars.find(
-item=>item.slug===slug
-);
-
-
-
-if(!car){
-return {};
-}
-
-
-
-return {
-
-title:
-`${car.name} Rental Punjab | Luxury Car Hire | Maan Travels`,
-
-description:
-`Book ${car.name} luxury car rental in Punjab with Maan Travels. Premium chauffeur driven service for weddings, VIP travel and special events.`
-
-};
-
 
 }

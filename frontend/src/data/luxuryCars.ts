@@ -66,7 +66,7 @@ export const luxuryCars = [
 
 
   {
-    id:5,
+    id:"iw8bjwbdjwnie3u877",
     name:"Toyota Fortuner Legender",
     slug:"fortuner-legender",
     image:"/images/luxury/fortuner-legender.jpg",

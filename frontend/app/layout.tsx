@@ -1,4 +1,8 @@
+"use client";
+
 import type { Metadata } from "next";
+import { usePathname } from "next/navigation";
+import BookingModal from "@/components/admin/booking/BookingModal";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import Navbar from "@/components/layout/Navbar";
@@ -17,17 +21,15 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Maan Travels | Luxury Chauffeur & Travel Services",
-  description:
-    "Book premium chauffeur-driven cars, airport transfers, luxury tours and outstation travel services across India with Maan Travels.",
-};
-
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+
+  const isAdmin = pathname.startsWith("/admin");
+
   return (
     <html lang="en" className="dark">
       <body
@@ -41,18 +43,15 @@ export default function RootLayout({
           flex-col
         `}
       >
-        {/* GLOBAL NAVBAR */}
-        <Navbar />
+        {/* HIDE ON ADMIN */}
+        {!isAdmin && <Navbar />}
 
-        {/* PAGE CONTENT */}
-        <main className="flex-1">
-          {children}
-        </main>
+        <main className="flex-1">{children}</main>
 
-        {/* GLOBAL FOOTER */}
-        <Footer />
-        {/* FLOATING UI (WhatsApp / Call / etc.) */}
-        <FloatingActions />
+        <BookingModal />
+        {/* HIDE ON ADMIN */}
+        {!isAdmin && <Footer />}
+        {!isAdmin && <FloatingActions />}
       </body>
     </html>
   );

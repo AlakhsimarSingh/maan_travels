@@ -2,20 +2,35 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Crown } from "lucide-react";
+
+import {
+  ArrowRight,
+  Crown
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
 
+
 type LuxuryCar = {
-  id:number;
+
+  id:string;
+
   name:string;
+
   slug:string;
+
   image:string;
+
   category:string;
+
   description:string;
+
   features:string[];
+
 };
+
+
 
 
 
@@ -33,36 +48,31 @@ return (
 className="
 group
 overflow-hidden
-
 rounded-3xl
-
 border
 border-[#252525]
-
 bg-[#141414]
-
 transition-all
 duration-500
-
 hover:-translate-y-2
-
 hover:border-[#ecb100]
-
 shadow-[0_0_40px_rgba(236,177,0,0.05)]
 "
 
 >
 
 
+
 {/* IMAGE */}
 
-
 <div
+
 className="
 relative
 h-72
 overflow-hidden
 "
+
 >
 
 
@@ -76,10 +86,8 @@ fill
 
 className="
 object-cover
-
 transition-transform
 duration-700
-
 group-hover:scale-110
 "
 
@@ -92,14 +100,15 @@ group-hover:scale-110
 className="
 absolute
 inset-0
-
 bg-gradient-to-t
 from-black
 via-black/20
 to-transparent
 "
 
- />
+/>
+
+
 
 
 
@@ -109,37 +118,29 @@ className="
 absolute
 bottom-5
 left-5
-
 flex
 items-center
 gap-2
-
 rounded-full
-
 border
 border-[#ecb100]/30
-
 bg-black/50
-
 px-4
 py-2
-
 text-xs
-
 uppercase
-
 tracking-wider
-
 text-[#ecb100]
-
 backdrop-blur-md
 "
 
 >
 
+
 <Crown size={14}/>
 
 Premium Fleet
+
 
 </div>
 
@@ -155,7 +156,6 @@ Premium Fleet
 
 {/* CONTENT */}
 
-
 <div
 className="
 p-6
@@ -169,11 +169,8 @@ p-6
 className="
 text-sm
 uppercase
-
 tracking-[0.25em]
-
 text-[#ecb100]
-
 "
 
 >
@@ -190,11 +187,8 @@ text-[#ecb100]
 
 className="
 mt-3
-
 text-2xl
-
 font-bold
-
 text-white
 "
 
@@ -208,17 +202,15 @@ text-white
 
 
 
+
+
 <p
 
 className="
 mt-3
-
 line-clamp-3
-
 text-sm
-
 leading-relaxed
-
 text-[#8a8a8a]
 "
 
@@ -233,25 +225,26 @@ text-[#8a8a8a]
 
 
 
+
+
 {/* FEATURES */}
 
 <div
 
 className="
 mt-5
-
 flex
-
 flex-wrap
-
 gap-2
 "
 
 >
 
+
 {
 
-car.features.map(feature=>(
+car.features?.map((feature)=>(
+
 
 <span
 
@@ -259,19 +252,12 @@ key={feature}
 
 className="
 rounded-full
-
 border
-
 border-[#252525]
-
 bg-black/30
-
 px-3
-
 py-1
-
 text-xs
-
 text-[#c7c7c7]
 "
 
@@ -287,7 +273,10 @@ text-[#c7c7c7]
 }
 
 
+
 </div>
+
+
 
 
 
@@ -301,15 +290,10 @@ asChild
 
 className="
 mt-7
-
 w-full
-
 bg-[#ecb100]
-
 text-black
-
 hover:bg-[#f6c94c]
-
 "
 
 >
@@ -321,7 +305,9 @@ href={`/luxury-cars/${car.slug}`}
 
 >
 
+
 View Details
+
 
 <ArrowRight
 
@@ -335,6 +321,7 @@ group-hover:translate-x-1
 
 />
 
+
 </Link>
 
 
@@ -347,9 +334,12 @@ group-hover:translate-x-1
 
 
 
+
+
 </div>
 
 
-)
+);
+
 
 }

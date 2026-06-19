@@ -1,8 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
+import { CalendarDays } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -14,87 +12,144 @@ import {
 
 import { Calendar } from "@/components/ui/calendar";
 
-
-export default function BookingDatePicker() {
-
-  const [date,setDate] = useState<Date>();
+import { format } from "date-fns";
 
 
-  return (
+interface BookingDatePickerProps {
 
-    <Popover>
+  placeholder?: string;
 
-      <PopoverTrigger asChild>
+  value?: Date;
 
-        <Button
-          variant="outline"
-          className="
-            w-full
-            justify-start
-            border-[#252525]
-            bg-[#111]
-            text-left
-            text-[#c7c7c7]
+  onChange?: (date: Date | undefined) => void;
 
-            hover:bg-[#171717]
-            hover:text-white
-          "
-        >
-
-          <CalendarIcon
-            className="
-              mr-3
-              h-5
-              w-5
-              text-[#ecb100]
-            "
-          />
-
-          {
-            date
-            ?
-            format(date,"PPP")
-            :
-            "Select Pickup Date"
-          }
-
-
-        </Button>
-
-      </PopoverTrigger>
+}
 
 
 
-      <PopoverContent
-        className="
-          w-auto
-          border-[#252525]
-          bg-[#141414]
-          p-0
-        "
-      >
+export default function BookingDatePicker({
 
-        <Calendar
+placeholder = "Select Date",
 
-          mode="single"
+value,
 
-          selected={date}
+onChange,
 
-          onSelect={setDate}
-
-          className="
-            rounded-xl
-            bg-[#141414]
-            text-white
-          "
-
-        />
+}: BookingDatePickerProps) {
 
 
-      </PopoverContent>
+return (
+
+<Popover>
 
 
-    </Popover>
+<PopoverTrigger asChild>
 
-  );
+
+<Button
+
+variant="outline"
+
+className="
+h-12
+w-full
+justify-start
+rounded-xl
+border
+border-[#252525]
+bg-[#111]
+text-left
+font-normal
+text-white
+hover:bg-[#111]
+"
+
+>
+
+
+<CalendarDays
+
+size={18}
+
+className="
+mr-3
+text-[#ecb100]
+"
+
+/>
+
+
+
+<span
+
+className={
+value
+?
+"text-white"
+:
+"text-[#777]"
+}
+
+>
+
+
+{
+value
+?
+format(value,"dd MMM yyyy")
+:
+placeholder
+}
+
+
+</span>
+
+
+
+</Button>
+
+
+</PopoverTrigger>
+
+
+
+
+
+
+<PopoverContent
+
+className="
+w-auto
+border-[#252525]
+bg-[#141414]
+p-0
+"
+
+align="start"
+
+>
+
+
+<Calendar
+
+mode="single"
+
+selected={value}
+
+onSelect={onChange}
+
+disabled={(date)=>date < new Date()}
+
+/>
+
+
+</PopoverContent>
+
+
+
+</Popover>
+
+
+);
+
 }

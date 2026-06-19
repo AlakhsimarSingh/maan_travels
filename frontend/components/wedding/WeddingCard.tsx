@@ -101,6 +101,13 @@ text-[#ecb100]
 </p>
 
 
+{/* ADD THIS */}
+{car.price && (
+  <p className="mt-2 text-sm text-[#ecb100] font-medium">
+    Starting from ₹{car.price.toLocaleString("en-IN")}
+  </p>
+)}
+
 
 
 <h3
@@ -117,8 +124,6 @@ text-white
 {car.name}
 
 </h3>
-
-
 
 
 

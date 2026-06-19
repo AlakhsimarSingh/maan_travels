@@ -6,26 +6,402 @@ datasource db {
   provider = "postgresql"
 }
 
-model Booking {
-  id        String   @id @default(cuid())
+model Customer {
+  id String @id @default(cuid())
 
-  name      String
-  email     String?
-  phone     String
+  name String
 
-  pickup    String
-  drop      String?
+  email String?
 
-  rideType  String
-  rideMode  String
+  phone String
 
-  vehicle   String
-  distance  Float?
-  days      Int?
-
-  amount    Float
-
-  status    String   @default("pending")
+  bookings Booking[]
 
   createdAt DateTime @default(now())
+}
+
+model Booking {
+  id String @id @default(cuid())
+
+  customerId String
+
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  serviceType String
+
+  status String @default("pending")
+
+  returnDate DateTime?
+
+  duration String?
+
+  requirements String?
+  
+  vehicleId String?
+
+  vehicle Vehicle? @relation(fields: [vehicleId], references: [id])
+
+  routeId String?
+
+  route Route? @relation(fields: [routeId], references: [id])
+
+  totalAmount Float?
+
+  paymentType String? @default("later")
+
+  amountPaid Float? @default(0)
+
+  paymentScreenshot String?
+
+  paymentStatus String? @default("pending")
+
+  taxi TaxiBooking?
+
+  airport AirportTransfer?
+
+  tour TourBooking?
+
+  selfDrive SelfDriveBooking?
+
+  luxury LuxuryBooking?
+
+  wedding WeddingBooking?
+
+  tempo TempoBooking?
+
+  createdAt DateTime @default(now())
+}
+
+model WeddingBooking {
+  id String @id @default(cuid())
+
+  bookingId String @unique
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+
+  luxuryCarId String
+
+  luxuryCar LuxuryCar @relation(fields: [luxuryCarId], references: [id])
+
+  pickup String
+
+  venue String
+
+  weddingDate DateTime
+
+  guests Int
+
+  carsRequired Int
+
+  decoration String?
+
+  requirements String?
+}
+
+model LuxuryBooking {
+  id String @id @default(cuid())
+
+  bookingId String @unique
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+
+  luxuryCarId String
+
+  luxuryCar LuxuryCar @relation(fields: [luxuryCarId], references: [id])
+
+  pickup String
+
+  destination String
+
+  eventDate DateTime
+
+  hours String
+
+  eventType String
+
+  requirements String?
+}
+
+model TaxiBooking {
+  id String @id @default(cuid())
+
+  bookingId String @unique
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+
+  rideMode String
+
+  pickup String
+
+  drop String?
+
+  vehicle String
+
+  passengers String?
+
+  distance Float?
+
+  travelDate DateTime?
+
+  requirements  String?
+}
+
+model AirportTransfer {
+  id String @id @default(cuid())
+
+  bookingId String @unique
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+
+  pickup String
+
+  airport String
+
+  travelDate DateTime
+
+  pickupTime String
+
+  vehicle String
+
+  passengers Int
+
+  suitcases Int
+
+  handbags Int
+}
+
+model TourBooking {
+  id String @id @default(cuid())
+
+  bookingId String @unique
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+
+  pickupCity String
+
+  destination String
+
+  route String
+
+  pickupAddress String
+
+  requirements String?
+}
+
+model SelfDriveBooking {
+  id String @id @default(cuid())
+
+  bookingId String @unique
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+
+  vehicleId String
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+
+  pickupDate DateTime
+
+  returnDate DateTime
+
+  license String
+
+  requirements String?
+}
+
+model TempoBooking {
+  id String @id @default(cuid())
+
+  bookingId String @unique
+
+  booking Booking @relation(fields: [bookingId], references: [id])
+
+  vehicleId String
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+
+  pickup String
+
+  destination String
+
+  travelDate DateTime
+  passengers Int
+  suitcaseCount Int @default(0)
+
+  tripType String
+
+  requirements String?
+}
+
+model Vehicle {
+  id String @id @default(cuid())
+
+  name String
+  category String
+
+  price Float
+
+  imageUrl String?
+
+  available Boolean @default(true)
+
+  /* EXISTING RELATIONS */
+  luxuryCar LuxuryCar?
+  selfDriveBookings SelfDriveBooking[]
+  tempoBookings TempoBooking[]
+
+  /* ---------------- NEW FIELDS ---------------- */
+
+  // SELF DRIVE SPECIFICATIONS (ONLY FOR SELF DRIVE CATEGORY)
+  fuelType String?        // Diesel / Petrol / Electric
+  transmission String?    // Manual / Automatic
+  seats Int?              // 7, 5 etc.
+  modelYear Int?          // 2025
+
+  rentalPerDay Float?     // ₹ per day
+
+  description String?
+  /* ---------------- FLEET TYPE CONTROL ---------------- */
+  isTaxiFleet Boolean @default(true)
+  isSelfDrive Boolean @default(false)
+
+  // COMMON FOR NON-LUXURY VEHICLES
+  passengerCapacity Int?
+  suitcaseCapacity Int?
+
+  createdAt DateTime @default(now())
+  
+  bookings Booking[]
+}
+
+model PaymentSettings {
+  id String @id @default(cuid())
+  qrCodeImage String
+  upiId String?
+  updatedAt DateTime @updatedAt
+}
+
+model TourLocation {
+
+  id String @id @default(cuid())
+
+  name String @unique
+
+
+  canPickup Boolean @default(false)
+
+  canDrop Boolean @default(false)
+
+
+  active Boolean @default(true)
+
+
+  createdAt DateTime @default(now())
+
+}
+
+model LuxuryCar {
+  id String @id @default(cuid())
+
+  name String
+
+  slug String @unique
+
+  image String
+
+  category String
+
+  description String
+
+  features String[]
+
+  vehicleId String @unique
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+
+  bookings LuxuryBooking[]
+
+  weddingBookings WeddingBooking[]
+
+  createdAt DateTime @default(now())
+}
+
+model Feedback {
+  id String @id @default(cuid())
+
+  customerName String
+  travelDate   DateTime?
+  route        String?
+
+  satisfaction String
+
+  vehicleRating Int
+  supportRating Int
+
+  driverExperience String
+
+  comments String?
+
+  recommend Boolean
+
+  showOnWebsite Boolean @default(false)
+
+  createdAt DateTime @default(now())
+}
+
+model AdminDevice {
+
+  id String @id @default(cuid())
+
+
+  name String
+
+
+  deviceToken String @unique
+
+
+  fingerprint String @unique
+
+
+  userAgent String?
+
+
+  active Boolean @default(true)
+
+
+  lastUsed DateTime?
+
+
+  createdAt DateTime @default(now())
+
+}
+
+model Route {
+  id          String   @id @default(cuid())
+  title       String
+  from        String?
+  to          String?
+  category    String   // destination | one_way | local | airport | tour
+  baseType    String   // taxi | airport | tour
+  image       String?
+  active      Boolean  @default(true)
+
+  pricing     RoutePricing[]
+
+  bookings    Booking[] 
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model RoutePricing {
+  id        String  @id @default(cuid())
+
+  routeId   String
+  vehicleId String
+
+  price     Int
+
+  route     Route   @relation(fields: [routeId], references: [id], onDelete: Cascade)
+
+  @@unique([routeId, vehicleId])
 }
