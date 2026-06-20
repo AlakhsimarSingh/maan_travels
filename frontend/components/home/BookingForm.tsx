@@ -191,7 +191,7 @@ export default function BookingForm() {
               </div>
             )}
 
-            {/* ✅ PASS VEHICLE DOWN */}
+            {/* PASS VEHICLE DOWN */}
             <TaxiBookingForm
               rideMode={rideMode}
               selectedVehicleId={selectedVehicle?.id || ""}

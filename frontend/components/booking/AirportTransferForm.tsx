@@ -9,7 +9,7 @@ import BookingDatePicker from "./BookingDatePicker";
 import BookingSuccess from "@/components/common/BookingSuccess";
 import PaymentMethodPicker, { PaymentType } from "./PaymentMethodPicker";
 
-import { Clock, MapPin, User, Luggage, Car } from "lucide-react";
+import { Clock, MapPin, User, Luggage, Car, PlaneTakeoff } from "lucide-react";
 
 import { useBookingStatus } from "@/src/hooks/useBookingStatus";
 import { API_URL } from "@/src/services/bookingService";
@@ -21,18 +21,20 @@ export default function AirportTransferForm({
   vehicleId,
   price,
   pickup: prefillPickup,
+  airport: prefillAirport, // ← NEW: passed from RouteCard via openModal
 }: {
   routeId?: string;
   vehicleId?: string;
   price?: number;
   pickup?: string;
+  airport?: string; // ← NEW
 }) {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [travelDate, setTravelDate] = useState<Date>();
+  const [travelDate, setTravelDate] = useState<Date | undefined>(undefined);
 
   const [form, setForm] = useState({
     pickup: prefillPickup || "",
-    airport: "",
+    airport: prefillAirport || "",
     time: "",
     vehicle: vehicleId || "",
     passengers: "",
@@ -50,8 +52,9 @@ export default function AirportTransferForm({
 
   const { success, bookingId, done, reset } = useBookingStatus();
 
-  const priceValid = vehicleId ? form.vehicle === vehicleId : false;
-  const totalAmount = priceValid ? price || 0 : 0;
+  // FIX: totalAmount is always available when price is passed — don't gate it
+  // on vehicle match (that check prevented PaymentMethodPicker from rendering)
+  const totalAmount = price || 0;
 
   useEffect(() => {
     const loadVehicles = async () => {
@@ -67,7 +70,17 @@ export default function AirportTransferForm({
     loadVehicles();
   }, []);
 
-  const handleChange = (e: any) => {
+  // Sync if parent re-opens modal with new prefill values
+  useEffect(() => {
+    setForm((prev) => ({
+      ...prev,
+      pickup: prefillPickup || prev.pickup,
+      airport: prefillAirport || prev.airport,
+      vehicle: vehicleId || prev.vehicle,
+    }));
+  }, [prefillPickup, prefillAirport, vehicleId]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -109,7 +122,11 @@ export default function AirportTransferForm({
       data.append("paymentType", paymentType);
       data.append(
         "amountPaid",
-        paymentType === "full" ? String(totalAmount) : paymentType === "partial" ? partialAmount : "0"
+        paymentType === "full"
+          ? String(totalAmount)
+          : paymentType === "partial"
+          ? partialAmount
+          : "0"
       );
       if (screenshot) data.append("paymentScreenshot", screenshot);
 
@@ -142,6 +159,11 @@ export default function AirportTransferForm({
     text-white placeholder:text-[#777] outline-none focus:border-[#ecb100]
   `;
 
+  const lockedFieldClass = `
+    h-12 w-full rounded-xl bg-[#1a1a1a] border border-[#252525]
+    text-[#ecb100] outline-none cursor-not-allowed opacity-80
+  `;
+
   return (
     <div className="grid gap-5 md:grid-cols-2">
 
@@ -154,65 +176,152 @@ export default function AirportTransferForm({
         </div>
       )}
 
+      {/* Pickup */}
       <div className="relative h-12">
         <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
-        <Input name="pickup" value={form.pickup} onChange={handleChange} placeholder="Pickup Address" className={`${fieldClass} pl-12`} />
+        <Input
+          name="pickup"
+          value={form.pickup}
+          onChange={handleChange}
+          placeholder="Pickup Address"
+          className={`${fieldClass} pl-12`}
+        />
       </div>
 
+      {/* Airport — locked if pre-filled from route card */}
       <div className="relative h-12">
-        <Car size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
-        <select name="airport" value={form.airport} onChange={handleChange} className={`${fieldClass} pl-12`}>
-          <option value="">Select Airport</option>
-          <option>Amritsar Airport</option>
-          <option>Chandigarh Airport</option>
-          <option>Adampur Airport</option>
-          <option>Delhi Airport</option>
-          <option>Ludhiana Airport</option>
-        </select>
+        <PlaneTakeoff size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
+        {prefillAirport ? (
+          // Locked: show as read-only styled input
+          <Input
+            name="airport"
+            value={form.airport}
+            readOnly
+            className={`${lockedFieldClass} pl-12`}
+          />
+        ) : (
+          // Free choice: dropdown
+          <select
+            name="airport"
+            value={form.airport}
+            onChange={handleChange}
+            className={`${fieldClass} pl-12`}
+          >
+            <option value="">Select Airport</option>
+            <option>Amritsar Airport</option>
+            <option>Chandigarh Airport</option>
+            <option>Adampur Airport</option>
+            <option>Delhi Airport</option>
+            <option>Ludhiana Airport</option>
+          </select>
+        )}
       </div>
 
-      <BookingDatePicker placeholder="Select Travel Date" onChange={setTravelDate} />
+      {/* Date picker — controlled: value reflects state, popover closes on pick */}
+      <BookingDatePicker
+        placeholder="Select Travel Date"
+        value={travelDate}
+        onChange={setTravelDate}
+      />
 
+      {/* Time */}
       <div className="relative h-12">
         <Clock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white z-10" />
-        <Input type="time" name="time" value={form.time} onChange={handleChange} className={`${fieldClass} pl-12 [&::-webkit-calendar-picker-indicator]:invert`} />
+        <Input
+          type="time"
+          name="time"
+          value={form.time}
+          onChange={handleChange}
+          className={`${fieldClass} pl-12 [&::-webkit-calendar-picker-indicator]:invert`}
+        />
       </div>
 
+      {/* Vehicle — locked if pre-selected from route card */}
       <div className="relative h-12">
         <Car size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
-        <select name="vehicle" value={form.vehicle} onChange={handleChange} className={`${fieldClass} pl-12`}>
-          <option value="">Choose Vehicle</option>
-          {vehicles.map(vehicle => (
-            <option key={vehicle.id} value={vehicle.id}>{vehicle.name}</option>
-          ))}
-        </select>
+        {vehicleId ? (
+          <Input
+            value={vehicles.find((v) => v.id === vehicleId)?.name || "Selected Vehicle"}
+            readOnly
+            className={`${lockedFieldClass} pl-12`}
+          />
+        ) : (
+          <select
+            name="vehicle"
+            value={form.vehicle}
+            onChange={handleChange}
+            className={`${fieldClass} pl-12`}
+          >
+            <option value="">Choose Vehicle</option>
+            {vehicles.map((vehicle) => (
+              <option key={vehicle.id} value={vehicle.id}>{vehicle.name}</option>
+            ))}
+          </select>
+        )}
       </div>
 
-      <select name="passengers" value={form.passengers} onChange={handleChange} className={fieldClass}>
+      {/* Passengers */}
+      <select
+        name="passengers"
+        value={form.passengers}
+        onChange={handleChange}
+        className={fieldClass}
+      >
         <option value="">Passengers</option>
         <option value="1">1 Passenger</option>
-        <option value="2">2-4 Passengers</option>
-        <option value="3">5-7 Passengers</option>
+        <option value="2">2–4 Passengers</option>
+        <option value="3">5–7 Passengers</option>
         <option value="4">8+ Passengers</option>
       </select>
 
+      {/* Name */}
       <div className="relative h-12">
         <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
-        <Input name="name" value={form.name} onChange={handleChange} placeholder="Your Name" className={`${fieldClass} pl-12`} />
+        <Input
+          name="name"
+          value={form.name}
+          onChange={handleChange}
+          placeholder="Your Name"
+          className={`${fieldClass} pl-12`}
+        />
       </div>
 
-      <Input name="phone" value={form.phone} onChange={handleChange} placeholder="Phone Number" className={fieldClass} />
+      {/* Phone */}
+      <Input
+        name="phone"
+        value={form.phone}
+        onChange={handleChange}
+        placeholder="Phone Number"
+        className={fieldClass}
+      />
 
+      {/* Suitcases */}
       <div className="relative h-12">
         <Luggage size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
-        <Input type="number" name="suitcases" value={form.suitcases} onChange={handleChange} placeholder="Suitcases" className={`${fieldClass} pl-12`} />
+        <Input
+          type="number"
+          name="suitcases"
+          value={form.suitcases}
+          onChange={handleChange}
+          placeholder="Suitcases"
+          className={`${fieldClass} pl-12`}
+        />
       </div>
 
+      {/* Handbags */}
       <div className="relative h-12">
         <Luggage size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
-        <Input type="number" name="handbags" value={form.handbags} onChange={handleChange} placeholder="Handbags" className={`${fieldClass} pl-12`} />
+        <Input
+          type="number"
+          name="handbags"
+          value={form.handbags}
+          onChange={handleChange}
+          placeholder="Handbags"
+          className={`${fieldClass} pl-12`}
+        />
       </div>
 
+      {/* Payment */}
       <div className="md:col-span-2">
         <PaymentMethodPicker
           totalAmount={totalAmount}
@@ -224,7 +333,11 @@ export default function AirportTransferForm({
         />
       </div>
 
-      <Button onClick={handleSubmit} disabled={loading} className="md:col-span-2 h-12 rounded-xl bg-[#ecb100] text-black font-semibold hover:bg-[#f6c94c]">
+      <Button
+        onClick={handleSubmit}
+        disabled={loading}
+        className="md:col-span-2 h-12 rounded-xl bg-[#ecb100] text-black font-semibold hover:bg-[#f6c94c]"
+      >
         {loading ? "Processing..." : "Book Airport Transfer"}
       </Button>
 
@@ -235,7 +348,6 @@ export default function AirportTransferForm({
         totalAmount={paymentSummary?.total}
         amountPaid={paymentSummary?.paid}
       />
-
     </div>
   );
 }

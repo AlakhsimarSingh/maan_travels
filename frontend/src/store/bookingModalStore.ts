@@ -10,6 +10,7 @@ type State = {
     vehicleId?: string;
     pickup?: string;
     drop?: string;
+    airport?: string; // ← ADDED: was missing, causing it to be silently dropped
     routeId?: string;
     price?: number;
   };

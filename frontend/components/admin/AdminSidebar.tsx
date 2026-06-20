@@ -15,6 +15,9 @@ import {
   CarFront,
   BusFront,
   MapPin,
+  Plane,
+  Wallet,
+  QrCode,
 } from "lucide-react";
 
 const items = [
@@ -59,6 +62,12 @@ const items = [
     icon: Star,
   },
 
+  {
+  title: "Gallery",
+  href: "/admin/gallery",
+  icon: ImageIcon,
+},
+
     {
     title: "Route Pricing",
     href: "/admin/routes",
@@ -76,6 +85,21 @@ const items = [
   href: "/admin/locations",
   icon: MapPin,
 },
+  {
+    title: "Airports",
+    href: "/admin/airports",
+    icon: Plane,
+  },
+  {
+    title: "Airport Pricing",
+    href: "/admin/airports/pricing",
+    icon: Wallet,
+  },
+  {
+    title: "Payment Settings",
+    href: "/admin/payment-settings",
+    icon: QrCode,
+  },
   // {
   //   title: "News",
   //   href: "/admin/news",

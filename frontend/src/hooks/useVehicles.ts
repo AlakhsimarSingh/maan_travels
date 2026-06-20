@@ -8,6 +8,8 @@ export type Vehicle = {
   name: string;
   category?: string;
   isTaxiFleet?: boolean;
+  passengerCapacity?: number | null;
+  suitcaseCapacity?: number | null;
 };
 
 export function useVehicles() {
@@ -19,9 +21,7 @@ export function useVehicles() {
       try {
         const res = await fetch(`${API_URL}/api/vehicles`);
         const data = await res.json();
-        const taxiVehicles = (data.vehicles || []).filter(
-          (v: Vehicle) => v.isTaxiFleet
-        );
+        const taxiVehicles = (data.vehicles || []).filter((v: Vehicle) => v.isTaxiFleet);
         setVehicles(taxiVehicles);
       } finally {
         setLoading(false);

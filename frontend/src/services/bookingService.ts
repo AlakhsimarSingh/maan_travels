@@ -40,12 +40,14 @@ type TourBooking = {
   email?: string;
   phone: string;
 
+  route: string; 
+
   pickupCity: string;
   destination: string;
 
   pickupAddress: string;
 
-  startDate: string;
+  startDate?: string;
 
   requirements?: string;
 };

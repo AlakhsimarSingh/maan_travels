@@ -40,6 +40,8 @@ export default function RouteSection({ title, routes, type }: Props) {
               openModal(type, {
                 pickup: route.from,
                 drop: route.to,
+                // ↓ Pass destination as the airport for airport-type routes
+                airport: type === "airport" ? route.to : undefined,
                 rideMode: "oneway",
                 routeId: route.id,
                 vehicleId,

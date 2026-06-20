@@ -1,1043 +1,399 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import {
-  CalendarDays,
-  Clock,
-  MapPin,
-  Users,
-  Car,
-  Plane,
-  Luggage,
-} from "lucide-react";
+import { CalendarDays, Clock, MapPin, Users, Luggage } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-
 import { format } from "date-fns";
 
 import BookingSuccess from "../common/BookingSuccess";
-
-import {
-  API_URL,
-  createAirportBooking,
-} from "../../src/services/bookingService";
-
-import { useBookingStatus } from "../../src/hooks/useBookingStatus";
-
-
-
-type Vehicle = {
-  id:string;
-  name:string;
-};
-
-
-
-const airports = [
-  "Amritsar Airport",
-  "Chandigarh Airport",
-  "Adampur Airport",
-  "Delhi Airport",
-  "Ludhiana Airport",
-];
-
-
-
-export default function AirportBookingForm(){
-
-
-const [travelDate,setTravelDate]=
-useState<Date>();
-
-
-const [vehicles,setVehicles]=
-useState<Vehicle[]>([]);
-
-
-
-const [form,setForm]=useState({
-
-pickup:"",
-terminal:"",
-time:"",
-vehicle:"",
-passengers:"",
-name:"",
-phone:"",
-suitcases:"",
-handbags:"",
-
-});
-
-
-
-const {
-loading,
-success,
-bookingId,
-start,
-done,
-reset
-
-}=useBookingStatus();
-
-
-
-
-
-useEffect(()=>{
-
-
-const fetchVehicles=async()=>{
-
-
-try{
-
-
-const res =
-await fetch(
-`${API_URL}/api/vehicles`
-);
-
-
-const data =
-await res.json();
-
-
-setVehicles(
-data.vehicles || []
-);
-
-
-
-}
-
-catch(err){
-
-console.error(
-"Vehicle fetch failed",
-err
-);
-
-}
-
-
-
-};
-
-
-
-fetchVehicles();
-
-
-},[]);
-
-
-
-
-
-
-
-const handleChange=(e:any)=>{
-
-
-setForm({
-
-...form,
-
-[e.target.name]:
-e.target.value
-
-});
-
-
-};
-
-
-
-
-
-
-
-
-const clearForm=()=>{
-
-
-setForm({
-
-pickup:"",
-terminal:"",
-time:"",
-vehicle:"",
-passengers:"",
-name:"",
-phone:"",
-suitcases:"",
-handbags:"",
-
-});
-
-
-setTravelDate(undefined);
-
-
-};
-
-
-
-
-
-
-
-
-const handleSubmit=async()=>{
-
-
-if(
-
-!form.pickup ||
-!form.terminal ||
-!travelDate ||
-!form.time ||
-!form.vehicle ||
-!form.passengers ||
-!form.name ||
-!form.phone ||
-!form.suitcases ||
-!form.handbags
-
-){
-
-alert(
-"Please fill all fields before submitting"
-);
-
-return;
-
-}
-
-
-
-try{
-
-
-start();
-
-
-
-const res =
-await createAirportBooking({
-
-name:
-form.name,
-
-phone:
-form.phone,
-
-pickup:
-form.pickup,
-
-airport:
-form.terminal,
-
-travelDate:
-travelDate.toISOString(),
-
-pickupTime:
-form.time,
-
-vehicle:
-form.vehicle,
-
-passengers:
-Number(form.passengers),
-
-suitcases:
-Number(form.suitcases),
-
-handbags:
-Number(form.handbags),
-
-});
-
-
-
-done(
-(res as any)?.booking?.id
-);
-
-
-
-clearForm();
-
-
-
-}
-
-catch(err){
-
-
-console.error(err);
-
-
-reset();
-
-
-}
-
-
-
-};
-
-
-
-
-
-const fieldClass=`
-
-h-12
-
-w-full
-
-rounded-xl
-
-border
-
-border-[#252525]
-
-bg-[#111]
-
-text-white
-
-placeholder:text-[#777]
-
-outline-none
-
-focus:border-[#ecb100]
-
-`;
-
-
-
-
-
-
-
-return (
-
-<div
-
-className="
-grid
-gap-5
-md:grid-cols-2
-"
-
->
-
-
-
-
-
-{/* PICKUP */}
-
-<Field
-
-icon={
-<MapPin
-size={18}
-className="text-[#ecb100]"
-/>
-}
-
-name="pickup"
-
-value={form.pickup}
-
-onChange={handleChange}
-
-placeholder="Pickup Address"
-
-/>
-
-
-
-
-
-
-
-{/* AIRPORT */}
-
-<SelectField
-
-icon={
-<Plane
-size={18}
-className="text-[#ecb100]"
-/>
-}
-
-value={form.terminal}
-
-onChange={(value:string)=>
-setForm({
-...form,
-terminal:value
-})
-}
-
-options={airports}
-
-placeholder="Select Airport"
-
-/>
-
-
-
-
-
-
-
-{/* DATE */}
-
-<div className="relative">
-
-
-<Popover>
-
-
-<PopoverTrigger asChild>
-
-
-<button
-
-className={`
-${fieldClass}
-
-flex
-items-center
-gap-3
-px-4
-text-left
-
-`}
-
->
-
-
-<CalendarDays
-
-size={18}
-
-className="text-[#ecb100]"
-
-/>
-
-
-<span>
-
-{
-
-travelDate
-
-?
-
-format(
-travelDate,
-"dd MMM yyyy"
-)
-
-:
-
-"Select Travel Date"
-
-}
-
-</span>
-
-
-</button>
-
-
-</PopoverTrigger>
-
-
-
-<PopoverContent
-
-className="
-border-[#252525]
-bg-[#141414]
-p-0
-"
-
->
-
-
-<Calendar
-
-mode="single"
-
-selected={travelDate}
-
-onSelect={setTravelDate}
-
-/>
-
-
-</PopoverContent>
-
-
-</Popover>
-
-
-</div>
-
-
-
-
-
-
-
-{/* TIME */}
-
-<div className="relative">
-
-
-<Clock
-
-size={18}
-
-className="
-absolute
-left-4
-top-1/2
--translate-y-1/2
-text-white
-z-10
-"
-
-/>
-
-
-<input
-
-type="time"
-
-name="time"
-
-value={form.time}
-
-onChange={handleChange}
-
-className={`
-${fieldClass}
-pl-12
-
-[&::-webkit-calendar-picker-indicator]:invert
-
-`}
-
-/>
-
-
-</div>
-
-
-
-
-
-
-
-{/* VEHICLE */}
-
-<SelectField
-
-icon={
-<Car
-size={18}
-className="text-[#ecb100]"
-/>
-}
-
-
-value={form.vehicle}
-
-
-onChange={(value:string)=>
-
-setForm({
-...form,
-vehicle:value
-})
-
-}
-
-
-options={
-vehicles.map(
-(v)=>v.name
-)
-}
-
-
-placeholder="Select Vehicle"
-
-/>
-
-
-
-
-
-
-
-
-
-{/* PASSENGERS */}
-
-<SelectField
-
-icon={
-<Users
-size={18}
-className="text-[#ecb100]"
-/>
-}
-
-
-value={form.passengers}
-
-
-onChange={(value:string)=>
-
-setForm({
-...form,
-passengers:value
-})
-
-}
-
-
-options={[
-"1 Passenger",
-"2-4 Passengers",
-"5-7 Passengers",
-"8+ Passengers"
-
-]}
-
-
-placeholder="Passengers"
-
-/>
-
-
-
-
-
-
-
-
-
-{/* NAME */}
-
-<Field
-
-icon={
-<Users
-size={18}
-className="text-[#ecb100]"
-/>
-}
-
-
-name="name"
-
-value={form.name}
-
-onChange={handleChange}
-
-placeholder="Your Name"
-
-/>
-
-
-
-
-
-
-
-
-{/* PHONE */}
-
-<Field
-
-name="phone"
-
-value={form.phone}
-
-onChange={handleChange}
-
-placeholder="Phone Number"
-
-/>
-
-
-
-
-
-
-
-
-
-{/* SUITCASES */}
-
-<Field
-
-icon={
-<Luggage
-size={18}
-className="text-[#ecb100]"
-/>
-}
-
-
-name="suitcases"
-
-value={form.suitcases}
-
-onChange={handleChange}
-
-placeholder="Suitcases"
-
-type="number"
-
-/>
-
-
-
-
-
-
-
-
-
-{/* HANDBAGS */}
-
-<Field
-
-icon={
-<Luggage
-size={18}
-className="text-[#ecb100]"
-/>
-}
-
-
-name="handbags"
-
-value={form.handbags}
-
-onChange={handleChange}
-
-placeholder="Handbags"
-
-type="number"
-
-/>
-
-
-
-
-
-
-
-
-
-<Button
-
-onClick={handleSubmit}
-
-disabled={loading}
-
-className="
-md:col-span-2
-
-h-12
-
-rounded-xl
-
-bg-[#ecb100]
-
-font-semibold
-
-text-black
-
-hover:bg-[#f6c94c]
-
-"
-
->
-
-
-{
-loading
-
-?
-
-"Processing..."
-
-:
-
-"Request Airport Transfer"
-
-}
-
-
-</Button>
-
-
-
-
-
-
-<BookingSuccess
-
-open={success}
-
-onClose={reset}
-
-bookingId={bookingId}
-
-/>
-
-
-
-
-
-</div>
-
-
-);
-
-}
-
-
-
-
-
-
-
-
-
-function Field({
-
-icon,
-...props
-
-}:any){
-
-
-return (
-
-<div className="relative">
-
-
-{
-icon &&
-
-<div
-
-className="
-absolute
-left-4
-top-1/2
--translate-y-1/2
-z-10
-"
-
->
-
-{icon}
-
-</div>
-
-}
-
-
-
-<input
-
-{...props}
-
-className={`
-
-h-12
-
-w-full
-
-rounded-xl
-
-border
-
-border-[#252525]
-
-bg-[#111]
-
-text-white
-
-placeholder:text-[#777]
-
-outline-none
-
-focus:border-[#ecb100]
-
-${icon ? "pl-12":"px-4"}
-
-`}
-
-/>
-
-
-</div>
-
-);
-
-
-}
-
-
-
-
-
-
-
-
-
-function SelectField({
-
-icon,
-value,
-onChange,
-options,
-placeholder
-
-}:any){
-
-
-return (
-
-<div className="relative">
-
-
-{
-icon &&
-
-<div
-
-className="
-absolute
-left-4
-top-1/2
--translate-y-1/2
-z-10
-"
-
->
-
-{icon}
-
-</div>
-
-}
-
-
-
-<select
-
-value={value}
-
-onChange={(e)=>
-onChange(e.target.value)
-}
-
-className={`
-
-h-12
-
-w-full
-
-rounded-xl
-
-border
-
-border-[#252525]
-
-bg-[#111]
-
-text-white
-
-outline-none
-
-focus:border-[#ecb100]
-
-appearance-none
-
-${icon ? "pl-12":"px-4"}
-
-`}
-
->
-
-
-<option value="">
-
-{placeholder}
-
-</option>
-
-
-
-{
-
-options.map(
-(option:string)=>(
-
-<option
-
-key={option}
-
-value={option}
-
->
-
-{option}
-
-</option>
-
-)
-
-)
-
-}
-
-
-
-</select>
-
-
-</div>
-
-);
-
-
+import PaymentMethodPicker, { PaymentType } from "../booking/PaymentMethodPicker";
+
+import { API_URL } from "@/src/services/bookingService";
+import { useBookingStatus } from "@/src/hooks/useBookingStatus";
+import { useVehicles } from "@/src/hooks/useVehicles";
+import type { Airport } from "@/src/hooks/useAirports";
+
+type Category = "Sedan" | "SUV" | "MPV";
+
+export default function AirportBookingForm({ airport }: { airport: Airport | null }) {
+  const { vehicles } = useVehicles();
+
+  const [travelDate, setTravelDate] = useState<Date>();
+  const [activeCategory, setActiveCategory] = useState<Category | null>(null);
+  const [selectedVehicleId, setSelectedVehicleId] = useState("");
+
+  const [form, setForm] = useState({
+    pickup: "",
+    terminal: "",
+    time: "",
+    passengers: "",
+    name: "",
+    phone: "",
+    suitcases: "",
+    handbags: "",
+  });
+
+  const [paymentType, setPaymentType] = useState<PaymentType>("later");
+  const [partialAmount, setPartialAmount] = useState("");
+  const [screenshot, setScreenshot] = useState<File | null>(null);
+  const [paymentSummary, setPaymentSummary] = useState<{ total: number; paid: number } | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const { success, bookingId, done, reset } = useBookingStatus();
+
+  // Pricing is per airport — clear the choice if the airport changes
+  useEffect(() => {
+    setSelectedVehicleId("");
+  }, [airport?.id]);
+
+  const grouped = useMemo(() => ({
+    Sedan: vehicles.filter(v => v.category?.toLowerCase().includes("sedan")),
+    SUV: vehicles.filter(v => v.category?.toLowerCase().includes("suv")),
+    MPV: vehicles.filter(v => v.category?.toLowerCase().includes("mpv")),
+  }), [vehicles]);
+
+  const selectedVehicle = vehicles.find(v => v.id === selectedVehicleId);
+
+  const priceFor = (vehicleId: string) =>
+    airport?.pricing.find(p => p.vehicleId === vehicleId)?.price || 0;
+
+  const totalAmount = selectedVehicleId ? priceFor(selectedVehicleId) : 0;
+
+  const suitcaseCapacity = selectedVehicle?.suitcaseCapacity ?? null;
+  const passengerCapacity = selectedVehicle?.passengerCapacity ?? null;
+
+  const suitcasesOverCapacity = suitcaseCapacity != null && Number(form.suitcases || 0) > suitcaseCapacity;
+  const passengersOverCapacity = passengerCapacity != null && Number(form.passengers || 0) > passengerCapacity;
+
+  const handleChange = (e: any) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const toggleCategory = (cat: Category) => {
+    setActiveCategory(activeCategory === cat ? null : cat);
+  };
+
+  const handleSubmit = async () => {
+    if (!airport) {
+      alert("Please select an airport above first");
+      return;
+    }
+
+    if (
+      !form.pickup || !travelDate || !form.time || !selectedVehicleId ||
+      !form.passengers || !form.name || !form.phone ||
+      !form.suitcases || !form.handbags
+    ) {
+      alert("Please fill all required fields");
+      return;
+    }
+
+    if ((paymentType === "full" || paymentType === "partial") && !screenshot) {
+      alert("Please upload a screenshot of your payment");
+      return;
+    }
+
+    if (paymentType === "partial" && (!partialAmount || Number(partialAmount) <= 0)) {
+      alert("Please enter how much you're paying now");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const data = new FormData();
+      data.append("name", form.name);
+      data.append("phone", form.phone);
+      data.append("pickup", form.pickup);
+      data.append("airport", airport.name);
+      data.append("airportId", airport.id);
+      data.append("terminal", form.terminal);
+      data.append("travelDate", travelDate.toISOString());
+      data.append("pickupTime", form.time);
+      data.append("vehicleId", selectedVehicleId);
+      data.append("passengers", form.passengers);
+      data.append("suitcases", form.suitcases);
+      data.append("handbags", form.handbags);
+      data.append("paymentType", paymentType);
+      data.append(
+        "amountPaid",
+        paymentType === "full" ? String(totalAmount) : paymentType === "partial" ? partialAmount : "0"
+      );
+      if (screenshot) data.append("paymentScreenshot", screenshot);
+
+      const res = await fetch(`${API_URL}/api/airport-bookings`, {
+        method: "POST",
+        body: data,
+      });
+
+      const resData = await res.json();
+
+      if (resData.success) {
+        setPaymentSummary({
+          total: resData.booking.totalAmount || totalAmount,
+          paid: resData.booking.amountPaid || 0,
+        });
+        done(resData.booking?.id);
+      } else {
+        alert(resData.message || "Booking failed");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Unable to submit booking");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fieldClass = `
+    h-12 w-full rounded-xl border border-[#252525] bg-[#111]
+    text-white placeholder:text-[#777] outline-none focus:border-[#ecb100]
+  `;
+
+  if (!airport) {
+    return (
+      <div className="mx-auto max-w-3xl rounded-2xl border border-[#252525] bg-[#111] p-8 text-center text-white/60">
+        Select an airport above to see pricing and start your booking.
+      </div>
+    );
+  }
+
+  return (
+    <div className="mx-auto max-w-5xl space-y-6">
+
+      <div className="flex items-center justify-between rounded-xl border border-[#ecb100]/30 bg-[#ecb100]/5 px-4 py-3">
+        <span className="text-sm text-white/70">Booking transfer to</span>
+        <span className="font-medium text-[#ecb100]">{airport.name}</span>
+      </div>
+
+      <div className="grid gap-5 md:grid-cols-2">
+
+        <div className="relative h-12">
+          <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
+          <input
+            name="pickup"
+            value={form.pickup}
+            onChange={handleChange}
+            placeholder="Pickup Address"
+            className={`${fieldClass} pl-12`}
+          />
+        </div>
+
+        <div className="relative h-12">
+          <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
+          <input
+            name="terminal"
+            value={form.terminal}
+            onChange={handleChange}
+            placeholder="Drop point at airport (e.g. T1, T2, Domestic)"
+            className={`${fieldClass} pl-12`}
+          />
+        </div>
+
+        <div className="relative">
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className={`${fieldClass} flex items-center gap-3 px-4 text-left`}>
+                <CalendarDays size={18} className="text-[#ecb100]" />
+                <span>{travelDate ? format(travelDate, "dd MMM yyyy") : "Select Travel Date"}</span>
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="border-[#252525] bg-[#141414] p-0">
+              <Calendar mode="single" selected={travelDate} onSelect={setTravelDate} />
+            </PopoverContent>
+          </Popover>
+        </div>
+
+        <div className="relative">
+          <Clock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white z-10" />
+          <input
+            type="time"
+            name="time"
+            value={form.time}
+            onChange={handleChange}
+            className={`${fieldClass} pl-12 [&::-webkit-calendar-picker-indicator]:invert`}
+          />
+        </div>
+      </div>
+
+      <div>
+        <p className="mb-3 text-sm uppercase tracking-wide text-white/50">Choose your vehicle</p>
+
+        <div className="grid grid-cols-3 gap-4">
+          {(Object.keys(grouped) as Category[]).map((cat) => (
+            <div key={cat} className="relative">
+              <div
+                onMouseEnter={() => setActiveCategory(cat)}
+                onClick={() => toggleCategory(cat)}
+                className={`
+                  rounded-2xl border bg-[#111] p-4 cursor-pointer transition-all duration-200
+                  hover:border-[#ecb100]/40
+                  ${activeCategory === cat ? "border-[#ecb100]/60" : "border-[#252525]"}
+                `}
+              >
+                <p className="font-medium text-white">{cat}</p>
+
+                {grouped[cat].some(v => v.id === selectedVehicleId) && (
+                  <p className="mt-1 text-xs text-[#ecb100]">
+                    {grouped[cat].find(v => v.id === selectedVehicleId)?.name}
+                  </p>
+                )}
+              </div>
+
+              {activeCategory === cat && (
+                <div
+                  onMouseLeave={() => setActiveCategory(null)}
+                  className="absolute left-0 top-full mt-2 w-full rounded-2xl border border-[#252525] bg-black/95 backdrop-blur-lg shadow-xl z-50 overflow-hidden"
+                >
+                  {grouped[cat].length === 0 && (
+                    <p className="px-4 py-3 text-sm text-white/40">No vehicles in this category</p>
+                  )}
+
+                  {grouped[cat].map((v) => (
+                    <button
+                      key={v.id}
+                      onClick={() => {
+                        setSelectedVehicleId(v.id);
+                        setActiveCategory(null);
+                      }}
+                      className={`
+                        w-full text-left px-4 py-3 text-sm transition-colors
+                        ${selectedVehicleId === v.id ? "bg-[#ecb100]/10 text-[#ecb100]" : "text-white hover:bg-white/5"}
+                      `}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span>{v.name}</span>
+                        <span style={{ fontFamily: "var(--font-geist-mono)" }}>₹{priceFor(v.id)}</span>
+                      </div>
+                      <div className="text-xs text-white/40 mt-0.5">
+                        {v.passengerCapacity ?? "-"} seats · {v.suitcaseCapacity ?? "-"} bags
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {selectedVehicle && (
+        <div className="rounded-xl border border-[#252525] bg-black/40 p-4 text-sm text-white">
+          <p className="text-[#ecb100] font-medium">Selected: {selectedVehicle.name}</p>
+          <p className="text-white/60 mt-1">
+            Capacity: {selectedVehicle.passengerCapacity ?? "-"} passengers · {selectedVehicle.suitcaseCapacity ?? "-"} bags
+          </p>
+        </div>
+      )}
+
+      {selectedVehicle && totalAmount > 0 && (
+        <div className="flex items-center justify-between rounded-xl border border-[#ecb100]/30 bg-[#ecb100]/5 px-4 py-3">
+          <span className="text-sm text-white/70">Estimated fare</span>
+          <span style={{ fontFamily: "var(--font-geist-mono)" }} className="text-lg font-medium text-[#ecb100]">
+            ₹{totalAmount}
+          </span>
+        </div>
+      )}
+
+      <div className="grid gap-5 md:grid-cols-2">
+
+        <div className="relative h-12">
+          <Users size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
+          <input
+            type="number"
+            name="passengers"
+            value={form.passengers}
+            onChange={handleChange}
+            placeholder="Number of passengers"
+            className={`${fieldClass} pl-12`}
+          />
+        </div>
+
+        <div className="relative h-12">
+          <Luggage size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
+          <input
+            type="number"
+            name="suitcases"
+            value={form.suitcases}
+            onChange={handleChange}
+            placeholder="Suitcases"
+            className={`${fieldClass} pl-12`}
+          />
+        </div>
+
+        <div className="relative h-12">
+          <Luggage size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
+          <input
+            type="number"
+            name="handbags"
+            value={form.handbags}
+            onChange={handleChange}
+            placeholder="Handbags"
+            className={`${fieldClass} pl-12`}
+          />
+        </div>
+
+        <div className="relative h-12">
+          <Users size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
+          <input
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            placeholder="Your Name"
+            className={`${fieldClass} pl-12`}
+          />
+        </div>
+
+        <input
+          name="phone"
+          value={form.phone}
+          onChange={handleChange}
+          placeholder="Phone Number"
+          className={fieldClass}
+        />
+      </div>
+
+      {(suitcasesOverCapacity || passengersOverCapacity) && (
+        <div className="rounded-xl border border-[#ecb100]/30 bg-[#ecb100]/5 p-4 text-sm text-[#ecb100]">
+          {passengersOverCapacity && (
+            <p>This vehicle seats up to {passengerCapacity} passengers. Our team will confirm if a larger vehicle is needed.</p>
+          )}
+          {suitcasesOverCapacity && (
+            <p className={passengersOverCapacity ? "mt-2" : ""}>
+              Your luggage exceeds this vehicle's boot capacity ({suitcaseCapacity} bags). We can add a roof rack — our team will confirm and the driver will let you know if extra charges apply.
+            </p>
+          )}
+        </div>
+      )}
+
+      <PaymentMethodPicker
+        totalAmount={totalAmount}
+        paymentType={paymentType}
+        onPaymentTypeChange={setPaymentType}
+        partialAmount={partialAmount}
+        onPartialAmountChange={setPartialAmount}
+        onScreenshotChange={setScreenshot}
+      />
+
+      <Button
+        onClick={handleSubmit}
+        disabled={loading}
+        className="w-full h-12 rounded-xl bg-[#ecb100] font-semibold text-black hover:bg-[#f6c94c]"
+      >
+        {loading ? "Processing..." : "Request Airport Transfer"}
+      </Button>
+
+      <BookingSuccess
+        open={success}
+        onClose={reset}
+        bookingId={bookingId}
+        totalAmount={paymentSummary?.total}
+        amountPaid={paymentSummary?.paid}
+      />
+    </div>
+  );
 }

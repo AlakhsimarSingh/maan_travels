@@ -1,9 +1,10 @@
 type StatsCardProps = {
   title: string;
-  value: string;
+  value: string | number;
+  loading?: boolean;
 };
 
-export default function StatsCard({ title, value }: StatsCardProps) {
+export default function StatsCard({ title, value, loading }: StatsCardProps) {
   return (
     <div
       className="
@@ -21,9 +22,13 @@ export default function StatsCard({ title, value }: StatsCardProps) {
         {title}
       </p>
 
-      <h3 className="mt-2 text-3xl font-bold text-white">
-        {value}
-      </h3>
+      {loading ? (
+        <div className="mt-3 h-8 w-16 animate-pulse rounded bg-[#252525]" />
+      ) : (
+        <h3 className="mt-2 text-3xl font-bold text-white">
+          {value}
+        </h3>
+      )}
     </div>
   );
 }

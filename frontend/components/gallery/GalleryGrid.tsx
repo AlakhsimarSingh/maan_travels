@@ -1,42 +1,40 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
-import { galleryImages } from "@/src/data/gallery";
+import { useGallery } from "@/src/hooks/useGallery";
+import GalleryCard from "./GalleryCard";
 import ImageLightbox from "./ImageLightbox";
 
-const categories = [
-  "All",
-  "Luxury Cars",
-  "Tempo Traveller",
-  "Wedding Cars",
-  "Tours",
-];
+const categories = ["All", "Luxury Cars", "Tempo Traveller", "Wedding Cars", "Tours"];
 
 export default function GalleryGrid() {
+  const { images, loading } = useGallery();
   const [active, setActive] = useState("All");
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
-  const filtered =
-    active === "All"
-      ? galleryImages
-      : galleryImages.filter((img) => img.category === active);
+  const filtered = active === "All" ? images : images.filter((img) => img.category === active);
+
+  if (loading) {
+    return (
+      <section className="py-24">
+        <div className="mx-auto max-w-7xl px-6 text-center text-white/40">Loading gallery...</div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-24">
       <div className="mx-auto max-w-7xl px-6">
-        {/* Tabs */}
         <div className="mb-10 flex flex-wrap gap-4">
           {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setActive(cat)}
               className={`
-                rounded-full px-5 py-2 text-sm transition
-                ${
-                  active === cat
-                    ? "bg-[#ecb100] text-black"
-                    : "border border-[#252525] text-[#c7c7c7] hover:text-white"
+                rounded-full px-5 py-2 text-sm transition-all duration-200
+                ${active === cat
+                  ? "bg-[#ecb100] text-black"
+                  : "border border-[#252525] text-[#c7c7c7] hover:border-[#ecb100]/40 hover:text-white"
                 }
               `}
             >
@@ -45,31 +43,30 @@ export default function GalleryGrid() {
           ))}
         </div>
 
-        {/* Grid */}
-        <div className="columns-1 gap-6 sm:columns-2 lg:columns-3">
-          {filtered.map((img, i) => (
-            <div
-              key={i}
-              className="mb-6 cursor-pointer overflow-hidden rounded-2xl border border-[#252525]"
-              onClick={() => setSelectedImage(img.src)}
-            >
-              <Image
-                src={img.src}
-                alt="gallery"
-                width={800}
-                height={600}
-                className="h-auto w-full object-cover transition duration-300 hover:scale-105"
+        {filtered.length === 0 ? (
+          <p className="text-center text-white/40 py-20">No images in this category yet.</p>
+        ) : (
+          <div className="columns-1 gap-6 sm:columns-2 lg:columns-3">
+            {filtered.map((img, i) => (
+              <GalleryCard
+                key={img.id}
+                index={i}
+                image={img.image}
+                description={img.description}
+                category={img.category}
+                onClick={() => setSelectedIndex(i)}
               />
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Lightbox */}
-      {selectedImage && (
+      {selectedIndex !== null && (
         <ImageLightbox
-          src={selectedImage}
-          onClose={() => setSelectedImage(null)}
+          images={filtered}
+          index={selectedIndex}
+          onClose={() => setSelectedIndex(null)}
+          onIndexChange={setSelectedIndex}
         />
       )}
     </section>

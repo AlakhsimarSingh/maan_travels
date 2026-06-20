@@ -1,4 +1,5 @@
 import { ShieldCheck, Clock, MapPin, Car } from "lucide-react";
+import Reveal from "@/components/common/Reveal";
 
 const features = [
   {
@@ -28,35 +29,39 @@ export default function AboutWhy() {
     <section className="py-20 border-t border-[#252525]">
       <div className="max-w-7xl mx-auto px-6">
 
-        <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-12">
-          Why Choose Us
-        </h2>
+        <Reveal>
+          <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-12">
+            Why Choose Us
+          </h2>
+        </Reveal>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {features.map((item) => {
+          {features.map((item, i) => {
             const Icon = item.icon;
 
             return (
-              <div
-                key={item.title}
-                className="
-                  p-6 rounded-2xl
-                  bg-[#141414]
-                  border border-[#252525]
-                  hover:border-[#ecb100]
-                  transition
-                "
-              >
-                <Icon className="text-[#ecb100] mb-4" />
+              <Reveal key={item.title} delay={i * 90}>
+                <div
+                  className="
+                    group p-6 rounded-2xl h-full
+                    bg-[#141414]
+                    border border-[#252525]
+                    hover:border-[#ecb100]
+                    hover:-translate-y-1
+                    transition-all duration-300
+                  "
+                >
+                  <Icon className="text-[#ecb100] mb-4 transition-transform duration-300 group-hover:scale-110" />
 
-                <h3 className="text-white font-semibold mb-2">
-                  {item.title}
-                </h3>
+                  <h3 className="text-white font-semibold mb-2">
+                    {item.title}
+                  </h3>
 
-                <p className="text-sm text-[#8a8a8a]">
-                  {item.desc}
-                </p>
-              </div>
+                  <p className="text-sm text-[#8a8a8a]">
+                    {item.desc}
+                  </p>
+                </div>
+              </Reveal>
             );
           })}
         </div>
