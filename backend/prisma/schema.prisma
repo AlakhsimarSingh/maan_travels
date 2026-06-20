@@ -148,25 +148,18 @@ model TaxiBooking {
 
 model AirportTransfer {
   id String @id @default(cuid())
-
   bookingId String @unique
-
   booking Booking @relation(fields: [bookingId], references: [id])
 
   pickup String
-
   airport String
+  terminal String?
 
   travelDate DateTime
-
   pickupTime String
-
   vehicle String
-
   passengers Int
-
   suitcases Int
-
   handbags Int
 }
 
@@ -286,6 +279,7 @@ model TourLocation {
 
   name String @unique
 
+  imageUrl String?
 
   canPickup Boolean @default(false)
 
@@ -404,4 +398,42 @@ model RoutePricing {
   route     Route   @relation(fields: [routeId], references: [id], onDelete: Cascade)
 
   @@unique([routeId, vehicleId])
+}
+
+model Airport {
+  id String @id @default(cuid())
+  name String
+  shortName String
+  image String?
+  description String?
+  active Boolean @default(true)
+
+  pricing AirportPricing[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AirportPricing {
+  id String @id @default(cuid())
+
+  airportId String
+  vehicleId String
+
+  price Int
+
+  airport Airport @relation(fields: [airportId], references: [id], onDelete: Cascade)
+
+  @@unique([airportId, vehicleId])
+}
+
+model GalleryImage {
+  id String @id @default(cuid())
+  image String
+  description String?
+  category String
+  order Int @default(0)
+  active Boolean @default(true)
+
+  createdAt DateTime @default(now())
 }

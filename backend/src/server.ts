@@ -19,9 +19,9 @@ import luxuryCarsRoutes from "./routes/luxuryCars.routes";
 import adminDeviceRoutes from "./routes/adminDevice.routes";
 import routeRoutes from "./routes/routes.routes";
 import paymentRoutes from "./routes/payment.routes";
-
-
-
+import statsRoutes from "./routes/stats.routes"
+import airportsCatalogRoutes from "./routes/airports.routes";
+import galleryRoutes from "./routes/gallery.routes";
 
 import prisma from "./prisma";
 import uploadRoutes from "./routes/upload.routes";
@@ -89,12 +89,20 @@ app.use(
 app.use("/api/routes", 
   routeRoutes
 );
+app.use("/api/stats",
+  statsRoutes
+);
+
+app.use("/api/gallery", galleryRoutes);
+app.use("/api/airports", airportsCatalogRoutes);
 app.use("/api/pricing", pricingRoutes);
 app.get("/",(req,res)=>{
-
-res.send(
+  
+  
+  res.send(
 "Maan Travels Backend Running"
 );
+
 
 });
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));

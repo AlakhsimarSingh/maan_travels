@@ -1,5 +1,4 @@
 import { Router } from "express";
-
 import prisma from "../prisma";
 import { upload } from "../middleware/upload";
 
@@ -8,19 +7,12 @@ const router = Router();
 router.post("/", upload.single("paymentScreenshot"), async (req, res) => {
   try {
     const {
-      name,
-      phone,
-      pickup,
-      airport,
-      travelDate,
-      pickupTime,
+      name, phone,
+      pickup, airport, airportId, terminal,
+      travelDate, pickupTime,
       vehicleId,
-      passengers,
-      suitcases,
-      handbags,
-      routeId,
-      paymentType,
-      amountPaid,
+      passengers, suitcases, handbags,
+      paymentType, amountPaid,
     } = req.body;
 
     if (!vehicleId) {
@@ -35,9 +27,9 @@ router.post("/", upload.single("paymentScreenshot"), async (req, res) => {
 
     let totalAmount = 0;
 
-    if (routeId) {
-      const pricing = await prisma.routePricing.findUnique({
-        where: { routeId_vehicleId: { routeId, vehicleId } },
+    if (airportId) {
+      const pricing = await prisma.airportPricing.findUnique({
+        where: { airportId_vehicleId: { airportId, vehicleId } },
       });
       if (pricing) totalAmount = pricing.price;
     }
@@ -66,7 +58,6 @@ router.post("/", upload.single("paymentScreenshot"), async (req, res) => {
         customerId: customer.id,
         serviceType: "AIRPORT",
         vehicleId,
-        routeId: routeId || undefined,
         totalAmount,
         paymentType: type,
         amountPaid: resolvedAmountPaid,
@@ -76,6 +67,7 @@ router.post("/", upload.single("paymentScreenshot"), async (req, res) => {
           create: {
             pickup,
             airport,
+            terminal,
             travelDate: travelDate ? new Date(travelDate) : new Date(),
             pickupTime,
             vehicle: vehicle.name,
