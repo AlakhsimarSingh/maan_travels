@@ -437,3 +437,17 @@ model GalleryImage {
 
   createdAt DateTime @default(now())
 }
+
+model Inquiry {
+  id String @id @default(cuid())
+
+  name String
+  email String
+  phone String
+  subject String
+  message String
+
+  status String @default("new")   // new | contacted | closed
+
+  createdAt DateTime @default(now())
+}

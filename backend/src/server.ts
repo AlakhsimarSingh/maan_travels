@@ -22,6 +22,7 @@ import paymentRoutes from "./routes/payment.routes";
 import statsRoutes from "./routes/stats.routes"
 import airportsCatalogRoutes from "./routes/airports.routes";
 import galleryRoutes from "./routes/gallery.routes";
+import inquiryRoutes from "./routes/inquiry.routes";
 
 import prisma from "./prisma";
 import uploadRoutes from "./routes/upload.routes";
@@ -91,6 +92,9 @@ app.use("/api/routes",
 );
 app.use("/api/stats",
   statsRoutes
+);
+app.use("/api/inquiries"
+  , inquiryRoutes
 );
 
 app.use("/api/gallery", galleryRoutes);
