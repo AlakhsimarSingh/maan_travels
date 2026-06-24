@@ -6,11 +6,11 @@ const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 /* ---------------- INIT CHECKS ---------------- */
 
 if (!SUPABASE_URL) {
-  console.error("❌ Missing NEXT_PUBLIC_SUPABASE_URL");
+  console.error("Missing NEXT_PUBLIC_SUPABASE_URL");
 }
 
 if (!SUPABASE_ANON_KEY) {
-  console.error("❌ Missing NEXT_PUBLIC_SUPABASE_ANON_KEY");
+  console.error("Missing NEXT_PUBLIC_SUPABASE_ANON_KEY");
 }
 
 const supabase = createClient(
@@ -22,26 +22,14 @@ const supabase = createClient(
 
 export async function uploadImage(file: File): Promise<string> {
   try {
-    console.log("🚀 uploadImage started");
 
     /* 1. Validate file */
     if (!file) {
-      console.error("❌ No file provided");
       throw new Error("No file provided");
     }
 
-    console.log("📦 File details:", {
-      name: file.name,
-      type: file.type,
-      size: file.size,
-    });
-
     /* 2. Generate unique filename */
     const fileName = `${Date.now()}-${file.name}`;
-    console.log("📝 Generated filename:", fileName);
-
-    /* 3. Upload to Supabase */
-    console.log("⬆️ Uploading to bucket: vehicles");
 
     const { data, error } = await supabase.storage
       .from("vehicles")
@@ -51,29 +39,21 @@ export async function uploadImage(file: File): Promise<string> {
       });
 
     if (error) {
-      console.error("❌ Supabase upload error:", error);
+      console.error(" Supabase upload error:", error);
       throw error;
     }
-
-    console.log("✅ Upload success:", data);
 
     /* 4. Get public URL */
     const { data: publicUrlData } = supabase.storage
       .from("vehicles")
       .getPublicUrl(data.path);
 
-    console.log("🔗 Public URL generated:", publicUrlData.publicUrl);
-
     if (!publicUrlData?.publicUrl) {
-      console.error("❌ Failed to generate public URL");
       throw new Error("Failed to generate public URL");
     }
 
-    console.log("🎉 uploadImage completed successfully");
-
     return publicUrlData.publicUrl;
   } catch (err) {
-    console.error("🔥 uploadImage FAILED:", err);
     throw err;
   }
 }
