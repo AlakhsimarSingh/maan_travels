@@ -55,6 +55,7 @@ function RegisterDeviceContent() {
 
       if (res.success && res.status === "approved") {
         setView("approved");
+        document.cookie = "admin_hint=1; path=/; max-age=31536000; SameSite=Lax";
         setTimeout(() => router.replace(nextPath), 600);
         return;
       }
