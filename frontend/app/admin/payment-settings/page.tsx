@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { API_URL } from "@/src/services/bookingService";
+import { resolveImageUrl } from "@/src/lib/resolveImageUrl";
 
 export default function PaymentSettingsPage() {
   const [qrCode, setQrCode] = useState<string | null>(null);
@@ -67,7 +68,11 @@ export default function PaymentSettingsPage() {
       )}
 
       {qrCode && (
-        <img src={`${API_URL}${qrCode}`} alt="Current QR code" className="w-40 h-40 rounded-lg border border-[#252525]" />
+        <img
+          src={resolveImageUrl(qrCode, API_URL)}
+          alt="Current QR code"
+          className="w-40 h-40 rounded-lg border border-[#252525]"
+        />
       )}
 
       <div className="bg-[#111] border border-[#252525] p-5 rounded-2xl space-y-3">
