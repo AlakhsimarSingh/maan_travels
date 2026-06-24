@@ -40,6 +40,7 @@ const app = express();
 const ALLOWED_ORIGINS = [
   "https://www.maantravels.com",
   "http://localhost:3000",
+  process.env.FRONTEND_URL || "",
 ];
 
 app.use(
@@ -179,7 +180,7 @@ message:"Database error"
 
 
 
-const PORT=5000;
+const PORT = process.env.PORT || 5000;
 
 
 app.listen(
