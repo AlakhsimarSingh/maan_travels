@@ -5,8 +5,13 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "esModuleInterop": true,
-    "strict": true
+    "strict": true,
+    "skipLibCheck": true
   }
+  ,
+    "include": [
+    "src"
+  ]
   ,
   "exclude": [
     "prisma.config.ts",
