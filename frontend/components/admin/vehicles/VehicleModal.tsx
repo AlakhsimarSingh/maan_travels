@@ -26,8 +26,8 @@ const FLEET_CATEGORY_OPTIONS = {
 function getCategoryOptions(isTaxiFleet: boolean, isSelfDrive: boolean): string[] {
   const sets: string[][] = [];
 
-  if (isTaxiFleet) sets.push(FLEET_CATEGORY_OPTIONS.taxi);
-  if (isSelfDrive) sets.push(FLEET_CATEGORY_OPTIONS.selfDrive);
+  if (isTaxiFleet) sets.push([...FLEET_CATEGORY_OPTIONS.taxi]);
+  if (isSelfDrive) sets.push([...FLEET_CATEGORY_OPTIONS.selfDrive]);
 
   if (sets.length === 0) {
     // Neither fleet picked yet — show everything so the field isn't dead.

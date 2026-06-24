@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ShieldCheck, Loader2, Clock, ShieldX } from "lucide-react";
 
@@ -23,7 +23,7 @@ type ViewState =
 
 const POLL_INTERVAL_MS = 4000;
 
-export default function RegisterDevicePage() {
+function RegisterDeviceContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -206,5 +206,24 @@ export default function RegisterDevicePage() {
         )}
       </div>
     </div>
+  );
+}
+
+function RegisterDeviceFallback() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-[#0a0a0a] px-6">
+      <div className="w-full max-w-md rounded-2xl border border-[#252525] bg-[#141414] p-8 text-center">
+        <Loader2 className="mx-auto h-10 w-10 animate-spin text-[#ecb100]" />
+        <p className="mt-4 text-[#8a8a8a]">Checking this device...</p>
+      </div>
+    </div>
+  );
+}
+
+export default function RegisterDevicePage() {
+  return (
+    <Suspense fallback={<RegisterDeviceFallback />}>
+      <RegisterDeviceContent />
+    </Suspense>
   );
 }
