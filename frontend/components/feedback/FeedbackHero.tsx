@@ -1,3 +1,4 @@
+import Reveal from "@/components/common/Reveal";
 export default function FeedbackHero(){
 
 return (
@@ -44,7 +45,7 @@ px-6
 "
 >
 
-
+<Reveal delay={100}>
 <p
 className="
 uppercase
@@ -54,8 +55,9 @@ text-[#ecb100]
 >
 Customer Feedback
 </p>
+</Reveal>
 
-
+<Reveal delay={200}>
 <h1
 className="
 mt-4
@@ -66,8 +68,9 @@ text-white
 >
 Your Experience Matters
 </h1>
+</Reveal>
 
-
+<Reveal delay={300}>
 <p
 className="
 mt-5
@@ -78,7 +81,7 @@ max-w-2xl
 Share your travel experience
 and help us serve better.
 </p>
-
+</Reveal>
 
 </div>
 

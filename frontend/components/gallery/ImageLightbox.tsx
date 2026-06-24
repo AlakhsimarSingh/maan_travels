@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { API_URL } from "@/src/services/bookingService";
+import { resolveImageUrl } from "@/src/lib/resolveImageUrl";
 
 type GalleryImage = {
   id: string;
@@ -71,7 +72,7 @@ export default function ImageLightbox({ images, index, onClose, onIndexChange }:
       <div onClick={(e) => e.stopPropagation()} className="modal-enter flex max-h-[85vh] max-w-5xl flex-col items-center">
         <img
           key={current.id}
-          src={`${API_URL}${current.image}`}
+          src={resolveImageUrl(current.image, API_URL)}
           alt={current.description || current.category}
           className="max-h-[75vh] w-auto rounded-xl object-contain"
         />

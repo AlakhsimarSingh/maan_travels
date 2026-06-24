@@ -31,8 +31,24 @@ import pricingRoutes from "./routes/pricing.routes";
 
 const app = express();
 
+/* ---------------------------------------------------------------------
+   CORS — must explicitly whitelist origins (not the "*" wildcard) and
+   set credentials: true for the admin device cookie to ever be sent
+   or received by the browser. A wildcard origin + credentials is
+   actually rejected outright by browsers, so this isn't optional once
+   cookie-based auth is in play.
+--------------------------------------------------------------------- */
+const ALLOWED_ORIGINS = [
+  "https://www.maantravels.com",
+  "http://localhost:3000",
+];
 
-app.use(cors());
+app.use(
+  cors({
+    origin: ALLOWED_ORIGINS,
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
@@ -109,7 +125,7 @@ app.get("/",(req,res)=>{
 
 
 });
-app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+
 app.use("/api/payment", paymentRoutes);
 
 

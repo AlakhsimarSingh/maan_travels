@@ -24,7 +24,7 @@ export function useStats() {
     try {
       if (isFirstLoad) setLoading(true);
 
-      const res = await fetch(`${API_URL}/api/stats`);
+      const res = await fetch(`${API_URL}/api/stats`, {credentials: "include"});
       const data = await res.json();
 
       if (data.success) {

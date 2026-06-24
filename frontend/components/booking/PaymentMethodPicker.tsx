@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { API_URL } from "@/src/services/bookingService";
+import { resolveImageUrl } from "@/src/lib/resolveImageUrl";
 
 export type PaymentType = "full" | "partial" | "later";
 
@@ -86,7 +87,7 @@ export default function PaymentMethodPicker({
           {qrCode ? (
             <div className="flex flex-col items-center gap-2">
               <img
-                src={`${API_URL}${qrCode}`}
+                src={resolveImageUrl(qrCode, API_URL)}
                 alt="Payment QR code"
                 className="w-40 h-40 rounded-lg border border-[#252525]"
               />

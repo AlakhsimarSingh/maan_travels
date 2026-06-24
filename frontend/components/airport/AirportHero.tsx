@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { Plane } from "lucide-react";
 import { API_URL } from "@/src/services/bookingService";
-import type { Airport } from "@/src/hooks/useAirports";
+import { resolveImageUrl } from "@/src/lib/resolveImageUrl";
+import type { Airport } from "@/src/lib/fetchAirportTransferData";
 
 type Props = {
   airports: Airport[];
@@ -31,7 +32,7 @@ export default function AirportHero({ airports, selectedAirport, onSelectAirport
       <div className="absolute inset-0">
         {displayAirport?.image ? (
           <img
-            src={`${API_URL}${displayAirport.image}`}
+            src={resolveImageUrl(displayAirport.image, API_URL)}
             alt={displayAirport.name}
             className="absolute inset-0 w-full h-full object-cover transition-all duration-700"
           />

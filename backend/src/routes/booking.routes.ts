@@ -1,14 +1,23 @@
 import { Router } from "express";
 
 import prisma from "../prisma";
-import adminDeviceAuth from "../middleware/adminDeviceAuth";
-import { upload } from "../middleware/upload";
 import PDFDocument from "pdfkit";
+import { requireAdminDevice } from "../middleware/requireAdminDevice";
+import {
+  paymentUpload,
+  uploadPaymentScreenshot,
+  getPaymentScreenshotUrl,
+} from "../middleware/uploadPayment";
 
 const router = Router();
 
+function getParam(value: string | string[] | undefined): string {
+  if (Array.isArray(value)) return value[0];
+  return value ?? "";
+}
+
 /* ---------------- GET ALL BOOKINGS (ADMIN) ---------------- */
-router.get("/all", async (req, res) => {
+router.get("/all", requireAdminDevice, async (req, res) => {
   try {
     const bookings = await prisma.booking.findMany({
       orderBy: { createdAt: "desc" },
@@ -33,10 +42,10 @@ router.get("/all", async (req, res) => {
   }
 });
 
-/* ---------------- UPDATE BOOKING STATUS ---------------- */
-router.patch("/:id/status", async (req, res) => {
+/* ---------------- UPDATE BOOKING STATUS (ADMIN) ---------------- */
+router.patch("/:id/status", requireAdminDevice, async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = getParam(req.params.id);
     const { status } = req.body;
 
     const allowedStatuses = ["pending", "confirmed", "completed", "cancelled"];
@@ -69,10 +78,10 @@ router.patch("/:id/status", async (req, res) => {
   }
 });
 
-/* ---------------- DELETE BOOKING ---------------- */
-router.delete("/:id", async (req, res) => {
+/* ---------------- DELETE BOOKING (ADMIN) ---------------- */
+router.delete("/:id", requireAdminDevice, async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = getParam(req.params.id);
 
     const booking = await prisma.booking.findUnique({ where: { id } });
 
@@ -89,8 +98,8 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-/* ---------------- GET ALL BOOKINGS ---------------- */
-router.get("/", async (req, res) => {
+/* ---------------- GET ALL BOOKINGS (ADMIN) ---------------- */
+router.get("/", requireAdminDevice, async (req, res) => {
   try {
     const bookings = await prisma.booking.findMany({
       orderBy: { createdAt: "desc" },
@@ -115,11 +124,14 @@ router.get("/", async (req, res) => {
   }
 });
 
-/* ---------------- GET SINGLE BOOKING ---------------- */
+/* ---------------- GET SINGLE BOOKING (PUBLIC) ----------------
+   Intentionally public — customers look up their own booking by
+   the cuid ID they received on submission. The unguessable ID
+   is the access control (same pattern as payment receipt links). */
 router.get("/:id", async (req, res) => {
   try {
     const booking = await prisma.booking.findUnique({
-      where: { id: req.params.id },
+      where: { id: getParam(req.params.id) },
       include: {
         customer: true,
         vehicle: true,
@@ -144,9 +156,62 @@ router.get("/:id", async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to fetch booking" });
   }
 });
+/* ---------------- UPDATE PAYMENT STATUS (ADMIN) ----------------
+   For the admin to record their verdict after manually comparing the
+   claimed amountPaid against the uploaded screenshot. */
+router.patch("/:id/payment-status", requireAdminDevice, async (req, res) => {
+  try {
+    const id = getParam(req.params.id);
+    const { paymentStatus } = req.body;
 
-/* ---------------- CREATE TAXI BOOKING ---------------- */
-router.post("/", upload.single("paymentScreenshot"), async (req, res) => {
+    const allowed = ["pending", "verified", "rejected", "not_required"];
+
+    if (!allowed.includes(paymentStatus)) {
+      return res.status(400).json({ success: false, message: "Invalid payment status" });
+    }
+
+    const updated = await prisma.booking.update({
+      where: { id },
+      data: { paymentStatus },
+    });
+
+    res.json({ success: true, booking: updated });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Failed to update payment status" });
+  }
+});
+/* ---------------- GET SIGNED SCREENSHOT URL (ADMIN) ----------------
+   paymentScreenshot now stores a Supabase storage path, not a public
+   URL. This generates a short-lived (1hr) signed URL on demand so the
+   admin panel can display it without the file ever being publicly
+   accessible via a permanent link. */
+router.get("/:id/screenshot", requireAdminDevice, async (req, res) => {
+  try {
+    const booking = await prisma.booking.findUnique({
+      where: { id: getParam(req.params.id) },
+      select: { paymentScreenshot: true },
+    });
+
+    if (!booking) {
+      return res.status(404).json({ success: false, message: "Booking not found" });
+    }
+
+    if (!booking.paymentScreenshot) {
+      return res.status(404).json({ success: false, message: "No screenshot on file" });
+    }
+
+    const signedUrl = await getPaymentScreenshotUrl(booking.paymentScreenshot);
+
+    res.json({ success: true, url: signedUrl });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Failed to generate screenshot URL" });
+  }
+});
+
+/* ---------------- CREATE TAXI BOOKING (PUBLIC) ---------------- */
+router.post("/", paymentUpload.single("paymentScreenshot"), async (req, res) => {
   try {
     const {
       name,
@@ -173,7 +238,6 @@ router.post("/", upload.single("paymentScreenshot"), async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid vehicle" });
     }
 
-    // Resolve the authoritative price ourselves — never trust a client-sent price
     let totalAmount = 0;
 
     if (routeId) {
@@ -200,6 +264,12 @@ router.post("/", upload.single("paymentScreenshot"), async (req, res) => {
       });
     }
 
+    // Upload to private Supabase bucket — stores a storage path, not a
+    // public URL. Use GET /:id/screenshot to retrieve a signed URL later.
+    const screenshotPath = req.file
+      ? await uploadPaymentScreenshot(req.file)
+      : null;
+
     const customer = await prisma.customer.create({
       data: { name, email, phone },
     });
@@ -213,7 +283,7 @@ router.post("/", upload.single("paymentScreenshot"), async (req, res) => {
         totalAmount,
         paymentType: type,
         amountPaid: resolvedAmountPaid,
-        paymentScreenshot: req.file ? `/uploads/${req.file.filename}` : null,
+        paymentScreenshot: screenshotPath,
         paymentStatus: type === "later" ? "not_required" : "pending",
         taxi: {
           create: {
@@ -236,11 +306,11 @@ router.post("/", upload.single("paymentScreenshot"), async (req, res) => {
   }
 });
 
-/* ---------------- DOWNLOAD RECEIPT (PDF) ---------------- */
+/* ---------------- DOWNLOAD RECEIPT (PDF) (PUBLIC) ---------------- */
 router.get("/:id/receipt", async (req, res) => {
   try {
     const booking = await prisma.booking.findUnique({
-      where: { id: req.params.id },
+      where: { id: getParam(req.params.id) },
       include: { customer: true, vehicle: true, route: true, taxi: true, airport: true, tour: true },
     });
 

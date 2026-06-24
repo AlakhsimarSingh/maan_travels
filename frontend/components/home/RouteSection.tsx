@@ -2,17 +2,18 @@
 
 import RouteCard from "./RouteCard";
 import { useBookingModal } from "@/src/store/bookingModalStore";
-import { useVehicles } from "@/src/hooks/useVehicles";
+
+type Vehicle = { id: string; name: string };
 
 type Props = {
   title: string;
   routes: any[];
+  vehicles: Vehicle[];
   type: "taxi" | "airport" | "tour";
 };
 
-export default function RouteSection({ title, routes, type }: Props) {
+export default function RouteSection({ title, routes, vehicles, type }: Props) {
   const { openModal } = useBookingModal();
-  const { vehicles } = useVehicles();
 
   const displayRoutes = routes.slice(0, 9);
 
@@ -40,7 +41,6 @@ export default function RouteSection({ title, routes, type }: Props) {
               openModal(type, {
                 pickup: route.from,
                 drop: route.to,
-                // ↓ Pass destination as the airport for airport-type routes
                 airport: type === "airport" ? route.to : undefined,
                 rideMode: "oneway",
                 routeId: route.id,

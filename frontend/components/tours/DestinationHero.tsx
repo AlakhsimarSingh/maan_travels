@@ -13,10 +13,14 @@ export default function DestinationHero({
   destination,
   locations,
   activeIndex,
+  autoRotate = true,
+  onTick,
 }: {
   destination: string;
   locations: LocationImage[];
   activeIndex: number;
+  autoRotate?: boolean;
+  onTick?: () => void;
 }) {
   // Tracks the previous image so we can crossfade rather than hard-cut
   const [prevIndex, setPrevIndex] = useState<number | null>(null);
@@ -30,6 +34,16 @@ export default function DestinationHero({
     const t = setTimeout(() => setPrevIndex(null), 1200);
     return () => clearTimeout(t);
   }, [activeIndex, displayIndex]);
+
+  // Self-contained auto-rotation — the hero owns its own timer rather than
+  // relying on a parent to manage slide indices, so this component is
+  // fully responsible for its own animation timing.
+  useEffect(() => {
+    if (!autoRotate || !onTick || locations.length <= 1) return;
+
+    const interval = setInterval(onTick, 4500);
+    return () => clearInterval(interval);
+  }, [autoRotate, onTick, locations.length]);
 
   const current = locations[displayIndex];
   const previous = prevIndex !== null ? locations[prevIndex] : null;
@@ -65,16 +79,23 @@ export default function DestinationHero({
       {/* CONTENT */}
       <div className="relative z-10 flex h-full flex-col justify-end px-6 pb-40 sm:px-10">
         <div className="mx-auto w-full max-w-6xl">
-          <p className="flex items-center gap-2 text-xs uppercase tracking-[0.35em] text-[#ecb100]">
-            <MapPin size={13} />
+          <p className="hero-text-up flex items-center gap-2 text-xs uppercase tracking-[0.35em] text-[#ecb100]">
+            <MapPin size={13} className="animate-pulse" />
             {destination ? "Selected destination" : "Explore Punjab's gateway to"}
           </p>
 
-          <h1 key={`title-${displayIndex}`} className="hero-text-up mt-4 text-5xl font-bold tracking-tight text-white sm:text-7xl">
+          <h1
+            key={`title-${displayIndex}`}
+            className="hero-text-up mt-4 text-5xl font-bold tracking-tight text-white sm:text-7xl"
+          >
             {current?.name || "Your Next Journey"}
           </h1>
 
-          <p className="mt-4 max-w-xl text-[#c7c7c7]">
+          <p
+            key={`sub-${displayIndex}`}
+            className="hero-text-up mt-4 max-w-xl text-[#c7c7c7]"
+            style={{ animationDelay: "0.1s" }}
+          >
             {destination
               ? `Book a customized tour to ${current?.name}. Pick your vehicle and travel date below.`
               : "Customized tour packages across the mountains, deserts and shrines of North India."}

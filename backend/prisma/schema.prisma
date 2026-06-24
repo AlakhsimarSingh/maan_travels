@@ -343,31 +343,50 @@ model Feedback {
 }
 
 model AdminDevice {
-
   id String @id @default(cuid())
-
 
   name String
 
-
   deviceToken String @unique
-
-
   fingerprint String @unique
-
 
   userAgent String?
 
+  // pending  -> registered, not yet trusted, cannot access /admin
+  // approved -> trusted, can access /admin
+  // revoked  -> was approved, access has been explicitly pulled
+  status String @default("pending")
 
-  active Boolean @default(true)
-
+  // Kept for backward compatibility with any existing code that reads
+  // `active` directly. Always kept in sync with status === "approved"
+  // by the route handlers — don't write to this field independently.
+  active Boolean @default(false)
 
   lastUsed DateTime?
 
+  invitesCreated AdminDeviceInvite[] @relation("InviteCreatedBy")
+  invitesRedeemed AdminDeviceInvite[] @relation("InviteRedeemedBy")
 
   createdAt DateTime @default(now())
-
 }
+
+model AdminDeviceInvite {
+  id String @id @default(cuid())
+
+  code String @unique
+
+  createdByDeviceId String
+  createdByDevice   AdminDevice @relation("InviteCreatedBy", fields: [createdByDeviceId], references: [id])
+
+  redeemedByDeviceId String?
+  redeemedByDevice   AdminDevice? @relation("InviteRedeemedBy", fields: [redeemedByDeviceId], references: [id])
+
+  expiresAt DateTime
+  redeemedAt DateTime?
+
+  createdAt DateTime @default(now())
+}
+
 
 model Route {
   id          String   @id @default(cuid())

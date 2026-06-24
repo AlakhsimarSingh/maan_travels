@@ -1,8 +1,15 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import prisma from "../prisma";
+import { requireAdminDevice, AuthedRequest } from "../middleware/requireAdminDevice";
 
 const router = Router();
 
+function getParam(value: string | string[] | undefined): string {
+  if (Array.isArray(value)) return value[0];
+  return value ?? "";
+}
+
+/* ---------------- SUBMIT FEEDBACK (PUBLIC) ---------------- */
 router.post("/", async (req, res) => {
   try {
     const {
@@ -43,16 +50,48 @@ router.post("/", async (req, res) => {
     });
   }
 });
-/* ---------------- GET ALL FEEDBACKS ---------------- */
-router.get("/", async (req, res) => {
-  try {
-    const { visible } = req.query;
 
+/* ---------------- GET FEEDBACK — DUAL PURPOSE ----------------
+   This single route serves two very different audiences depending
+   on the ?visible= query param, so the admin check has to live
+   INSIDE the handler rather than as router-level middleware (which
+   can't see the query param before deciding whether to apply itself).
+
+   ?visible=true  -> PUBLIC. Returns only feedback the admin has
+                     explicitly approved for the website's
+                     testimonials section. No auth required.
+
+   no query param -> ADMIN MODERATION VIEW. Returns EVERY feedback
+                     ever submitted, including hidden/unapproved
+                     ones, with full customer names and raw comments.
+                     This branch must be gated — otherwise anyone
+                     can scrape every submission, including ones a
+                     customer never agreed to have shown publicly.
+------------------------------------------------------------------ */
+router.get("/", async (req: AuthedRequest, res: Response) => {
+  const isPublicTestimonialsRequest = req.query.visible === "true";
+
+  if (!isPublicTestimonialsRequest) {
+    // Not the public path — verify this is a trusted admin device
+    // before going any further, using the same middleware everything
+    // else relies on so there's exactly one source of truth for what
+    // counts as "authenticated".
+    return requireAdminDevice(req, res, async () => {
+      await sendFeedback(req, res, { onlyVisible: false });
+    });
+  }
+
+  await sendFeedback(req, res, { onlyVisible: true });
+});
+
+async function sendFeedback(
+  req: Request,
+  res: Response,
+  { onlyVisible }: { onlyVisible: boolean }
+) {
+  try {
     const feedbacks = await prisma.feedback.findMany({
-      where:
-        visible === "true"
-          ? { showOnWebsite: true }
-          : {},
+      where: onlyVisible ? { showOnWebsite: true } : {},
       orderBy: {
         createdAt: "desc",
       },
@@ -69,12 +108,12 @@ router.get("/", async (req, res) => {
       message: "Failed to fetch feedbacks",
     });
   }
-});
+}
 
-/* ---------------- TOGGLE VISIBILITY ---------------- */
-router.patch("/:id/toggle", async (req, res) => {
+/* ---------------- TOGGLE VISIBILITY (ADMIN) ---------------- */
+router.patch("/:id/toggle", requireAdminDevice, async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = getParam(req.params.id);
 
     const feedback = await prisma.feedback.findUnique({
       where: { id },
@@ -106,4 +145,5 @@ router.patch("/:id/toggle", async (req, res) => {
     });
   }
 });
+
 export default router;

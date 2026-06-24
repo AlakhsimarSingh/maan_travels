@@ -119,6 +119,7 @@ type TempoBooking = {
   destination: string;
   travelDate: string;
   passengers: string;
+  suitcases?: string; // was missing — backend accepts this but the form never sent it
   tripType: string;
   requirements?: string;
 };
@@ -143,7 +144,6 @@ type Feedback = {
 
 /* ---------------- COMMON POST ---------------- */
 
-
 async function post<T>(url: string, data: any): Promise<T> {
   const cleanData = {
     ...data,
@@ -159,9 +159,22 @@ async function post<T>(url: string, data: any): Promise<T> {
     body: JSON.stringify(cleanData),
   });
 
-  if (!res.ok) throw new Error("Request failed");
+  // Surface the backend's actual error message (e.g. "Missing required
+  // fields: vehicleId") instead of a generic "Request failed" — the
+  // backend routes now return specific, useful messages and callers
+  // should be able to show those to the user.
+  let parsed: any = null;
+  try {
+    parsed = await res.json();
+  } catch {
+    // non-JSON response, fall through
+  }
 
-  return res.json();
+  if (!res.ok) {
+    throw new Error(parsed?.message || "Request failed");
+  }
+
+  return parsed as T;
 }
 
 
@@ -254,14 +267,22 @@ data
 );
 
 
-/* ---------------- ADMIN BOOKINGS ---------------- */
+/* ---------------- ADMIN BOOKINGS ----------------
+   These all hit endpoints behind requireAdminDevice, which reads an
+   httpOnly cookie. credentials: "include" is required on every one of
+   these or the browser won't send that cookie and an otherwise-approved
+   admin device will get a confusing 401. */
 
 export const getAllBookings = async () => {
-  const res = await fetch(`${API_URL}/api/bookings`);
+  const res = await fetch(`${API_URL}/api/bookings`, {
+    credentials: "include",
+  });
   return res.json();
 };
 
 export const getBookingById = async (id: string) => {
+  // Intentionally public — this is the customer's own booking
+  // confirmation page, not an admin action, so no credentials needed.
   const res = await fetch(`${API_URL}/api/bookings/${id}`);
   return res.json();
 };
@@ -270,6 +291,7 @@ export const updateBookingStatus = async (id: string, status: string) => {
   const res = await fetch(`${API_URL}/api/bookings/${id}/status`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
+    credentials: "include",
     body: JSON.stringify({ status }),
   });
 
@@ -279,6 +301,7 @@ export const updateBookingStatus = async (id: string, status: string) => {
 export const deleteBooking = async (id: string) => {
   const res = await fetch(`${API_URL}/api/bookings/${id}`, {
     method: "DELETE",
+    credentials: "include",
   });
 
   return res.json();

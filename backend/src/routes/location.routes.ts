@@ -1,5 +1,11 @@
 import { Router } from "express";
 import prisma from "../prisma";
+import { requireAdminDevice } from "../middleware/requireAdminDevice";
+
+function getParam(value: string | string[] | undefined): string {
+  if (Array.isArray(value)) return value[0];
+  return value ?? "";
+}
 
 const router = Router();
 
@@ -77,7 +83,7 @@ router.get("/active", async (req, res) => {
 ADMIN
 GET ALL
 */
-router.get("/all", async (req, res) => {
+router.get("/all", requireAdminDevice, async (req, res) => {
   try {
     const locations = await prisma.tourLocation.findMany({
       orderBy: { createdAt: "desc" },
@@ -97,7 +103,7 @@ router.get("/all", async (req, res) => {
 ADMIN
 CREATE
 */
-router.post("/", async (req, res) => {
+router.post("/", requireAdminDevice, async (req, res) => {
   try {
     const { name, imageUrl, canPickup, canDrop } = req.body;
 
@@ -140,12 +146,12 @@ router.post("/", async (req, res) => {
 ADMIN
 UPDATE
 */
-router.put("/:id", async (req, res) => {
+router.put("/:id", requireAdminDevice, async (req, res) => {
   try {
     const { name, imageUrl, canPickup, canDrop, active } = req.body;
 
     const location = await prisma.tourLocation.update({
-      where: { id: req.params.id },
+      where: { id: getParam(req.params.id) },
       data: {
         name,
         imageUrl: imageUrl ?? undefined,
@@ -169,10 +175,10 @@ router.put("/:id", async (req, res) => {
 ADMIN
 DELETE
 */
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", requireAdminDevice, async (req, res) => {
   try {
     await prisma.tourLocation.delete({
-      where: { id: req.params.id },
+      where: { id: getParam(req.params.id) },
     });
 
     res.json({ success: true, message: "Location deleted" });

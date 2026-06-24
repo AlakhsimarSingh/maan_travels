@@ -1,105 +1,66 @@
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  process.env.NEXT_PUBLIC_BACKEND_URL ||
-  "http://localhost:5000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
-/* ---------------- DEVICE TOKEN ---------------- */
-function getDeviceToken() {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem("device_token");
-}
-
-/* ---------------- SAFE FETCH ---------------- */
-async function safeFetch(url: string, options: RequestInit = {}) {
-  try {
-    const deviceToken = getDeviceToken();
-
-    const headers: any = {
-      "Content-Type": "application/json",
-      ...(options.headers || {}),
-    };
-
-    if (deviceToken) {
-      headers["x-device-token"] = deviceToken;
-    }
-
-    const res = await fetch(url, {
-      ...options,
-      headers,
-    });
-
-    const text = await res.text();
-    const data = text ? JSON.parse(text) : null;
-
-    if (!res.ok) {
-      throw new Error(data?.message || `Request failed: ${res.status}`);
-    }
-
-    return data;
-  } catch (err) {
-    console.error("API Error:", url, err);
-    throw err;
+async function handleResponse(res: Response) {
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data?.message || "Request failed");
   }
+  return data;
 }
 
-/* ---------------- NORMALIZER (IMPORTANT FOR YOUR SCHEMA) ---------------- */
-function normalizeVehiclePayload(data: any) {
-  return {
-    ...data,
-
-    price: data.price ? Number(data.price) : 0,
-
-    seats: data.seats ? Number(data.seats) : null,
-    modelYear: data.modelYear ? Number(data.modelYear) : null,
-    rentalPerDay: data.rentalPerDay ? Number(data.rentalPerDay) : null,
-
-    passengerCapacity: data.passengerCapacity
-      ? Number(data.passengerCapacity)
-      : null,
-
-    suitcaseCapacity: data.suitcaseCapacity
-      ? Number(data.suitcaseCapacity)
-      : null,
-
-    fuelType: data.fuelType || null,
-    transmission: data.transmission || null,
-    description: data.description || null,
-
-    imageUrl: data.imageUrl || null,
-  };
+/* ---------------- ADMIN ----------------
+   Every one of these hits an endpoint behind requireAdminDevice, which
+   reads an httpOnly cookie. credentials: "include" is required on each
+   one or the browser won't send that cookie and an approved admin
+   device will get a confusing 401 anyway. */
+export async function getAllVehicles() {
+  const res = await fetch(`${API_URL}/api/vehicles/all`, {
+    cache: "no-store",
+    credentials: "include",
+  });
+  return handleResponse(res);
 }
 
-/* ---------------- GET ALL (ADMIN) ---------------- */
-export const getAllVehicles = async () => {
-  return safeFetch(`${API_URL}/api/vehicles/all`);
-};
-
-/* ---------------- CREATE ---------------- */
-export const createVehicle = async (data: any) => {
-  return safeFetch(`${API_URL}/api/vehicles`, {
+export async function createVehicle(payload: Record<string, unknown>) {
+  const res = await fetch(`${API_URL}/api/vehicles`, {
     method: "POST",
-    body: JSON.stringify(normalizeVehiclePayload(data)),
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(payload),
   });
-};
+  return handleResponse(res);
+}
 
-/* ---------------- UPDATE ---------------- */
-export const updateVehicle = async (id: string, data: any) => {
-  return safeFetch(`${API_URL}/api/vehicles/${id}`, {
+export async function updateVehicle(id: string, payload: Record<string, unknown>) {
+  const res = await fetch(`${API_URL}/api/vehicles/${id}`, {
     method: "PUT",
-    body: JSON.stringify(normalizeVehiclePayload(data)),
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify(payload),
   });
-};
+  return handleResponse(res);
+}
 
-/* ---------------- DELETE ---------------- */
-export const deleteVehicle = async (id: string) => {
-  return safeFetch(`${API_URL}/api/vehicles/${id}`, {
-    method: "DELETE",
-  });
-};
-
-/* ---------------- TOGGLE ---------------- */
-export const toggleVehicle = async (id: string) => {
-  return safeFetch(`${API_URL}/api/vehicles/${id}/toggle`, {
+export async function toggleVehicle(id: string) {
+  const res = await fetch(`${API_URL}/api/vehicles/${id}/toggle`, {
     method: "PATCH",
+    credentials: "include",
   });
-};
+  return handleResponse(res);
+}
+
+export async function deleteVehicle(id: string) {
+  const res = await fetch(`${API_URL}/api/vehicles/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  return handleResponse(res);
+}
+
+/* ---------------- PUBLIC ----------------
+   Intentionally no credentials here — this hits the public, unauthenticated
+   endpoint that regular visitors (with no admin device cookie at all) use. */
+export async function getActiveVehicles() {
+  const res = await fetch(`${API_URL}/api/vehicles`, { cache: "no-store" });
+  return handleResponse(res);
+}

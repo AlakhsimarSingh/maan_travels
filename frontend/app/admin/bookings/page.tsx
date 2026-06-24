@@ -549,17 +549,10 @@ export default function AdminBookingsPage() {
       {/* DETAILS MODAL */}
 
       <BookingDetailsModal
-
         booking={selectedBooking}
-
-        open={
-          !!selectedBooking
-        }
-
-        onClose={()=>
-          setSelectedBooking(null)
-        }
-
+        open={!!selectedBooking}
+        onClose={() => setSelectedBooking(null)}
+        onBookingUpdate={fetchBookings}
       />
 
 

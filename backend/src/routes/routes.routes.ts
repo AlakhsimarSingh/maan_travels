@@ -1,9 +1,19 @@
 import express from "express";
 import prisma from "../prisma";
+import { requireAdminDevice } from "../middleware/requireAdminDevice";
 
 const router = express.Router();
 
+// See booking.routes.ts / airports.routes.ts / vehicle.routes.ts for why
+// this normalization is needed — some @types/express configurations type
+// route params as string | string[] | undefined rather than plain string.
+function getParam(value: string | string[] | undefined): string {
+  if (Array.isArray(value)) return value[0];
+  return value ?? "";
+}
+
 // ================= GET ALL ROUTES =================
+// Public — the website needs this to show routes/pricing to customers.
 router.get("/", async (req, res) => {
   try {
     const routes = await prisma.route.findMany({
@@ -18,8 +28,8 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ================= CREATE ROUTE =================
-router.post("/", async (req, res) => {
+// ================= CREATE ROUTE (ADMIN) =================
+router.post("/", requireAdminDevice, async (req, res) => {
   try {
     const { title, from, to, category, baseType, image } = req.body;
 
@@ -41,10 +51,12 @@ router.post("/", async (req, res) => {
   }
 });
 
-// ================= UPDATE ROUTE =================
-router.put("/:id", async (req, res) => {
+// ================= UPDATE ROUTE (ADMIN) =================
+// Was missing requireAdminDevice — anyone with the URL could rewrite any
+// route's title/from/to/category/active state.
+router.put("/:id", requireAdminDevice, async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = getParam(req.params.id);
     const { title, from, to, category, baseType, image, active } = req.body;
 
     const route = await prisma.route.update({
@@ -59,10 +71,10 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// ================= DELETE ROUTE =================
-router.delete("/:id", async (req, res) => {
+// ================= DELETE ROUTE (ADMIN) =================
+router.delete("/:id", requireAdminDevice, async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = getParam(req.params.id);
 
     await prisma.route.delete({ where: { id } });
 
@@ -73,8 +85,10 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-// ================= UPDATE PRICING =================
-router.post("/pricing", async (req, res) => {
+// ================= UPDATE PRICING (ADMIN) =================
+// Was missing requireAdminDevice — anyone with the URL could overwrite
+// per-vehicle pricing on any route.
+router.post("/pricing", requireAdminDevice, async (req, res) => {
   try {
     const { routeId, vehicleId, price } = req.body;
 

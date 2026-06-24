@@ -6,6 +6,16 @@ const router = express.Router();
 
 /**
  * GET /api/pricing?routeId=xxx&vehicleId=yyy
+ *
+ * Public — confirmed the only caller is `useRoutePricing`, a client hook
+ * with no credentials that powers a live price preview on a public
+ * booking form as the customer picks a route + vehicle. The customer
+ * sees this price regardless, so there's no security reason to gate it,
+ * and gating it was actively breaking the price preview (every call
+ * 401'd, silently falling back to ₹0). Admin price *edits* go through
+ * the separately-guarded POST /api/routes/pricing in routes.routes.ts —
+ * that one should stay behind requireAdminDevice; this read-only lookup
+ * should not.
  */
 router.get("/", async (req, res) => {
   try {

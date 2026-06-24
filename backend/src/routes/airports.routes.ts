@@ -1,8 +1,49 @@
 import { Router } from "express";
 import prisma from "../prisma";
-import { upload } from "../middleware/upload";
+import multer from "multer";
+import { supabase } from "../lib/supabase";
+import { requireAdminDevice } from "../middleware/requireAdminDevice";
 
 const router = Router();
+
+// Memory-only multer for airport images — goes to public vehicles bucket,
+// same as vehicle/gallery/location images. NOT the private payment bucket.
+const imageUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 8 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only image files are allowed"));
+    }
+  },
+});
+
+async function uploadAirportImage(file: Express.Multer.File): Promise<string> {
+  const ext = file.originalname.split(".").pop() || "jpg";
+  const fileName = `airports/${Date.now()}-${Math.round(Math.random() * 1e9)}.${ext}`;
+
+  const { data, error } = await supabase.storage
+    .from("vehicles") // public bucket — airport images are marketing assets
+    .upload(fileName, file.buffer, {
+      contentType: file.mimetype,
+      upsert: false,
+    });
+
+  if (error) throw error;
+
+  const { data: publicUrl } = supabase.storage
+    .from("vehicles")
+    .getPublicUrl(data.path);
+
+  return publicUrl.publicUrl;
+}
+
+function getParam(value: string | string[] | undefined): string {
+  if (Array.isArray(value)) return value[0];
+  return value ?? "";
+}
 
 // PUBLIC — active airports only
 router.get("/", async (req, res) => {
@@ -21,7 +62,7 @@ router.get("/", async (req, res) => {
 });
 
 // ADMIN — everything, including inactive
-router.get("/all", async (req, res) => {
+router.get("/all", requireAdminDevice, async (req, res) => {
   try {
     const airports = await prisma.airport.findMany({
       include: { pricing: true },
@@ -35,7 +76,8 @@ router.get("/all", async (req, res) => {
   }
 });
 
-router.post("/", upload.single("image"), async (req, res) => {
+// ADMIN — create airport
+router.post("/", requireAdminDevice, imageUpload.single("image"), async (req, res) => {
   try {
     const { name, shortName, description } = req.body;
 
@@ -48,7 +90,7 @@ router.post("/", upload.single("image"), async (req, res) => {
         name,
         shortName,
         description,
-        image: req.file ? `/uploads/${req.file.filename}` : null,
+        image: req.file ? await uploadAirportImage(req.file) : null,
       },
     });
 
@@ -59,14 +101,15 @@ router.post("/", upload.single("image"), async (req, res) => {
   }
 });
 
-router.put("/:id", upload.single("image"), async (req, res) => {
+// ADMIN — update airport
+router.put("/:id", requireAdminDevice, imageUpload.single("image"), async (req, res) => {
   try {
-    const  id  = req.params.id as string;
+    const id = getParam(req.params.id);
     const { name, shortName, description, active } = req.body;
 
     const data: any = { name, shortName, description };
     if (active !== undefined) data.active = active === "true" || active === true;
-    if (req.file) data.image = `/uploads/${req.file.filename}`;
+    if (req.file) data.image = await uploadAirportImage(req.file);
 
     const airport = await prisma.airport.update({ where: { id }, data });
 
@@ -77,9 +120,10 @@ router.put("/:id", upload.single("image"), async (req, res) => {
   }
 });
 
-router.delete("/:id", async (req, res) => {
+// ADMIN — delete airport
+router.delete("/:id", requireAdminDevice, async (req, res) => {
   try {
-    const id = req.params.id as string;
+    const id = getParam(req.params.id);
     await prisma.airport.delete({ where: { id } });
     res.json({ success: true });
   } catch (error) {
@@ -88,7 +132,8 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-router.post("/pricing", async (req, res) => {
+// ADMIN — set/update per-vehicle pricing for an airport
+router.post("/pricing", requireAdminDevice, async (req, res) => {
   try {
     const { airportId, vehicleId, price } = req.body;
 

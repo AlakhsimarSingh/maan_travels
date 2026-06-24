@@ -2,37 +2,14 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { getTempoUrbaniaVehicles } from "@/src/services/tempoUrbaniaService";
+import type { TempoVehicle } from "@/src/lib/fetchTempoVehicles";
 
-export default function TempoUrbaniaHero() {
-  const [vehicles, setVehicles] = useState<any[]>([]);
+export default function TempoUrbaniaHero({
+  vehicles,
+}: {
+  vehicles: TempoVehicle[];
+}) {
   const [index, setIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
-
-  /* ---------------- FETCH FROM DB ---------------- */
-  useEffect(() => {
-    const fetchVehicles = async () => {
-      try {
-        const res = await getTempoUrbaniaVehicles();
-
-        // 🔥 STRICT FILTER (DB safety layer)
-        const filtered = (res || []).filter(
-          (v: any) =>
-            v.category === "Tempo Traveller" ||
-            v.category === "Urbania"
-        );
-
-        setVehicles(filtered);
-      } catch (err) {
-        console.error("Hero error:", err);
-        setVehicles([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchVehicles();
-  }, []);
 
   /* ---------------- SLIDESHOW ---------------- */
   useEffect(() => {
@@ -43,36 +20,41 @@ export default function TempoUrbaniaHero() {
     }, 4000);
 
     return () => clearInterval(interval);
-  }, [vehicles]);
+  }, [vehicles.length]);
 
-  /* ---------------- LOADING ---------------- */
-  if (loading) {
+  if (!vehicles.length) {
+    // No tempo vehicles available right now — fall back to a static,
+    // still on-brand hero instead of rendering nothing at all.
     return (
-      <section className="h-[80vh] flex items-center justify-center bg-black">
-        <p className="text-white">Loading premium travellers...</p>
+      <section className="relative flex h-[60vh] items-center justify-center bg-black">
+        <div className="mx-auto max-w-3xl px-6 text-center">
+          <p className="uppercase tracking-[0.4em] text-[#ecb100]">
+            Premium Group Travel
+          </p>
+          <h1 className="mt-5 text-4xl font-bold text-white md:text-5xl">
+            Tempo Traveller & Urbania Fleet
+          </h1>
+          <p className="mt-6 text-lg text-[#c7c7c7]">
+            Our travellers are being updated. Please check back shortly, or contact us directly to book.
+          </p>
+        </div>
       </section>
     );
   }
 
-  if (!vehicles.length) return null;
-
   return (
     <section className="relative h-[80vh] overflow-hidden">
-
       {/* SLIDES */}
       {vehicles.map((v, i) => (
         <Image
           key={v.id}
           src={v.imageUrl || "/images/fallback.jpg"}
-          alt={v.name || "Luxury Traveller"}
+          alt={`${v.name} — ${v.category} rental`}
           fill
           priority={i === 0}
-          className={`
-            object-cover
-            transition-opacity
-            duration-1000
-            ${i === index ? "opacity-100" : "opacity-0"}
-          `}
+          className={`object-cover transition-opacity duration-1000 ${
+            i === index ? "opacity-100" : "opacity-0"
+          }`}
         />
       ))}
 
@@ -81,9 +63,7 @@ export default function TempoUrbaniaHero() {
 
       {/* CONTENT */}
       <div className="relative z-10 mx-auto flex h-full max-w-7xl items-center px-6">
-
         <div>
-
           <p className="uppercase tracking-[0.4em] text-[#ecb100]">
             Premium Group Travel
           </p>
@@ -107,9 +87,7 @@ export default function TempoUrbaniaHero() {
               />
             ))}
           </div>
-
         </div>
-
       </div>
     </section>
   );

@@ -3,65 +3,47 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
-import { getAllLuxuryCars } from "@/src/services/luxuryCarService";
+type LuxuryCarLite = {
+  id: string;
+  name?: string;
+  image?: string;
+  vehicle?: { imageUrl?: string | null };
+};
 
-export default function LuxuryHero() {
-  const [cars, setCars] = useState<any[]>([]);
+export default function LuxuryHero({ cars: allCars }: { cars: LuxuryCarLite[] }) {
+  const cars = allCars.filter((c) => c.image || c.vehicle?.imageUrl);
   const [index, setIndex] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
-  /* ---------------- FETCH CARS ---------------- */
   useEffect(() => {
-    const fetchCars = async () => {
-      try {
-        const res = await getAllLuxuryCars();
-
-        if (res?.success) {
-          // only cars with images
-          const valid = res.luxuryCars.filter(
-            (c: any) => c.image || c.vehicle?.imageUrl
-          );
-
-          setCars(valid);
-        }
-      } catch (err) {
-        console.error("Hero fetch error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCars();
+    const t = setTimeout(() => setMounted(true), 50);
+    return () => clearTimeout(t);
   }, []);
 
-  /* ---------------- AUTO SLIDER ---------------- */
   useEffect(() => {
     if (cars.length <= 1) return;
 
     const interval = setInterval(() => {
       setIndex((prev) => (prev + 1) % cars.length);
-    }, 4000); // 4s per slide
+    }, 4000);
 
     return () => clearInterval(interval);
-  }, [cars]);
+  }, [cars.length]);
 
-  if (loading) {
+  if (cars.length === 0) {
     return (
-      <section className="relative h-[85vh] bg-black flex items-center justify-center">
-        <p className="text-white">Loading luxury experience...</p>
+      <section className="relative flex h-[85vh] items-center justify-center bg-black">
+        <p className="text-white/40">No luxury vehicles available right now.</p>
       </section>
     );
   }
 
-  const currentImage =
-    cars[index]?.image || cars[index]?.vehicle?.imageUrl;
-
   return (
     <section className="relative h-[85vh] overflow-hidden">
 
-      {/* IMAGE SLIDES */}
       {cars.map((car, i) => {
         const img = car.image || car.vehicle?.imageUrl;
+        if (!img) return null;
 
         return (
           <Image
@@ -70,26 +52,20 @@ export default function LuxuryHero() {
             alt={car.name || "Luxury car"}
             fill
             priority={i === 0}
-            className={`
-              object-cover
-              transition-opacity
-              duration-1000
-              ${i === index ? "opacity-100" : "opacity-0"}
-            `}
+            className={`object-cover transition-opacity duration-1000 ${i === index ? "opacity-100" : "opacity-0"}`}
           />
         );
       })}
 
-      {/* DARK OVERLAY */}
       <div className="absolute inset-0 bg-black/70" />
 
-      {/* TEXT CONTENT */}
       <div className="relative z-10 mx-auto flex h-full max-w-7xl items-center px-6">
-
-        <div>
-          <p className="uppercase tracking-[0.4em] text-[#ecb100]">
-            Premium Mobility
-          </p>
+        <div
+          className={`transition-all duration-700 ease-out ${
+            mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+          }`}
+        >
+          <p className="uppercase tracking-[0.4em] text-[#ecb100]">Premium Mobility</p>
 
           <h1 className="mt-5 max-w-4xl text-5xl font-bold text-white md:text-7xl">
             Luxury Car Rental Experience in Punjab
@@ -100,19 +76,19 @@ export default function LuxuryHero() {
             Mercedes Maybach, G-Wagon, Range Rover and premium SUVs.
           </p>
 
-          {/* optional mini indicator */}
           <div className="mt-8 flex gap-2">
             {cars.map((_, i) => (
-              <div
+              <button
                 key={i}
-                className={`h-1 w-6 rounded-full transition-all ${
-                  i === index ? "bg-[#ecb100]" : "bg-white/20"
+                onClick={() => setIndex(i)}
+                aria-label={`Show slide ${i + 1}`}
+                className={`h-1 rounded-full transition-all ${
+                  i === index ? "w-8 bg-[#ecb100]" : "w-6 bg-white/20 hover:bg-white/40"
                 }`}
               />
             ))}
           </div>
         </div>
-
       </div>
     </section>
   );

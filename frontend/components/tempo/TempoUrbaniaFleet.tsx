@@ -1,28 +1,22 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 import TempoUrbaniaCard from "./TempoUrbaniaCard";
 import TempoUrbaniaBookingForm from "./TempoUrbaniaBookingForm";
 
-import { getTempoUrbaniaVehicles } from "@/src/services/tempoUrbaniaService";
+import type { TempoVehicle } from "@/src/lib/fetchTempoVehicles";
 
-export default function TempoUrbaniaFleet() {
-  const [vehicles, setVehicles] = useState<any[]>([]);
-  const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
+export default function TempoUrbaniaFleet({
+  vehicles,
+}: {
+  vehicles: TempoVehicle[];
+}) {
+  const [selectedVehicle, setSelectedVehicle] = useState<TempoVehicle | null>(null);
 
   const bookingRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await getTempoUrbaniaVehicles();
-      setVehicles(data);
-    };
-
-    fetchData();
-  }, []);
-
-  const selectVehicle = (vehicle: any) => {
+  const selectVehicle = (vehicle: TempoVehicle) => {
     setSelectedVehicle(vehicle);
 
     setTimeout(() => {
@@ -34,12 +28,9 @@ export default function TempoUrbaniaFleet() {
   };
 
   return (
-    <section className="py-24">
-
+    <section id="fleet" className="py-24 scroll-mt-20">
       <div className="mx-auto max-w-7xl px-6">
-
         <div className="text-center mb-14">
-
           <p className="uppercase tracking-[0.3em] text-[#ecb100]">
             Tempo Traveller & Urbania
           </p>
@@ -51,36 +42,40 @@ export default function TempoUrbaniaFleet() {
           <p className="mt-4 text-[#8a8a8a]">
             Premium AC travellers with professional chauffeurs.
           </p>
-
         </div>
 
         {/* GRID */}
-        <div className="grid gap-8 md:grid-cols-2">
-
-          {vehicles.map((vehicle) => (
-            <div key={vehicle.id}>
-              <TempoUrbaniaCard
-                vehicle={vehicle}
-                expanded={selectedVehicle?.id === vehicle.id}
-                onBook={() => selectVehicle(vehicle)}
-              />
-            </div>
-          ))}
-
-        </div>
+        {vehicles.length === 0 ? (
+          <div className="rounded-2xl border border-[#252525] bg-[#141414] p-12 text-center">
+            <p className="text-[#8a8a8a]">
+              No travellers are available right now. Please check back shortly, or
+              contact us directly for availability.
+            </p>
+          </div>
+        ) : (
+          <div className="grid gap-8 md:grid-cols-2">
+            {vehicles.map((vehicle) => (
+              <div key={vehicle.id}>
+                <TempoUrbaniaCard
+                  vehicle={vehicle}
+                  expanded={selectedVehicle?.id === vehicle.id}
+                  onBook={() => selectVehicle(vehicle)}
+                />
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* BOOKING FORM */}
         {selectedVehicle && (
-          <div ref={bookingRef}>
+          <div ref={bookingRef} className="scroll-mt-24">
             <TempoUrbaniaBookingForm
               vehicle={selectedVehicle}
               onClose={() => setSelectedVehicle(null)}
             />
           </div>
         )}
-
       </div>
-
     </section>
   );
 }

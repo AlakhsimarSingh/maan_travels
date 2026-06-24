@@ -1,9 +1,16 @@
 import { Router } from "express";
 import prisma from "../prisma";
-import { upload } from "../middleware/upload";
+import { publicUpload, uploadPublicImage, deletePublicImage } from "../middleware/uploadPublic";
+import { requireAdminDevice } from "../middleware/requireAdminDevice";
 
 const router = Router();
 
+function getParam(value: string | string[] | undefined): string {
+  if (Array.isArray(value)) return value[0];
+  return value ?? "";
+}
+
+/* ---------------- PUBLIC — active gallery images only ---------------- */
 router.get("/", async (req, res) => {
   try {
     const images = await prisma.galleryImage.findMany({
@@ -18,7 +25,8 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/all", async (req, res) => {
+/* ---------------- ADMIN — everything, including inactive ---------------- */
+router.get("/all", requireAdminDevice, async (req, res) => {
   try {
     const images = await prisma.galleryImage.findMany({
       orderBy: [{ order: "asc" }, { createdAt: "desc" }],
@@ -31,7 +39,10 @@ router.get("/all", async (req, res) => {
   }
 });
 
-router.post("/", upload.single("image"), async (req, res) => {
+/* ---------------- ADMIN — upload a new gallery image ----------------
+   Uploads to the public `gallery` Supabase bucket and stores the
+   resulting public URL directly on GalleryImage.image. */
+router.post("/", requireAdminDevice, publicUpload.single("image"), async (req, res) => {
   try {
     const { description, category } = req.body;
 
@@ -39,9 +50,11 @@ router.post("/", upload.single("image"), async (req, res) => {
       return res.status(400).json({ success: false, message: "image and category are required" });
     }
 
+    const imageUrl = await uploadPublicImage(req.file, "gallery");
+
     const image = await prisma.galleryImage.create({
       data: {
-        image: `/uploads/${req.file.filename}`,
+        image: imageUrl,
         description,
         category,
       },
@@ -54,19 +67,40 @@ router.post("/", upload.single("image"), async (req, res) => {
   }
 });
 
-router.put("/:id", upload.single("image"), async (req, res) => {
+/* ---------------- ADMIN — update/reorder/toggle a gallery image ----------------
+   If a new image file is included, the old one is deleted from Supabase
+   storage AFTER the new one uploads successfully and the database row is
+   updated — in that order, so a failed upload or failed DB write never
+   leaves the record pointing at a deleted file. */
+router.put("/:id", requireAdminDevice, publicUpload.single("image"), async (req, res) => {
   try {
-    const id = req.params.id as string;
+    const id = getParam(req.params.id);
     const { description, category, active, order } = req.body;
+
+    const existing = await prisma.galleryImage.findUnique({ where: { id } });
+    if (!existing) {
+      return res.status(404).json({ success: false, message: "Image not found" });
+    }
 
     const data: any = {};
     if (description !== undefined) data.description = description;
     if (category !== undefined) data.category = category;
     if (active !== undefined) data.active = active === "true" || active === true;
     if (order !== undefined) data.order = Number(order);
-    if (req.file) data.image = `/uploads/${req.file.filename}`;
+
+    let newImageUrl: string | null = null;
+    if (req.file) {
+      newImageUrl = await uploadPublicImage(req.file, "gallery");
+      data.image = newImageUrl;
+    }
 
     const image = await prisma.galleryImage.update({ where: { id }, data });
+
+    // Only clean up the OLD file once the new one is safely uploaded and
+    // the database row has been updated to point at it.
+    if (newImageUrl) {
+      await deletePublicImage(existing.image, "gallery");
+    }
 
     res.json({ success: true, image });
   } catch (error) {
@@ -75,10 +109,22 @@ router.put("/:id", upload.single("image"), async (req, res) => {
   }
 });
 
-router.delete("/:id", async (req, res) => {
+/* ---------------- ADMIN — delete a gallery image ---------------- */
+router.delete("/:id", requireAdminDevice, async (req, res) => {
   try {
-    const id = req.params.id as string;
+    const id = getParam(req.params.id);
+
+    const existing = await prisma.galleryImage.findUnique({ where: { id } });
+    if (!existing) {
+      return res.status(404).json({ success: false, message: "Image not found" });
+    }
+
     await prisma.galleryImage.delete({ where: { id } });
+
+    // Clean up the file in storage only after the database row is
+    // confirmed deleted.
+    await deletePublicImage(existing.image, "gallery");
+
     res.json({ success: true });
   } catch (error) {
     console.error(error);

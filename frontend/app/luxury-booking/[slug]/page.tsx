@@ -7,16 +7,28 @@ import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { getLuxuryCarBySlug } from "@/src/services/luxuryCarPublicService";
 
 
-type Props = {
-  params: Promise<{
-    slug: string;
-  }>;
+import type { Metadata } from "next";
+
+type MetaProps = {
+  params: Promise<{ slug: string }>;
 };
+
+export async function generateMetadata({ params }: MetaProps): Promise<Metadata> {
+  const { slug } = await params;
+  const res = await getLuxuryCarBySlug(slug);
+  const name = res?.car?.name || "Luxury Car";
+
+  return {
+    title: `Book ${name} | Maan Travels`,
+    description: `Reserve the ${name} with a professional chauffeur from Maan Travels.`,
+    robots: { index: false, follow: true },
+  };
+}
 
 
 export default async function LuxuryBookingPage({
   params
-}: Props) {
+}: MetaProps) {
 
   const { slug } = await params;
 

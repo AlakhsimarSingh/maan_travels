@@ -66,6 +66,20 @@ export default function RouteCard({
           )}
         </div>
 
+        {/* Title always shown — as a standalone heading when there's no route,
+            or as a subtle label above the route line when from/to are present */}
+        {title && (
+          <h3
+            className={`font-semibold text-white transition-all duration-500 ease-out ${
+              from || to
+                ? "mb-3 text-[13px] text-white/60 tracking-wide truncate"
+                : "text-[16px]"
+            }`}
+          >
+            {title}
+          </h3>
+        )}
+
         {from || to ? (
           <>
             <div className="flex items-center gap-2 mb-2">
@@ -81,9 +95,7 @@ export default function RouteCard({
               <span className="truncate text-right">{to}</span>
             </div>
           </>
-        ) : (
-          <h3 className="font-semibold text-white">{title}</h3>
-        )}
+        ) : null}
 
         {pricedVehicles.length > 0 && (
           <div className="flex gap-1.5 mt-4 flex-wrap">
@@ -111,13 +123,22 @@ export default function RouteCard({
 
       <div className="flex items-center justify-between px-5 py-4">
         <div>
-          <p className="text-[11px] text-white/40">Starting from</p>
-          <p
-            style={{ fontFamily: "var(--font-geist-mono)" }}
-            className="text-xl font-medium text-white"
-          >
-            ₹{price}
-          </p>
+          {price > 0 ? (
+            <>
+              <p className="text-[11px] text-white/40">Starting from</p>
+              <p
+                style={{ fontFamily: "var(--font-geist-mono)" }}
+                className="text-xl font-medium text-white"
+              >
+                ₹{price}
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-[11px] text-white/40">Best fare guaranteed</p>
+              <p className="text-sm font-medium text-[#ecb100]">Get a quote →</p>
+            </>
+          )}
         </div>
 
         <button

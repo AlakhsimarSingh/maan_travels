@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Pencil } from "lucide-react";
 import { API_URL } from "@/src/services/bookingService";
+import { resolveImageUrl } from "@/src/lib/resolveImageUrl";
+import AirportEditModal from "@/components/admin/airports/AirportEditModal";
 
 type Airport = {
   id: string;
@@ -20,13 +23,18 @@ export default function AirportsAdminPage() {
   const [form, setForm] = useState({ name: "", shortName: "", description: "" });
   const [file, setFile] = useState<File | null>(null);
 
+  const [editingAirport, setEditingAirport] = useState<Airport | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
+
   useEffect(() => {
     fetchAirports();
   }, []);
 
   const fetchAirports = async () => {
     try {
-      const res = await fetch(`${API_URL}/api/airports/all`);
+      const res = await fetch(`${API_URL}/api/airports/all`, {
+        credentials: "include",
+      });
       const data = await res.json();
       setAirports(data.airports || []);
     } catch {
@@ -51,7 +59,7 @@ export default function AirportsAdminPage() {
       data.append("description", form.description);
       if (file) data.append("image", file);
 
-      const res = await fetch(`${API_URL}/api/airports`, { method: "POST", body: data });
+      const res = await fetch(`${API_URL}/api/airports`, { method: "POST", body: data, credentials: "include" });
       const resData = await res.json();
 
       if (!resData.success) {
@@ -71,7 +79,7 @@ export default function AirportsAdminPage() {
     try {
       const data = new FormData();
       data.append("active", String(!airport.active));
-      const res = await fetch(`${API_URL}/api/airports/${airport.id}`, { method: "PUT", body: data });
+      const res = await fetch(`${API_URL}/api/airports/${airport.id}`, { method: "PUT", body: data, credentials: "include" });
       const resData = await res.json();
       if (resData.success) fetchAirports();
     } catch {
@@ -81,7 +89,7 @@ export default function AirportsAdminPage() {
 
   const deleteAirport = async (id: string) => {
     try {
-      const res = await fetch(`${API_URL}/api/airports/${id}`, { method: "DELETE" });
+      const res = await fetch(`${API_URL}/api/airports/${id}`, { method: "DELETE", credentials: "include" });
       const data = await res.json();
 
       if (!data.success) {
@@ -93,6 +101,11 @@ export default function AirportsAdminPage() {
     } catch {
       setError("Failed to delete airport");
     }
+  };
+
+  const openEdit = (airport: Airport) => {
+    setEditingAirport(airport);
+    setEditOpen(true);
   };
 
   if (loading) {
@@ -149,7 +162,7 @@ export default function AirportsAdminPage() {
           <div key={a.id} className="flex items-center justify-between bg-[#111] border border-[#252525] p-4 rounded-xl">
             <div className="flex items-center gap-3">
               {a.image ? (
-                <img src={`${API_URL}${a.image}`} alt={a.name} className="w-12 h-12 rounded-lg object-cover" />
+                <img src={resolveImageUrl(a.image, API_URL)} alt={a.name} className="w-12 h-12 rounded-lg object-cover" />
               ) : (
                 <div className="w-12 h-12 rounded-lg bg-[#1a1a1a] flex items-center justify-center text-white/30 text-xs">
                   No image
@@ -162,6 +175,13 @@ export default function AirportsAdminPage() {
             </div>
 
             <div className="flex items-center gap-3">
+              <button
+                onClick={() => openEdit(a)}
+                className="flex items-center gap-1 text-white/60 text-sm hover:text-white"
+              >
+                <Pencil size={13} />
+                Edit
+              </button>
               <button onClick={() => toggleActive(a)} className="text-white/60 text-sm hover:text-white">
                 {a.active ? "Deactivate" : "Activate"}
               </button>
@@ -172,6 +192,13 @@ export default function AirportsAdminPage() {
           </div>
         ))}
       </div>
+
+      <AirportEditModal
+        open={editOpen}
+        airport={editingAirport}
+        onClose={() => setEditOpen(false)}
+        onSuccess={fetchAirports}
+      />
     </div>
   );
 }

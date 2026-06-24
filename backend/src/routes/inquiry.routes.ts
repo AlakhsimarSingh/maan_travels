@@ -1,7 +1,16 @@
 import { Router } from "express";
 import prisma from "../prisma";
+import { requireAdminDevice } from "../middleware/requireAdminDevice";
 
 const router = Router();
+
+// See vehicle.routes.ts / adminDevice.routes.ts for why this normalization
+// is needed — some @types/express configurations type route params as
+// string | string[] | undefined rather than plain string.
+function getParam(value: string | string[] | undefined): string {
+  if (Array.isArray(value)) return value[0];
+  return value ?? "";
+}
 
 /* ---------------- CREATE (PUBLIC) ---------------- */
 router.post("/", async (req, res) => {
@@ -33,7 +42,7 @@ router.post("/", async (req, res) => {
 });
 
 /* ---------------- GET ALL (ADMIN) ---------------- */
-router.get("/", async (req, res) => {
+router.get("/", requireAdminDevice, async (req, res) => {
   try {
     const inquiries = await prisma.inquiry.findMany({
       orderBy: { createdAt: "desc" },
@@ -47,9 +56,9 @@ router.get("/", async (req, res) => {
 });
 
 /* ---------------- UPDATE STATUS (ADMIN) ---------------- */
-router.patch("/:id/status", async (req, res) => {
+router.patch("/:id/status", requireAdminDevice, async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = getParam(req.params.id);
     const { status } = req.body;
 
     const allowedStatuses = ["new", "contacted", "closed"];
@@ -71,9 +80,9 @@ router.patch("/:id/status", async (req, res) => {
 });
 
 /* ---------------- DELETE (ADMIN) ---------------- */
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", requireAdminDevice, async (req, res) => {
   try {
-    await prisma.inquiry.delete({ where: { id: req.params.id } });
+    await prisma.inquiry.delete({ where: { id: getParam(req.params.id) } });
     res.json({ success: true, message: "Inquiry deleted" });
   } catch (error) {
     console.error(error);

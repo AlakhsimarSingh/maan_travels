@@ -10,8 +10,8 @@ export const siteConfig = {
 
   social: {
     // Add later
-    instagram: "",
-    facebook: "",
+    instagram: "https://www.instagram.com/maan_travel84/?hl=en",
+    facebook: "https://www.facebook.com/share/18tcvjwxE5/",
   },
 
   description:

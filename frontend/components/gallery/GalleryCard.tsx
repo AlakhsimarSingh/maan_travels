@@ -1,6 +1,7 @@
 "use client";
 
 import { useInView } from "@/src/hooks/useInView";
+import { resolveImageUrl } from "@/src/lib/resolveImageUrl";
 import { API_URL } from "@/src/services/bookingService";
 
 type Props = {
@@ -25,7 +26,7 @@ export default function GalleryCard({ image, description, category, index, onCli
       `}
     >
       <img
-        src={`${API_URL}${image}`}
+        src={resolveImageUrl(image, API_URL)}
         alt={description || category}
         className="h-auto w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
       />

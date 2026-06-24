@@ -8,7 +8,9 @@ export default function AdminFeedbackPage() {
 
   const fetchFeedbacks = async () => {
     const res = await fetch(
-      process.env.NEXT_PUBLIC_API_URL + "/api/feedback"
+      process.env.NEXT_PUBLIC_API_URL + "/api/feedback",{ 
+        credentials: "include"
+      }
     );
     const data = await res.json();
     setFeedbacks(data.feedbacks || []);
@@ -21,7 +23,8 @@ export default function AdminFeedbackPage() {
   const toggle = async (id: string) => {
     await fetch(
       process.env.NEXT_PUBLIC_API_URL + `/api/feedback/${id}/toggle`,
-      { method: "PATCH" }
+      { credentials: "include",
+        method: "PATCH" }
     );
 
     fetchFeedbacks();

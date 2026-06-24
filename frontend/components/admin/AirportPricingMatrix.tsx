@@ -21,8 +21,8 @@ export default function AirportPricingMatrix() {
   const loadData = async () => {
     try {
       const [r1, r2] = await Promise.all([
-        fetch(`${API_URL}/api/airports/all`),
-        fetch(`${API_URL}/api/vehicles`),
+        fetch(`${API_URL}/api/airports/all`, { credentials: "include" }),
+        fetch(`${API_URL}/api/vehicles`, { credentials: "include" }),
       ]);
 
       const d1 = await r1.json();
@@ -46,6 +46,7 @@ export default function AirportPricingMatrix() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ airportId, vehicleId, price }),
+        credentials: "include"
       });
 
       const data = await res.json();

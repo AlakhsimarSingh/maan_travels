@@ -9,6 +9,7 @@ import BookingSuccess from "@/components/common/BookingSuccess";
 
 import { API_URL } from "@/src/services/bookingService";
 import { useBookingStatus } from "@/src/hooks/useBookingStatus";
+import { useVehicles } from "@/src/hooks/useVehicles";
 
 import {
   Select,
@@ -30,21 +31,13 @@ import {
   Check,
 } from "lucide-react";
 
-type Vehicle = {
-  id: string;
-  name: string;
-  category: string;
-  passengerCapacity?: number | null;
-  suitcaseCapacity?: number | null;
-};
-
 type Category = "Sedan" | "SUV" | "MPV";
 
 export default function BookingForm() {
   const [rideType, setRideType] = useState<"taxi" | "local">("taxi");
   const [tripMode, setTripMode] = useState<"oneway" | "round">("oneway");
 
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const { vehicles } = useVehicles("taxi");
   const [travelDate, setTravelDate] = useState<Date>();
 
   const [loading, setLoading] = useState(false);
@@ -70,18 +63,6 @@ export default function BookingForm() {
   const selectedVehicle = useMemo(() => {
     return vehicles.find((v) => v.id === form.vehicle);
   }, [form.vehicle, vehicles]);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch(`${API_URL}/api/vehicles`);
-        const data = await res.json();
-        setVehicles(data.vehicles || []);
-      } catch (e) {
-        console.log(e);
-      }
-    })();
-  }, []);
 
   const updateField = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -151,8 +132,6 @@ export default function BookingForm() {
     try {
       setLoading(true);
 
-      // FIX: backend expects `vehicleId`, not `vehicle` — and lowercase rideMode
-      // to match the convention used by the rest of the booking forms.
       const res = await fetch(`${API_URL}/api/bookings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -232,7 +211,6 @@ export default function BookingForm() {
               </h2>
             </div>
 
-            {/* progress ring, small + ambient, not loud */}
             <div className="relative hidden h-14 w-14 items-center justify-center sm:flex">
               <svg className="h-14 w-14 -rotate-90" viewBox="0 0 56 56">
                 <circle
@@ -254,7 +232,6 @@ export default function BookingForm() {
             </div>
           </div>
 
-          {/* TOP SELECTORS */}
           <div className="mb-6 grid gap-4 sm:grid-cols-2">
             <Select value={rideType} onValueChange={(v) => setRideType(v as any)}>
               <SelectTrigger className="h-12 rounded-xl border-[#2a2a2a] bg-[#111] text-white transition focus:ring-2 focus:ring-[#ecb100]/30">
@@ -285,7 +262,6 @@ export default function BookingForm() {
             </div>
           </div>
 
-          {/* ROUTE INPUTS — visually paired pickup/drop with connecting line */}
           <div className="relative mb-6 grid gap-4 sm:grid-cols-2">
             <div className="relative">
               <MapPin
@@ -326,12 +302,10 @@ export default function BookingForm() {
             )}
           </div>
 
-          {/* DATE */}
           <div className="mb-6">
             <BookingDatePicker value={travelDate} onChange={setTravelDate} />
           </div>
 
-          {/* CONTACT GRID */}
           <div className="mb-2 grid gap-4 sm:grid-cols-3">
             <div className="relative">
               <User size={17} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100]" />
@@ -374,7 +348,6 @@ export default function BookingForm() {
             </div>
           </div>
 
-          {/* VEHICLE CATEGORY SECTION */}
           {rideType === "taxi" && (
             <div className="mt-8">
               <p className="mb-3 flex items-center gap-2 text-sm font-medium text-white/70">
@@ -461,7 +434,6 @@ export default function BookingForm() {
             </div>
           )}
 
-          {/* REQUIREMENTS */}
           <div className="relative mt-8">
             <MessageSquare size={16} className="pointer-events-none absolute left-4 top-4 text-[#ecb100]" />
             <textarea
@@ -472,14 +444,12 @@ export default function BookingForm() {
             />
           </div>
 
-          {/* ERROR */}
           {formError && (
             <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/5 px-4 py-3 text-sm text-red-400 transition-opacity duration-300">
               {formError}
             </div>
           )}
 
-          {/* SUBMIT */}
           <Button
             disabled={loading}
             onClick={submitBooking}
@@ -504,7 +474,6 @@ export default function BookingForm() {
           </Button>
         </div>
 
-        {/* LIVE TRIP SUMMARY — sticky rail, builds itself as the form fills */}
         <aside className="hidden lg:block">
           <div
             className={`

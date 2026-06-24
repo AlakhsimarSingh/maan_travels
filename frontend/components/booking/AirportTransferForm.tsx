@@ -12,24 +12,23 @@ import PaymentMethodPicker, { PaymentType } from "./PaymentMethodPicker";
 import { Clock, MapPin, User, Luggage, Car, PlaneTakeoff } from "lucide-react";
 
 import { useBookingStatus } from "@/src/hooks/useBookingStatus";
+import { useVehicles } from "@/src/hooks/useVehicles";
 import { API_URL } from "@/src/services/bookingService";
-
-type Vehicle = { id: string; name: string };
 
 export default function AirportTransferForm({
   routeId,
   vehicleId,
   price,
   pickup: prefillPickup,
-  airport: prefillAirport, // ← NEW: passed from RouteCard via openModal
+  airport: prefillAirport,
 }: {
   routeId?: string;
   vehicleId?: string;
   price?: number;
   pickup?: string;
-  airport?: string; // ← NEW
+  airport?: string;
 }) {
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const { vehicles } = useVehicles("taxi");
   const [travelDate, setTravelDate] = useState<Date | undefined>(undefined);
 
   const [form, setForm] = useState({
@@ -52,23 +51,7 @@ export default function AirportTransferForm({
 
   const { success, bookingId, done, reset } = useBookingStatus();
 
-  // FIX: totalAmount is always available when price is passed — don't gate it
-  // on vehicle match (that check prevented PaymentMethodPicker from rendering)
   const totalAmount = price || 0;
-
-  useEffect(() => {
-    const loadVehicles = async () => {
-      try {
-        const res = await fetch(`${API_URL}/api/vehicles`);
-        const data = await res.json();
-        setVehicles(data.vehicles || []);
-      } catch (err) {
-        console.error("Vehicle loading failed", err);
-      }
-    };
-
-    loadVehicles();
-  }, []);
 
   // Sync if parent re-opens modal with new prefill values
   useEffect(() => {
@@ -176,7 +159,6 @@ export default function AirportTransferForm({
         </div>
       )}
 
-      {/* Pickup */}
       <div className="relative h-12">
         <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
         <Input
@@ -188,11 +170,9 @@ export default function AirportTransferForm({
         />
       </div>
 
-      {/* Airport — locked if pre-filled from route card */}
       <div className="relative h-12">
         <PlaneTakeoff size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
         {prefillAirport ? (
-          // Locked: show as read-only styled input
           <Input
             name="airport"
             value={form.airport}
@@ -200,7 +180,6 @@ export default function AirportTransferForm({
             className={`${lockedFieldClass} pl-12`}
           />
         ) : (
-          // Free choice: dropdown
           <select
             name="airport"
             value={form.airport}
@@ -217,14 +196,12 @@ export default function AirportTransferForm({
         )}
       </div>
 
-      {/* Date picker — controlled: value reflects state, popover closes on pick */}
       <BookingDatePicker
         placeholder="Select Travel Date"
         value={travelDate}
         onChange={setTravelDate}
       />
 
-      {/* Time */}
       <div className="relative h-12">
         <Clock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white z-10" />
         <Input
@@ -236,7 +213,6 @@ export default function AirportTransferForm({
         />
       </div>
 
-      {/* Vehicle — locked if pre-selected from route card */}
       <div className="relative h-12">
         <Car size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
         {vehicleId ? (
@@ -260,7 +236,6 @@ export default function AirportTransferForm({
         )}
       </div>
 
-      {/* Passengers */}
       <select
         name="passengers"
         value={form.passengers}
@@ -274,7 +249,6 @@ export default function AirportTransferForm({
         <option value="4">8+ Passengers</option>
       </select>
 
-      {/* Name */}
       <div className="relative h-12">
         <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
         <Input
@@ -286,7 +260,6 @@ export default function AirportTransferForm({
         />
       </div>
 
-      {/* Phone */}
       <Input
         name="phone"
         value={form.phone}
@@ -295,7 +268,6 @@ export default function AirportTransferForm({
         className={fieldClass}
       />
 
-      {/* Suitcases */}
       <div className="relative h-12">
         <Luggage size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
         <Input
@@ -308,7 +280,6 @@ export default function AirportTransferForm({
         />
       </div>
 
-      {/* Handbags */}
       <div className="relative h-12">
         <Luggage size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
         <Input
@@ -321,7 +292,6 @@ export default function AirportTransferForm({
         />
       </div>
 
-      {/* Payment */}
       <div className="md:col-span-2">
         <PaymentMethodPicker
           totalAmount={totalAmount}

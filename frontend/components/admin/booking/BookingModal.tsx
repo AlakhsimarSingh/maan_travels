@@ -56,6 +56,7 @@ export default function BookingModal() {
               vehicleId={prefill.vehicleId}
               price={prefill.price}
               pickup={prefill.pickup}
+              airport={prefill.airport}
             />
           )}
 

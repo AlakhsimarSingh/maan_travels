@@ -19,7 +19,7 @@ export default function AboutFounder() {
               <div className="absolute -inset-2 rounded-full bg-[#ecb100]/10 blur-xl" />
               <div className="relative w-40 h-40 md:w-48 md:h-48 rounded-full overflow-hidden border-2 border-[#ecb100]/40">
                 <Image
-                  src="/images/owner.jpg"
+                  src="/images/owner.jpeg"
                   alt="Founder of Maan Travels"
                   width={300}
                   height={300}
@@ -37,7 +37,7 @@ export default function AboutFounder() {
               </p>
 
               <div className="mt-6">
-                <p className="text-white font-semibold">Founder Name</p>
+                <p className="text-white font-semibold">Kuljinder Singh Maan</p>
                 <p className="text-sm text-[#8a8a8a]">Founder & CEO, Maan Travels</p>
               </div>
             </div>

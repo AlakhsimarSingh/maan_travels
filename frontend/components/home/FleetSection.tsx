@@ -1,9 +1,8 @@
-"use client";
-
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
 import FleetCard from "./FleetCard";
-import { API_URL } from "@/src/services/bookingService";
+import Reveal from "@/components/common/Reveal";
 
 type Vehicle = {
   id: string;
@@ -13,84 +12,57 @@ type Vehicle = {
   price?: number | null;
 };
 
-export default function FleetSection() {
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchVehicles = async () => {
-      try {
-        setLoading(true);
-
-        const res = await fetch(`${API_URL}/api/vehicles`);
-        const data = await res.json();
-
-        if (data?.success) {
-          setVehicles((data.vehicles || []).slice(0, 6));
-        } else {
-          setVehicles([]);
-        }
-      } catch (err) {
-        console.error("Fleet fetch error:", err);
-        setVehicles([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchVehicles();
-  }, []);
+export default function FleetSection({ vehicles }: { vehicles: Vehicle[] }) {
+  // Homepage shows a curated preview, not the entire fleet
+  const preview = vehicles.slice(0, 6);
 
   return (
     <section id="fleet" className="py-24">
       <div className="mx-auto max-w-7xl px-6">
-
-        {/* HEADER */}
-        <div className="mb-14 text-center">
-          <p className="mb-3 uppercase tracking-[0.3em] text-[#ecb100]">
-            Our Fleet
-          </p>
-
+        <Reveal className="mb-14 text-center">
+          <p className="mb-3 uppercase tracking-[0.3em] text-[#ecb100]">Our Fleet</p>
           <h2 className="text-4xl font-bold text-white md:text-5xl">
             Choose Your Preferred Vehicle
           </h2>
-
           <p className="mx-auto mt-4 max-w-2xl text-[#8a8a8a]">
             Comfortable sedans, premium SUVs and luxury vehicles for every journey.
           </p>
-        </div>
+        </Reveal>
 
-        {/* GRID */}
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-
-          {loading ? (
-            Array.from({ length: 3 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-64 animate-pulse rounded-2xl bg-[#1a1a1a]"
-              />
-            ))
-          ) : vehicles.length > 0 ? (
-            vehicles.map((item) => (
-              <FleetCard
-                key={item.id}
-                name={item.name}
-                image={item.imageUrl || "/placeholder.jpg"}
-                description={item.category || "Premium Vehicle"}
-
-                /* ✅ FIXED: these were missing */
-                category={item.category || ""}
-                price={item.price ?? undefined}
-              />
+          {preview.length > 0 ? (
+            preview.map((item, i) => (
+              <Reveal key={item.id} delay={i * 80}>
+                <FleetCard
+                  name={item.name}
+                  image={item.imageUrl || "/placeholder.jpg"}
+                  description={item.category || "Premium Vehicle"}
+                  category={item.category || ""}
+                  price={item.price ?? undefined}
+                />
+              </Reveal>
             ))
           ) : (
-            <p className="text-center text-[#8a8a8a] col-span-full">
+            <p className="col-span-full text-center text-[#8a8a8a]">
               No vehicles available right now.
             </p>
           )}
-
         </div>
 
+        {vehicles.length > preview.length && (
+          <Reveal delay={preview.length * 80 + 100} className="mt-14 text-center">
+            <Link
+              href="/fleet"
+              className="group inline-flex items-center gap-2 rounded-full border border-[#ecb100]/40 px-6 py-3 text-sm text-[#ecb100] transition-all duration-200 hover:border-[#ecb100] hover:bg-[#ecb100]/5"
+            >
+              View Full Fleet
+              <ArrowRight
+                size={15}
+                className="transition-transform duration-200 group-hover:translate-x-1"
+              />
+            </Link>
+          </Reveal>
+        )}
       </div>
     </section>
   );

@@ -346,3 +346,65 @@
     transition: none;
   }
 }
+
+/* ---------------------------------------------------------
+   Tour Booking Wizard — Step Transition Animations
+   Append this block to your existing app/globals.css
+   (used by components/tours/TourBookingCard.tsx)
+--------------------------------------------------------- */
+
+@keyframes stepEnterForward {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes stepEnterBack {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes stepCheckPop {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.step-enter-forward {
+  animation: stepEnterForward 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.step-enter-back {
+  animation: stepEnterBack 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.step-check-pop {
+  animation: stepCheckPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step-enter-forward,
+  .step-enter-back,
+  .step-check-pop {
+    animation: none !important;
+  }
+}

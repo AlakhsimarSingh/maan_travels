@@ -1,10 +1,15 @@
 import { Router } from "express";
 import prisma from "../prisma";
+import { requireAdminDevice } from "../middleware/requireAdminDevice";
 
 const router = Router();
 
-/* ---------------- GET DASHBOARD STATS ---------------- */
-router.get("/", async (req, res) => {
+/* ---------------- GET DASHBOARD STATS (ADMIN) ----------------
+   No public use case here at all — this returns total revenue and
+   booking volume, not just a count of cars. Unlike GET /api/vehicles,
+   there's nothing here the public website needs, so unlike that route
+   this one should always require an admin device. */
+router.get("/", requireAdminDevice, async (req, res) => {
   try {
     const [
       totalVehicles,

@@ -14,14 +14,20 @@ import PaymentMethodPicker, { PaymentType } from "../booking/PaymentMethodPicker
 
 import { API_URL } from "@/src/services/bookingService";
 import { useBookingStatus } from "@/src/hooks/useBookingStatus";
-import { useVehicles } from "@/src/hooks/useVehicles";
-import type { Airport } from "@/src/hooks/useAirports";
+import { Airport, AirportVehicle } from "@/src/lib/fetchAirportTransferData";
+// import type { Airport, AirportVehicle } from "@/src/lib/fetchAirportTransferData";
 
 type Category = "Sedan" | "SUV" | "MPV";
 
-export default function AirportBookingForm({ airport }: { airport: Airport | null }) {
-  const { vehicles } = useVehicles();
-
+export default function AirportBookingForm({
+  airport,
+  vehicles,
+  onStepChange,
+}: {
+  airport: Airport | null;
+  vehicles: AirportVehicle[];
+  onStepChange?: (step: number) => void;
+}) {
   const [travelDate, setTravelDate] = useState<Date>();
   const [activeCategory, setActiveCategory] = useState<Category | null>(null);
   const [selectedVehicleId, setSelectedVehicleId] = useState("");
@@ -49,6 +55,38 @@ export default function AirportBookingForm({ airport }: { airport: Airport | nul
   useEffect(() => {
     setSelectedVehicleId("");
   }, [airport?.id]);
+
+  // Report which internal step we're on, purely derived from existing
+  // state — reuses the exact same fields handleSubmit already treats as
+  // "required", so this isn't a new rule, just observing the existing one.
+  // 0 = picking a vehicle, 1 = filling trip details, 2 = payment/submit.
+  useEffect(() => {
+    if (!onStepChange) return;
+
+    const tripDetailsComplete =
+      !!form.pickup &&
+      !!travelDate &&
+      !!form.time &&
+      !!form.passengers &&
+      !!form.name &&
+      !!form.phone &&
+      !!form.suitcases &&
+      !!form.handbags;
+
+    const step = !selectedVehicleId ? 0 : !tripDetailsComplete ? 1 : 2;
+    onStepChange(step);
+  }, [
+    selectedVehicleId,
+    form.pickup,
+    travelDate,
+    form.time,
+    form.passengers,
+    form.name,
+    form.phone,
+    form.suitcases,
+    form.handbags,
+    onStepChange,
+  ]);
 
   const grouped = useMemo(() => ({
     Sedan: vehicles.filter(v => v.category?.toLowerCase().includes("sedan")),
@@ -364,7 +402,7 @@ export default function AirportBookingForm({ airport }: { airport: Airport | nul
           )}
           {suitcasesOverCapacity && (
             <p className={passengersOverCapacity ? "mt-2" : ""}>
-              Your luggage exceeds this vehicle's boot capacity ({suitcaseCapacity} bags). We can add a roof rack — our team will confirm and the driver will let you know if extra charges apply.
+              Your luggage exceeds this vehicle's boot capacity ({suitcaseCapacity} bags). We will provide you a roof rack for your extra luggage, no additional charges applied.
             </p>
           )}
         </div>

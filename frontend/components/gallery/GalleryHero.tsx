@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useInView } from "@/src/hooks/useInView";
 
 const stats = [
-  { value: 10, suffix: "+", label: "Years of service" },
+  { value: 15, suffix: "+", label: "Years of service" },
   { value: 50, suffix: "+", label: "Premium vehicles" },
   { value: 15000, suffix: "+", label: "Happy customers" },
   { value: 24, suffix: "/7", label: "Always available" },

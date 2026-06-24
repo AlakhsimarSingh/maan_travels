@@ -1,22 +1,19 @@
-import AdminSidebar from "@/components/admin/AdminSidebar";
-import AdminHeader from "@/components/admin/AdminHeader";
+import type { Metadata } from "next";
+import AdminLayoutClient from "@/components/admin/AdminLayoutClient";
 
-export default function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex h-screen">
-      <AdminSidebar />
+// Defense in depth beyond robots.ts's "disallow: /admin" rule. Disallow
+// only tells well-behaved crawlers not to fetch the page — it doesn't stop
+// the bare URL from showing up in search results if it's linked from
+// somewhere else. A noindex directive is the actual "never show this in
+// search results" signal, so we apply it here for the whole admin tree.
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+  },
+};
 
-      <div className="flex flex-1 flex-col">
-        <AdminHeader />
-
-        <main className="flex-1 overflow-auto p-6">
-          {children}
-        </main>
-      </div>
-    </div>
-  );
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  return <AdminLayoutClient>{children}</AdminLayoutClient>;
 }

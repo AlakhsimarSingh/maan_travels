@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Pencil } from "lucide-react";
 import { API_URL } from "@/src/services/bookingService";
+import { resolveImageUrl } from "@/src/lib/resolveImageUrl";
+import GalleryEditModal from "@/components/admin/gallery/GalleryEditModal";
 
 type GalleryImage = {
   id: string;
@@ -21,13 +24,20 @@ export default function GalleryAdminPage() {
   const [form, setForm] = useState({ description: "", category: categories[0] });
   const [file, setFile] = useState<File | null>(null);
 
+  const [editingImage, setEditingImage] = useState<GalleryImage | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
+
   useEffect(() => {
     fetchImages();
   }, []);
 
   const fetchImages = async () => {
     try {
-      const res = await fetch(`${API_URL}/api/gallery/all`);
+      const res = await fetch(`${API_URL}/api/gallery/all`,
+        {
+          credentials: "include",
+        }
+      );
       const data = await res.json();
       setImages(data.images || []);
     } catch {
@@ -51,7 +61,7 @@ export default function GalleryAdminPage() {
       data.append("description", form.description);
       data.append("category", form.category);
 
-      const res = await fetch(`${API_URL}/api/gallery`, { method: "POST", body: data });
+      const res = await fetch(`${API_URL}/api/gallery`, { method: "POST", body: data, credentials: "include" });
       const resData = await res.json();
 
       if (!resData.success) {
@@ -71,7 +81,7 @@ export default function GalleryAdminPage() {
     try {
       const data = new FormData();
       data.append("active", String(!img.active));
-      const res = await fetch(`${API_URL}/api/gallery/${img.id}`, { method: "PUT", body: data });
+      const res = await fetch(`${API_URL}/api/gallery/${img.id}`, { method: "PUT", body: data, credentials: "include" });
       const resData = await res.json();
       if (resData.success) fetchImages();
     } catch {
@@ -81,7 +91,7 @@ export default function GalleryAdminPage() {
 
   const deleteImage = async (id: string) => {
     try {
-      const res = await fetch(`${API_URL}/api/gallery/${id}`, { method: "DELETE" });
+      const res = await fetch(`${API_URL}/api/gallery/${id}`, { method: "DELETE", credentials: "include" });
       const data = await res.json();
       if (!data.success) {
         setError(data.message || "Failed to delete image");
@@ -91,6 +101,11 @@ export default function GalleryAdminPage() {
     } catch {
       setError("Failed to delete image");
     }
+  };
+
+  const openEdit = (img: GalleryImage) => {
+    setEditingImage(img);
+    setEditOpen(true);
   };
 
   if (loading) {
@@ -141,16 +156,27 @@ export default function GalleryAdminPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {images.map((img) => (
           <div key={img.id} className="rounded-xl border border-[#252525] bg-[#111] overflow-hidden">
-            <img src={`${API_URL}${img.image}`} alt={img.description || img.category} className="h-40 w-full object-cover" />
+            <img src={resolveImageUrl(img.image, API_URL)} alt={img.description || img.category} className="h-40 w-full object-cover" />
 
             <div className="p-3 space-y-1">
               <p className="text-xs text-[#ecb100] uppercase tracking-wide">{img.category}</p>
               <p className="text-sm text-white/80 truncate">{img.description || "No description"}</p>
 
               <div className="flex items-center justify-between pt-2">
-                <button onClick={() => toggleActive(img)} className="text-xs text-white/60 hover:text-white">
-                  {img.active ? "Hide" : "Show"}
-                </button>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => openEdit(img)}
+                    className="flex items-center gap-1 text-xs text-white/60 hover:text-white"
+                  >
+                    <Pencil size={12} />
+                    Edit
+                  </button>
+
+                  <button onClick={() => toggleActive(img)} className="text-xs text-white/60 hover:text-white">
+                    {img.active ? "Hide" : "Show"}
+                  </button>
+                </div>
+
                 <button onClick={() => deleteImage(img.id)} className="text-xs text-red-400 hover:text-red-300">
                   Delete
                 </button>
@@ -159,6 +185,14 @@ export default function GalleryAdminPage() {
           </div>
         ))}
       </div>
+
+      <GalleryEditModal
+        open={editOpen}
+        image={editingImage}
+        categories={categories}
+        onClose={() => setEditOpen(false)}
+        onSuccess={fetchImages}
+      />
     </div>
   );
 }
