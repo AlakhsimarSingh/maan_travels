@@ -33,8 +33,8 @@ const isProduction = process.env.NODE_ENV === "production";
 function setDeviceCookie(res: Response, rawToken: string) {
   res.cookie(ADMIN_DEVICE_COOKIE_NAME, rawToken, {
     httpOnly: true,
-    secure: isProduction,
-    sameSite: "lax",
+    secure: true,
+    sameSite: "none",
     // 1 year — this is a long-lived trusted-device session by design.
     // Revocation happens via the device's status, not cookie expiry.
     maxAge: 1000 * 60 * 60 * 24 * 365,
