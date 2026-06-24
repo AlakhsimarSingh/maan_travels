@@ -6,7 +6,6 @@ dotenv.config();
 
 
 import taxiRoutes from "./routes/taxi.routes";
-import airportRoutes from "./routes/airport.routes";
 import selfDriveRoutes from "./routes/selfdrive.routes";
 import tourRoutes from "./routes/tour.routes";
 import vehicleRoutes from "./routes/vehicle.routes";
@@ -23,7 +22,7 @@ import statsRoutes from "./routes/stats.routes"
 import airportsCatalogRoutes from "./routes/airports.routes";
 import galleryRoutes from "./routes/gallery.routes";
 import inquiryRoutes from "./routes/inquiry.routes";
-
+import airportBookingRoutes from "./routes/airport-bookings.routes";
 import prisma from "./prisma";
 import uploadRoutes from "./routes/upload.routes";
 import pricingRoutes from "./routes/pricing.routes";
@@ -58,7 +57,7 @@ app.use(
 );
 app.use(
   "/api/airport-bookings",
-  airportRoutes
+  airportBookingRoutes
 );
 app.use(
   "/api/selfdrive-bookings",
