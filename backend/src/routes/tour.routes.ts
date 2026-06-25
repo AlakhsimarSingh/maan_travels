@@ -36,12 +36,23 @@ router.post("/", upload.single("paymentScreenshot"), async (req, res) => {
         if (pricing) totalAmount = pricing.price;
       }
 
-      if (!totalAmount && vehicle) {
-        totalAmount = vehicle.price || vehicle.rentalPerDay || 0;
-      }
+      // NOTE: no fallback to vehicle.price / vehicle.rentalPerDay here.
+      // Those fields are taxi/rental pricing and are not valid for tours.
+      // If there's no RoutePricing row for this route+vehicle, totalAmount
+      // stays 0 — price is unconfirmed and the team follows up manually.
     }
 
     const type = paymentType === "full" || paymentType === "partial" ? paymentType : "later";
+
+    // No quoted price to pay against — block full/partial payment even
+    // if the client somehow sends one (defends against a tampered or
+    // direct API request, since the UI already prevents this case).
+    if (totalAmount === 0 && type !== "later") {
+      return res.status(400).json({
+        success: false,
+        message: "Price is not yet confirmed for this route — payment is not available until our team confirms pricing",
+      });
+    }
 
     let resolvedAmountPaid = 0;
     if (type === "full") resolvedAmountPaid = totalAmount;

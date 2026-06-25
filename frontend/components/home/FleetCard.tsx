@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Users, ArrowUpRight, Car, Plane, Star, Route } from "lucide-react";
 
+export type FleetCardViewContext = "luxury" | "self-drive" | "taxi" | "default";
+
 type FleetCardProps = {
   name: string;
   image: string;
@@ -15,34 +17,46 @@ type FleetCardProps = {
   isSelfDrive?: boolean;
   isTaxiFleet?: boolean;
   passengerCapacity?: number;
+  // Which filter context this card is currently being rendered under.
+  // Needed because a vehicle can be BOTH self-drive and taxi-fleet at
+  // once (e.g. Innova Crysta) — in that case the right price/label
+  // depends on which filter view the user is looking at, not on the
+  // vehicle's raw flags alone. Defaults to "default" for call sites
+  // that don't pass a filter context (keeps old behavior for those).
+  viewContext?: FleetCardViewContext;
 };
 
 function getPriceLabel(
   category: string,
-  isSelfDrive: boolean,
-  isTaxiFleet: boolean
+  viewContext: FleetCardViewContext
 ): { label: string; icon: React.ReactNode } | null {
   const cat = category.toLowerCase();
 
-  if (isSelfDrive) {
-    return { label: "/day rental", icon: <Car size={11} /> };
+  // View context wins when explicitly known — this is what lets a dual
+  // self-drive + taxi vehicle show "/day rental" under Self Drive and
+  // "/trip" under Taxi Fleet, instead of one fixed label everywhere.
+  if (viewContext === "self-drive") return { label: "/day rental", icon: <Car size={11} /> };
+  if (viewContext === "luxury") return { label: "/event", icon: <Star size={11} /> };
+  if (viewContext === "taxi") {
+    if (cat.includes("tempo") || cat.includes("urbania")) {
+      return { label: "/trip", icon: <Route size={11} /> };
+    }
+    return { label: "/trip", icon: <Plane size={11} /> };
   }
-  if (cat.includes("luxury")) {
-    return { label: "/event", icon: <Star size={11} /> };
-  }
+
+  // Fallback for call sites that don't know/pass a filter context yet —
+  // preserves the original single-flag-based guess.
+  if (cat.includes("luxury")) return { label: "/event", icon: <Star size={11} /> };
   if (cat.includes("tempo") || cat.includes("urbania")) {
     return { label: "/trip", icon: <Route size={11} /> };
   }
-  if (isTaxiFleet) {
-    return { label: "/trip", icon: <Plane size={11} /> };
-  }
-  return null;
+  return { label: "/trip", icon: <Plane size={11} /> };
 }
 
-function getCategoryBadge(category: string, isSelfDrive: boolean): string {
+function getCategoryBadge(category: string, viewContext: FleetCardViewContext): string {
   const cat = category.toLowerCase();
-  if (isSelfDrive) return "Self Drive";
-  if (cat.includes("luxury")) return "Luxury";
+  if (viewContext === "self-drive") return "Self Drive";
+  if (viewContext === "luxury") return "Luxury";
   if (cat.includes("tempo") || cat.includes("urbania")) return "Traveller";
   if (cat.includes("suv")) return "SUV";
   if (cat.includes("sedan")) return "Sedan";
@@ -61,6 +75,7 @@ export default function FleetCard({
   isSelfDrive = false,
   isTaxiFleet = true,
   passengerCapacity,
+  viewContext = "default",
 }: FleetCardProps) {
   const router = useRouter();
 
@@ -93,11 +108,9 @@ export default function FleetCard({
     router.push("/fleet");
   };
 
-  const priceInfo = price
-    ? getPriceLabel(category, isSelfDrive, isTaxiFleet)
-    : null;
+  const priceInfo = price ? getPriceLabel(category, viewContext) : null;
 
-  const badgeLabel = getCategoryBadge(category, isSelfDrive);
+  const badgeLabel = getCategoryBadge(category, viewContext);
   const displayCapacity =
     capacity || (passengerCapacity ? `${passengerCapacity} passengers` : null);
 

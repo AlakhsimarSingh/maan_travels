@@ -12,7 +12,7 @@ export default function AboutFounder() {
           </h2>
         </Reveal>
 
-        <Reveal delay={80}>
+        <Reveal delay={40}>
           <div className="grid md:grid-cols-[auto_1fr] gap-10 items-center rounded-3xl border border-[#252525] bg-[#111] p-8 md:p-10">
 
             <div className="relative mx-auto md:mx-0">

@@ -106,6 +106,21 @@ export default function TourBookingForm({
 
   const totalAmount = vehicleId ? price || 0 : 0;
 
+  // No RoutePricing exists for this route+vehicle combo — there's nothing
+  // to pay against yet. PaymentMethodPicker already hides the full/partial/
+  // later buttons in this case, but we also force the type back to
+  // "later" here as a safety net so a stale "full"/"partial" selection
+  // can never be submitted once price drops to unconfirmed.
+  const priceUnconfirmed = totalAmount <= 0;
+
+  useEffect(() => {
+    if (priceUnconfirmed && paymentType !== "later") {
+      onPaymentTypeReset();
+    }
+  }, [priceUnconfirmed]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const onPaymentTypeReset = () => setPaymentType("later");
+
   useEffect(() => {
     // Pickup/destination are fixed by the route — no need to fetch the
     // editable dropdown options at all.

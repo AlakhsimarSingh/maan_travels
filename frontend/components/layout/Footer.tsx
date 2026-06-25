@@ -22,8 +22,7 @@ const socialLinks = [
   { icon: FacebookIcon, label: "Facebook", href: siteConfig.social.facebook },
 ];
 
-const GOOGLE_MAPS_URL =
-  "https://maps.app.goo.gl/1PBSVxj7rkpvLNZw8";
+const GOOGLE_MAPS_URL = "https://maps.app.goo.gl/1PBSVxj7rkpvLNZw8";
 
 const MAP_EMBED_SRC =
   "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3398.0!2d75.5869641!3d31.3175908!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391a5b00464043bf%3A0xb15c8a12362f55f4!2sMaan%20Tour%20%26%20Travels%20Jalandhar!5e0!3m2!1sen!2sin!4v1700000000000";
@@ -59,7 +58,11 @@ export default function Footer({ cars = [] }: { cars?: FooterCar[] }) {
   return (
     <footer ref={sectionRef} className="border-t border-[#252525] bg-[#050505]">
       <div className="mx-auto max-w-7xl px-6 py-16">
-        <div className={`grid gap-10 md:grid-cols-2 lg:grid-cols-5 reveal ${visible ? "reveal-visible" : ""}`}>
+        <div
+          className={`grid gap-10 md:grid-cols-2 lg:grid-cols-5 reveal ${
+            visible ? "reveal-visible" : ""
+          }`}
+        >
           {/* BRAND */}
           <div className="lg:col-span-1">
             <Link href="/" aria-label="Maan Travels — Home" className="inline-block">
@@ -72,7 +75,9 @@ export default function Footer({ cars = [] }: { cars?: FooterCar[] }) {
               />
             </Link>
 
-            <p className="mt-5 text-sm leading-6 text-[#8a8a8a]">{siteConfig.description}</p>
+            <p className="mt-5 text-sm leading-6 text-[#8a8a8a]">
+              {siteConfig.description}
+            </p>
 
             <div className="mt-5 flex gap-3">
               {socialLinks.map((social) => {
@@ -113,7 +118,7 @@ export default function Footer({ cars = [] }: { cars?: FooterCar[] }) {
             ))}
           </FooterColumn>
 
-          {/* LUXURY CARS — replaces the old static Tour Packages column */}
+          {/* LUXURY CARS */}
           <FooterColumn title="Luxury Cars">
             {cars.length > 0 ? (
               cars.slice(0, 4).map((car) => (
@@ -185,7 +190,10 @@ export default function Footer({ cars = [] }: { cars?: FooterCar[] }) {
                   src={MAP_EMBED_SRC}
                   width="100%"
                   height="100%"
-                  style={{ border: 0, filter: "grayscale(1) invert(0.92) contrast(0.85)" }}
+                  style={{
+                    border: 0,
+                    filter: "grayscale(1) invert(0.92) contrast(0.85)",
+                  }}
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
                   title="Maan Travels location on Google Maps"
@@ -198,16 +206,23 @@ export default function Footer({ cars = [] }: { cars?: FooterCar[] }) {
           </div>
         </div>
 
+        {/* ── Bottom bar ── */}
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-[#252525] pt-6 text-sm text-[#8a8a8a] sm:flex-row">
           <p>© {new Date().getFullYear()} Maan Travels. All Rights Reserved.</p>
-          <p className="text-xs text-[#555]">Jalandhar, Punjab · India</p>
+          <div className="flex items-center gap-4">
+            <p className="text-xs text-[#555]">Jalandhar, Punjab · India</p>
+            <span className="h-3 w-px bg-[#252525]" />
+            <Link
+              href="/terms"
+              className="text-xs text-[#555] transition-colors hover:text-[#ecb100]"
+            >
+              Terms &amp; Privacy
+            </Link>
+          </div>
         </div>
       </div>
 
-      {/* LocalBusiness structured data — real geo coordinates resolved from the Maps listing.
-          This is the single, authoritative TravelAgency block for the whole site. It renders
-          once via the footer, present on every page. Don't duplicate this in layout.tsx or
-          elsewhere — keep all business schema fields consolidated here. */}
+      {/* LocalBusiness structured data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -220,8 +235,17 @@ export default function Footer({ cars = [] }: { cars?: FooterCar[] }) {
             image: "https://www.maantravels.com/og-image.jpg",
             telephone: siteConfig.contact.phone,
             email: siteConfig.contact.email,
-            areaServed: ["Punjab", "Himachal Pradesh", "Jammu and Kashmir", "Rajasthan", "Delhi"],
-            sameAs: [siteConfig.social.instagram, siteConfig.social.facebook].filter(Boolean),
+            areaServed: [
+              "Punjab",
+              "Himachal Pradesh",
+              "Jammu and Kashmir",
+              "Rajasthan",
+              "Delhi",
+            ],
+            sameAs: [
+              siteConfig.social.instagram,
+              siteConfig.social.facebook,
+            ].filter(Boolean),
             address: {
               "@type": "PostalAddress",
               streetAddress: "8H9P+2QP, BMC Chowk, Jawahar Nagar",
@@ -243,7 +267,13 @@ export default function Footer({ cars = [] }: { cars?: FooterCar[] }) {
   );
 }
 
-function FooterColumn({ title, children }: { title: string; children: React.ReactNode }) {
+function FooterColumn({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
     <div>
       <h4 className="mb-4 font-semibold text-white">{title}</h4>

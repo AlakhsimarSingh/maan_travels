@@ -96,7 +96,7 @@ export default async function LuxuryCarDetailsPage({ params }: Props) {
 
             <div className="mt-6 grid gap-4 md:grid-cols-2">
               {luxuryCar.features.map((feature: string, i: number) => (
-                <Reveal key={feature} delay={i * 60}>
+                <Reveal key={feature} delay={i * 30}>
                   <div className="flex items-center gap-3 rounded-xl border border-[#252525] bg-[#141414] p-4 text-[#c7c7c7] transition-colors hover:border-[#ecb100]/40">
                     <Check size={18} className="text-[#ecb100]" />
                     {feature}
@@ -107,7 +107,7 @@ export default async function LuxuryCarDetailsPage({ params }: Props) {
           </div>
 
           <aside>
-            <Reveal delay={120}>
+            <Reveal delay={60}>
               <div className="sticky top-28 rounded-3xl border border-[#252525] bg-[#141414] p-8">
                 <p className="uppercase tracking-[0.25em] text-sm text-[#ecb100]">Reserve Vehicle</p>
                 <h3 className="mt-4 text-2xl font-bold text-white">Book {luxuryCar.name}</h3>

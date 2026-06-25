@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X, ChevronDown } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const services = [
   { label: "Luxury Cars", href: "/luxury-cars" },
@@ -28,15 +28,49 @@ export default function MobileMenu() {
   const [servicesOpen, setServicesOpen] = useState(false);
   const pathname = usePathname();
 
-  // Lock body scroll when menu is open
+  // Remember the scroll position from the moment the menu opens, so we
+  // can restore it exactly on close instead of letting the browser pick.
+  const scrollYRef = useRef(0);
+
+  // Lock body scroll when menu is open.
+  //
+  // On Android Chrome, just setting `overflow: hidden` on body while the
+  // page is scrolled down can trigger a scroll-anchoring jump right as
+  // the fixed drawer is first painted — and since the drawer also uses
+  // `overflow-y-auto`, that bad first layout pass can leave its content
+  // clipped until something (e.g. scrolling) forces a reflow. Locking
+  // the body with `position: fixed` instead of relying on `overflow`
+  // alone avoids that jump, because the page no longer needs to move at
+  // all — we're freezing it in place rather than asking the browser to
+  // suppress scrolling on a page that's still positioned mid-scroll.
   useEffect(() => {
     if (open) {
+      scrollYRef.current = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollYRef.current}px`;
+      document.body.style.left = "0";
+      document.body.style.right = "0";
+      document.body.style.width = "100%";
       document.body.style.overflow = "hidden";
     } else {
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.width = "";
       document.body.style.overflow = "";
+      window.scrollTo(0, scrollYRef.current);
       setServicesOpen(false);
     }
-    return () => { document.body.style.overflow = ""; };
+
+    return () => {
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
+      document.body.style.width = "";
+      document.body.style.overflow = "";
+    };
   }, [open]);
 
   // Close on route change
@@ -60,17 +94,20 @@ export default function MobileMenu() {
       <div
         aria-hidden={!open}
         onClick={() => setOpen(false)}
-        className={`fixed inset-0 z-[99] bg-black/60 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
+        className={`fixed inset-0 z-[99] h-dvh bg-black/60 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
           open ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
       />
 
-      {/* DRAWER — slides in from the right, always in DOM */}
+      {/* DRAWER — slides in from the right, always in DOM.
+          h-dvh (not h-full/100%) so Android Chrome's dynamic toolbar
+          collapsing/expanding as you scroll doesn't leave this laid out
+          against a stale viewport height. */}
       <nav
         id="mobile-nav"
         aria-label="Mobile navigation"
         className={`
-          fixed right-0 top-0 z-[100] h-full w-80 max-w-[90vw]
+          fixed right-0 top-0 z-[100] h-dvh w-80 max-w-[90vw]
           overflow-y-auto border-l border-[#252525] bg-[#0a0a0a]
           transition-transform duration-300 ease-out lg:hidden
           ${open ? "translate-x-0" : "translate-x-full"}

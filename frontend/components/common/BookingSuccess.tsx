@@ -27,7 +27,10 @@ export default function BookingSuccess({
 }: Props) {
   if (!open) return null;
 
-  const hasPaymentInfo = amountPaid !== undefined && totalAmount !== undefined;
+  const hasPaymentInfo =
+    amountPaid !== undefined && totalAmount !== undefined && totalAmount > 0;
+
+  const priceUnconfirmed = totalAmount === 0;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
@@ -40,6 +43,12 @@ export default function BookingSuccess({
         <p className="mt-2 text-[#8a8a8a]">
           {message || "We have received your request. Our team will contact you shortly."}
         </p>
+
+        {priceUnconfirmed && (
+          <p className="mt-2 text-sm text-[#ecb100]">
+            Our team will contact you shortly to confirm the price for this booking.
+          </p>
+        )}
 
         {showId && bookingId && (
           <p className="mt-3 text-sm text-[#ecb100]">ID: {bookingId}</p>
