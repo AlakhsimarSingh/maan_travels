@@ -3,8 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
-import { Users, ArrowUpRight } from "lucide-react";
+import { Users, ArrowUpRight, Car, Plane, Star, Route } from "lucide-react";
 
 type FleetCardProps = {
   name: string;
@@ -13,110 +12,180 @@ type FleetCardProps = {
   capacity?: string;
   category?: string;
   price?: number;
+  isSelfDrive?: boolean;
+  isTaxiFleet?: boolean;
+  passengerCapacity?: number;
 };
+
+function getPriceLabel(
+  category: string,
+  isSelfDrive: boolean,
+  isTaxiFleet: boolean
+): { label: string; icon: React.ReactNode } | null {
+  const cat = category.toLowerCase();
+
+  if (isSelfDrive) {
+    return { label: "/day rental", icon: <Car size={11} /> };
+  }
+  if (cat.includes("luxury")) {
+    return { label: "/event", icon: <Star size={11} /> };
+  }
+  if (cat.includes("tempo") || cat.includes("urbania")) {
+    return { label: "/trip", icon: <Route size={11} /> };
+  }
+  if (isTaxiFleet) {
+    return { label: "/trip", icon: <Plane size={11} /> };
+  }
+  return null;
+}
+
+function getCategoryBadge(category: string, isSelfDrive: boolean): string {
+  const cat = category.toLowerCase();
+  if (isSelfDrive) return "Self Drive";
+  if (cat.includes("luxury")) return "Luxury";
+  if (cat.includes("tempo") || cat.includes("urbania")) return "Traveller";
+  if (cat.includes("suv")) return "SUV";
+  if (cat.includes("sedan")) return "Sedan";
+  if (cat.includes("mpv")) return "MPV";
+  if (cat.includes("hatchback")) return "Hatchback";
+  return category;
+}
 
 export default function FleetCard({
   name,
   image,
   description,
   capacity,
-  category,
+  category = "",
   price,
+  isSelfDrive = false,
+  isTaxiFleet = true,
+  passengerCapacity,
 }: FleetCardProps) {
   const router = useRouter();
 
   const handleNavigation = () => {
-    const cat = (category || "").toLowerCase();
+    const cat = category.toLowerCase();
 
-    if (cat.includes("mpv") || cat.includes("sedan") || cat.includes("suv")) {
-      router.push("/go-taxi");
+    if (isSelfDrive || cat.includes("self")) {
+      router.push("/self-drive");
       return;
     }
-
+    if (cat.includes("luxury")) {
+      router.push("/luxury-cars");
+      return;
+    }
     if (cat.includes("tempo") || cat.includes("urbania")) {
       router.push("/tempo-traveller-urbania");
       return;
     }
-
-    if (cat.includes("self")) {
-      router.push("/self-drive");
-      return;
-    }
-
-    if (cat.includes("luxury")) {
-      router.push("/luxury-cars");
+    if (
+      isTaxiFleet ||
+      cat.includes("mpv") ||
+      cat.includes("sedan") ||
+      cat.includes("suv") ||
+      cat.includes("hatchback")
+    ) {
+      router.push("/go-taxi");
       return;
     }
 
     router.push("/fleet");
   };
 
+  const priceInfo = price
+    ? getPriceLabel(category, isSelfDrive, isTaxiFleet)
+    : null;
+
+  const badgeLabel = getCategoryBadge(category, isSelfDrive);
+  const displayCapacity =
+    capacity || (passengerCapacity ? `${passengerCapacity} passengers` : null);
+
   return (
-    <motion.div
-      whileHover={{ y: -6 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
+    <div
       className="
         group overflow-hidden rounded-3xl border border-[#252525]
-        bg-[#141414] transition-colors duration-300
+        bg-[#141414] transition-all duration-300 cursor-pointer
         hover:border-[#ecb100] hover:shadow-[0_0_35px_rgba(236,177,0,0.18)]
+        active:scale-[0.98]
+        translate-y-0 hover:-translate-y-1.5
       "
+      onClick={handleNavigation}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === "Enter" && handleNavigation()}
+      aria-label={`View details for ${name}`}
     >
       {/* IMAGE */}
-      <div className="relative h-64 overflow-hidden">
+      <div className="relative h-56 overflow-hidden sm:h-64">
         <Image
           src={image}
           alt={name}
           fill
-          className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
         />
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent" />
 
-        <div className="absolute left-4 top-4 flex flex-wrap gap-2">
-          {category && (
-            <span className="rounded-full border border-[#ecb100]/30 bg-[#ecb100]/10 px-3 py-1 text-xs text-[#ecb100] backdrop-blur-sm">
-              {category}
-            </span>
-          )}
-
-          {price && (
-            <span className="rounded-full border border-white/10 bg-black/60 px-3 py-1 text-xs text-white backdrop-blur-sm">
-              ₹{price.toLocaleString("en-IN")}/day
-            </span>
-          )}
+        {/* TOP-LEFT: category badge only */}
+        <div className="absolute left-4 top-4">
+          <span className="rounded-full border border-[#ecb100]/30 bg-[#ecb100]/10 px-3 py-1 text-xs text-[#ecb100] backdrop-blur-sm">
+            {badgeLabel}
+          </span>
         </div>
+
+        {/* BOTTOM: price with context label */}
+        {price && priceInfo && (
+          <div className="absolute bottom-4 right-4 flex items-center gap-1 rounded-full border border-white/10 bg-black/70 px-3 py-1.5 text-xs text-white backdrop-blur-sm">
+            <span className="opacity-50">{priceInfo.icon}</span>
+            <span className="font-semibold">
+              ₹{price.toLocaleString("en-IN")}
+            </span>
+            <span className="text-[#8a8a8a]">{priceInfo.label}</span>
+          </div>
+        )}
       </div>
 
       {/* CONTENT */}
-      <div className="p-6">
-        <h3 className="text-xl font-bold text-white">{name}</h3>
+      <div className="p-5 sm:p-6">
+        <h3 className="text-lg font-bold text-white sm:text-xl">{name}</h3>
 
-        <p className="mt-2 line-clamp-2 text-sm text-[#8a8a8a]">{description}</p>
+        {/* description — the actual vehicle description text, not the category */}
+        {description && description !== category && (
+          <p className="mt-1.5 line-clamp-2 text-sm text-[#8a8a8a]">
+            {description}
+          </p>
+        )}
 
-        {capacity && (
-          <div className="mt-4 flex items-center gap-1.5 text-xs text-[#ecb100]/80">
+        {displayCapacity && (
+          <div className="mt-3 flex items-center gap-1.5 text-xs text-[#ecb100]/80">
             <Users size={13} />
-            {capacity}
+            {displayCapacity}
           </div>
         )}
 
-        <Button
-          onClick={handleNavigation}
+        {/* 
+          Button is purely decorative/visual — the entire card is the click target.
+          pointer-events-none prevents it from swallowing touch events on mobile
+          which was causing the dead zone on the lower 50% of the screen.
+        */}
+        <div
           className="
-            group/btn mt-6 w-full border border-[#ecb100] bg-transparent
-            text-[#ecb100] transition-all duration-200
-            hover:bg-[#ecb100] hover:text-black active:scale-[0.98]
+            mt-5 flex w-full items-center justify-center gap-1.5 rounded-xl
+            border border-[#ecb100] py-2.5 text-sm text-[#ecb100]
+            transition-all duration-200
+            group-hover:bg-[#ecb100] group-hover:text-black
+            pointer-events-none select-none
           "
+          aria-hidden="true"
         >
-          <span className="flex items-center justify-center gap-1.5">
-            View Details
-            <ArrowUpRight
-              size={15}
-              className="transition-transform duration-200 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5"
-            />
-          </span>
-        </Button>
+          View Details
+          <ArrowUpRight
+            size={15}
+            className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+          />
+        </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

@@ -10,10 +10,14 @@ type Vehicle = {
   imageUrl?: string | null;
   category?: string | null;
   price?: number | null;
+  description?: string | null;
+  isSelfDrive?: boolean;
+  isTaxiFleet?: boolean;
+  passengerCapacity?: number | null;
+  rentalPerDay?: number | null;
 };
 
 export default function FleetSection({ vehicles }: { vehicles: Vehicle[] }) {
-  // Homepage shows a curated preview, not the entire fleet
   const preview = vehicles.slice(0, 6);
 
   return (
@@ -36,9 +40,12 @@ export default function FleetSection({ vehicles }: { vehicles: Vehicle[] }) {
                 <FleetCard
                   name={item.name}
                   image={item.imageUrl || "/placeholder.jpg"}
-                  description={item.category || "Premium Vehicle"}
+                  description={item.description || ""}
                   category={item.category || ""}
-                  price={item.price ?? undefined}
+                  price={item.isSelfDrive ? (item.rentalPerDay ?? undefined) : (item.price ?? undefined)}
+                  isSelfDrive={item.isSelfDrive ?? false}
+                  isTaxiFleet={item.isTaxiFleet ?? true}
+                  passengerCapacity={item.passengerCapacity ?? undefined}
                 />
               </Reveal>
             ))
