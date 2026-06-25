@@ -5,7 +5,7 @@ export const siteConfig = {
     phone: "+91 8054404591",
     email: "maantravelcabs@gmail.com",
     address:
-      "SCO 99, Guru Gobind Singh Avenue, Jalandhar, Punjab 144001, India",
+      "8H9P+2QP, BMC Chowk, Jawahar Nagar, Jalandhar, Punjab 144001, India",
   },
 
   social: {

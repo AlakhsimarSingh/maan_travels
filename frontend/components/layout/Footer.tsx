@@ -23,10 +23,10 @@ const socialLinks = [
 ];
 
 const GOOGLE_MAPS_URL =
-  "https://maps.app.goo.gl/D3uiAgK6MaJfsTzK7";
+  "https://maps.app.goo.gl/1PBSVxj7rkpvLNZw8";
 
 const MAP_EMBED_SRC =
-  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3398.0!2d75.6029927!3d31.3138647!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391a51efc7f6f80b%3A0xb63ea11862b73cf8!2sMaan%20Tour%20And%20Travels!5e0!3m2!1sen!2sin!4v1700000000000";
+  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3398.0!2d75.5869641!3d31.3175908!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391a5b00464043bf%3A0xb15c8a12362f55f4!2sMaan%20Tour%20%26%20Travels%20Jalandhar!5e0!3m2!1sen!2sin!4v1700000000000";
 
 type FooterCar = {
   id: string;
@@ -224,7 +224,7 @@ export default function Footer({ cars = [] }: { cars?: FooterCar[] }) {
             sameAs: [siteConfig.social.instagram, siteConfig.social.facebook].filter(Boolean),
             address: {
               "@type": "PostalAddress",
-              streetAddress: "SCO 99, Guru Gobind Singh Avenue",
+              streetAddress: "8H9P+2QP, BMC Chowk, Jawahar Nagar",
               addressLocality: "Jalandhar",
               addressRegion: "Punjab",
               postalCode: "144001",
@@ -232,8 +232,8 @@ export default function Footer({ cars = [] }: { cars?: FooterCar[] }) {
             },
             geo: {
               "@type": "GeoCoordinates",
-              latitude: 31.3138647,
-              longitude: 75.6029927,
+              latitude: 31.3175908,
+              longitude: 75.5869641,
             },
             hasMap: GOOGLE_MAPS_URL,
           }),
