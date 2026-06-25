@@ -14,11 +14,11 @@ type Props = {
 
 const typeConfig: Record<
   "taxi" | "airport" | "tour",
-  { accent: string; label: string }
+  { label: string }
 > = {
-  taxi:    { accent: "#ecb100", label: "Outstation" },
-  airport: { accent: "#ecb100", label: "Transfers"  },
-  tour:    { accent: "#ecb100", label: "Curated"    },
+  taxi:    { label: "Outstation" },
+  airport: { label: "Transfers"  },
+  tour:    { label: "Curated"    },
 };
 
 export default function RouteSection({ title, routes, vehicles, type }: Props) {
@@ -28,60 +28,37 @@ export default function RouteSection({ title, routes, vehicles, type }: Props) {
   const displayRoutes = routes.slice(0, 9);
   if (!displayRoutes.length) return null;
 
-  // Split title into first word + rest so we can accent the first word
-  const [firstWord, ...rest] = title.split(" ");
-
   return (
     <section className="mb-16">
-      {/* ── Section header ── */}
-      <div className="relative mb-8">
-        {/* Subtle ambient glow behind the heading */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -top-4 left-0 h-16 w-48 rounded-full opacity-20 blur-2xl"
-          style={{ background: config.accent }}
-        />
+      {/* ── Section header ──
+          Pill badge matches RouteCard's category tag. The rule under the
+          heading reuses the gold-dot/route-line motif from the cards, and
+          gets a soft animated glow behind it — that's the one signature
+          flourish for this header, kept small and contained rather than
+          a big blurred blob behind the whole title. */}
+      <div className="mb-8">
+        <div className="flex items-center gap-2.5 mb-3">
+          <span className="text-[11px] font-medium tracking-wide text-[#ecb100] border border-[#ecb100]/35 rounded-full px-3 py-1">
+            {config.label}
+          </span>
+        </div>
 
-        <div className="relative flex flex-col gap-2">
-          {/* Eyebrow label */}
-          <div className="flex items-center gap-2">
-            <span
-              className="h-px w-6"
-              style={{ background: config.accent }}
-            />
-            <span
-              className="text-[11px] font-medium tracking-[0.2em] uppercase"
-              style={{ color: config.accent }}
-            >
-              {config.label}
+        <h2 className="text-[26px] sm:text-3xl font-semibold tracking-tight leading-tight text-white">
+          {title}
+        </h2>
+
+        <div className="relative mt-3 max-w-[140px]">
+          {/* animated glow halo, sits behind the dot/line */}
+          <span
+            aria-hidden
+            className="absolute -inset-y-2 -inset-x-2 rounded-full bg-[#ecb100]/30 blur-md animate-pulse"
+          />
+          <div className="relative flex items-center gap-2">
+            <span className="relative w-[6px] h-[6px] rounded-full bg-[#ecb100] flex-shrink-0">
+              <span className="route-dot-pulse" />
             </span>
-          </div>
-
-          {/* Main title — first word in gold, rest in white */}
-          <div className="flex items-baseline gap-2.5 flex-wrap">
-            <h2 className="text-2xl sm:text-3xl font-bold leading-tight"
-                style={{ color: config.accent }}>
-              {firstWord}
-            </h2>
-            {rest.length > 0 && (
-              <h2 className="text-2xl sm:text-3xl font-bold leading-tight text-white">
-                {rest.join(" ")}
-              </h2>
-            )}
-            {/* Route count badge */}
-            <span className="ml-1 text-[11px] font-medium text-black rounded-full px-2.5 py-0.5"
-                  style={{ background: config.accent }}>
-              {displayRoutes.length}
-            </span>
-          </div>
-
-          {/* Decorative underline */}
-          <div className="flex items-center gap-2 mt-1">
-            <span
-              className="h-[2px] w-12 rounded-full"
-              style={{ background: config.accent }}
-            />
-            <span className="h-px flex-1 bg-[#252525]" />
+            <span className="route-line" />
+            <span className="w-[6px] h-[6px] rounded-full border-[1.5px] border-[#ecb100]/60 flex-shrink-0" />
           </div>
         </div>
       </div>

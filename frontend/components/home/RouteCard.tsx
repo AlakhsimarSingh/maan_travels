@@ -96,26 +96,34 @@ export default function RouteCard({
         ) : null}
 
         {pricedVehicles.length > 0 && (
-          /* Use a grid so buttons are equal width and always tappable on mobile.
-             Two columns keeps them readable even on narrow screens. */
-          <div className="grid grid-cols-2 gap-1.5 mt-4">
-            {pricedVehicles.map((v) => (
-              <button
-                key={v.id}
-                onClick={() => setSelectedVehicleId(v.id)}
-                className={`
-                  text-[12px] px-2 py-2 rounded-lg border transition-colors text-center
-                  min-h-[36px] touch-manipulation
-                  ${
-                    selectedVehicleId === v.id
-                      ? "bg-[#ecb100] text-black border-[#ecb100] font-medium"
-                      : "border-[#333] text-white/60 hover:border-[#ecb100]/40 active:bg-[#1a1a1a]"
-                  }
-                `}
-              >
-                {v.name}
-              </button>
-            ))}
+          <div className="mt-3">
+            <p className="text-[9.5px] font-medium tracking-[0.1em] uppercase text-white/25 mb-1.5">
+              Select vehicle
+            </p>
+
+            {/* Smaller, fully-rounded chips — pill shape reads lighter than
+                boxy rounded-xl ones and keeps the card from feeling
+                inflated. `truncate` protects against long vehicle names
+                blowing out the pill shape. */}
+            <div className="grid grid-cols-2 gap-1.5">
+              {pricedVehicles.map((v) => (
+                <button
+                  key={v.id}
+                  onClick={() => setSelectedVehicleId(v.id)}
+                  className={`
+                    truncate text-[11px] px-3 py-1.5 rounded-full border text-center font-medium
+                    min-h-[32px] touch-manipulation transition-all duration-200
+                    ${
+                      selectedVehicleId === v.id
+                        ? "bg-[#ecb100] text-black border-[#ecb100] shadow-[0_3px_10px_-2px_rgba(236,177,0,0.5)]"
+                        : "bg-[#161616] border-[#2a2a2a] text-white/55 hover:border-[#ecb100]/40 hover:text-white/80 active:bg-[#1c1c1c]"
+                    }
+                  `}
+                >
+                  {v.name}
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </div>
