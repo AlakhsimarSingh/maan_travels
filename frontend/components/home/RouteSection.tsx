@@ -107,6 +107,11 @@ export default function RouteSection({ title, routes, vehicles, type }: Props) {
                 routeId: route.id,
                 vehicleId,
                 price,
+                // Pickup/drop are fixed by this route card — the booking
+                // form should display them as read-only, not as editable
+                // selects, and should ask for the exact pickup address
+                // instead.
+                locked: true,
               })
             }
           />

@@ -56,6 +56,10 @@ export default function BookingModal() {
               selectedVehicleId={prefill.vehicleId || ""}
               routeId={prefill.routeId}
               price={prefill.price}
+              // TODO: TaxiBookingForm doesn't yet accept pickup/drop/locked
+              // props, so route-card bookings of type "taxi" still lose the
+              // fixed pickup/drop info. Add the same `locked` pattern used
+              // in TourBookingForm here once that file is updated.
             />
           )}
 
@@ -66,6 +70,8 @@ export default function BookingModal() {
               price={prefill.price}
               pickup={prefill.pickup}
               airport={prefill.airport}
+              // TODO: same as above — wire up `locked` once
+              // AirportTransferForm supports it.
             />
           )}
 
@@ -76,6 +82,7 @@ export default function BookingModal() {
               price={prefill.price}
               pickup={prefill.pickup}
               destination={prefill.drop}
+              locked={prefill.locked}
             />
           )}
         </div>

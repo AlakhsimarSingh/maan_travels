@@ -13,6 +13,7 @@ type State = {
     airport?: string; // ← ADDED: was missing, causing it to be silently dropped
     routeId?: string;
     price?: number;
+    locked?: boolean; // ← ADDED: true when pickup/drop come from a fixed Route card and must not be editable
   };
 
   openModal: (type: any, prefill?: any) => void;
