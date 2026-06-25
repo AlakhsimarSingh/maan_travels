@@ -15,6 +15,7 @@ router.post("/", upload.single("paymentScreenshot"), async (req, res) => {
       destination,
       route,
       pickupAddress,
+      travelDate,
       requirements,
       vehicleId,
       routeId,
@@ -67,7 +68,7 @@ router.post("/", upload.single("paymentScreenshot"), async (req, res) => {
         paymentScreenshot: req.file ? `/uploads/${req.file.filename}` : null,
         paymentStatus: type === "later" ? "not_required" : "pending",
         tour: {
-          create: { pickupCity, destination, route, pickupAddress, requirements },
+          create: { pickupCity, destination, route, pickupAddress, travelDate: travelDate ? new Date(travelDate) : null, requirements },
         },
       },
       include: { customer: true, tour: true, vehicle: true },

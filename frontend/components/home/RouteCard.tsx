@@ -66,8 +66,6 @@ export default function RouteCard({
           )}
         </div>
 
-        {/* Title always shown — as a standalone heading when there's no route,
-            or as a subtle label above the route line when from/to are present */}
         {title && (
           <h3
             className={`font-semibold text-white transition-all duration-500 ease-out ${
@@ -98,17 +96,20 @@ export default function RouteCard({
         ) : null}
 
         {pricedVehicles.length > 0 && (
-          <div className="flex gap-1.5 mt-4 flex-wrap">
+          /* Use a grid so buttons are equal width and always tappable on mobile.
+             Two columns keeps them readable even on narrow screens. */
+          <div className="grid grid-cols-2 gap-1.5 mt-4">
             {pricedVehicles.map((v) => (
               <button
                 key={v.id}
                 onClick={() => setSelectedVehicleId(v.id)}
                 className={`
-                  text-[11px] px-2.5 py-1 rounded-full border transition-colors
+                  text-[12px] px-2 py-2 rounded-lg border transition-colors text-center
+                  min-h-[36px] touch-manipulation
                   ${
                     selectedVehicleId === v.id
-                      ? "bg-[#ecb100] text-black border-[#ecb100]"
-                      : "border-[#333] text-white/60 hover:border-[#ecb100]/40"
+                      ? "bg-[#ecb100] text-black border-[#ecb100] font-medium"
+                      : "border-[#333] text-white/60 hover:border-[#ecb100]/40 active:bg-[#1a1a1a]"
                   }
                 `}
               >
@@ -144,8 +145,8 @@ export default function RouteCard({
         <button
           onClick={() => onBook(selectedVehicleId, price)}
           className="
-            bg-[#ecb100] text-black text-sm font-medium rounded-lg px-4 py-2
-            transition-transform duration-150
+            bg-[#ecb100] text-black text-sm font-medium rounded-lg px-4 py-2.5
+            transition-transform duration-150 min-h-[40px] touch-manipulation
             hover:bg-[#f6c94c] active:scale-95
           "
         >

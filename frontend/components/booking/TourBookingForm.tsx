@@ -19,7 +19,7 @@ import {
 import { API_URL } from "@/src/services/bookingService";
 import { useBookingStatus } from "@/src/hooks/useBookingStatus";
 
-type Location = { id: string; name: string; type: "PICKUP" | "DESTINATION" };
+type Location = { id: string; name: string };
 
 export default function TourBookingForm({
   routeId,
@@ -34,7 +34,8 @@ export default function TourBookingForm({
   pickup?: string;
   destination?: string;
 }) {
-  const [locations, setLocations] = useState<Location[]>([]);
+  const [pickupLocations, setPickupLocations] = useState<Location[]>([]);
+  const [dropLocations, setDropLocations] = useState<Location[]>([]);
 
   const [form, setForm] = useState({
     name: "",
@@ -43,6 +44,7 @@ export default function TourBookingForm({
     pickupCity: prefillPickupCity || "",
     destination: prefillDestination || "",
     pickupAddress: "",
+    travelDate: "",
     requirements: "",
   });
 
@@ -59,9 +61,16 @@ export default function TourBookingForm({
   useEffect(() => {
     const fetchLocations = async () => {
       try {
-        const res = await fetch(`${API_URL}/api/locations`);
-        const data = await res.json();
-        setLocations(data.locations || []);
+        const [pickupRes, dropRes] = await Promise.all([
+          fetch(`${API_URL}/api/locations/pickup`),
+          fetch(`${API_URL}/api/locations/drop`),
+        ]);
+        const [pickupData, dropData] = await Promise.all([
+          pickupRes.json(),
+          dropRes.json(),
+        ]);
+        setPickupLocations(pickupData.locations || []);
+        setDropLocations(dropData.locations || []);
       } catch (error) {
         console.log("Location fetch failed", error);
       }
@@ -75,6 +84,11 @@ export default function TourBookingForm({
   };
 
   const submitBooking = async () => {
+    if (!form.travelDate) {
+      alert("Please select a travel date");
+      return;
+    }
+
     if ((paymentType === "full" || paymentType === "partial") && !screenshot) {
       alert("Please upload a screenshot of your payment");
       return;
@@ -98,13 +112,18 @@ export default function TourBookingForm({
       data.append("destination", form.destination);
       data.append("route", route);
       data.append("pickupAddress", form.pickupAddress);
+      data.append("travelDate", form.travelDate);
       data.append("requirements", form.requirements);
       if (vehicleId) data.append("vehicleId", vehicleId);
       if (routeId) data.append("routeId", routeId);
       data.append("paymentType", paymentType);
       data.append(
         "amountPaid",
-        paymentType === "full" ? String(totalAmount) : paymentType === "partial" ? partialAmount : "0"
+        paymentType === "full"
+          ? String(totalAmount)
+          : paymentType === "partial"
+          ? partialAmount
+          : "0"
       );
       if (screenshot) data.append("paymentScreenshot", screenshot);
 
@@ -121,8 +140,16 @@ export default function TourBookingForm({
           paid: resData.booking.amountPaid || 0,
         });
         done(resData.booking?.id);
-
-        setForm({ name: "", phone: "", email: "", pickupCity: "", destination: "", pickupAddress: "", requirements: "" });
+        setForm({
+          name: "",
+          phone: "",
+          email: "",
+          pickupCity: "",
+          destination: "",
+          pickupAddress: "",
+          travelDate: "",
+          requirements: "",
+        });
       } else {
         alert(resData.message || "Booking failed");
       }
@@ -134,58 +161,106 @@ export default function TourBookingForm({
     }
   };
 
+  // Tomorrow's date as the minimum selectable date
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const minDate = tomorrow.toISOString().split("T")[0];
+
   return (
-    <div className="grid gap-6 md:grid-cols-2">
+    <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2">
 
       {totalAmount > 0 && (
-        <div className="md:col-span-2 flex items-center justify-between rounded-xl border border-[#ecb100]/30 bg-[#ecb100]/5 px-4 py-3">
+        <div className="sm:col-span-2 flex items-center justify-between rounded-xl border border-[#ecb100]/30 bg-[#ecb100]/5 px-4 py-3">
           <span className="text-sm text-white/70">Estimated price</span>
-          <span style={{ fontFamily: "var(--font-geist-mono)" }} className="text-lg font-medium text-[#ecb100]">
+          <span
+            style={{ fontFamily: "var(--font-geist-mono)" }}
+            className="text-lg font-medium text-[#ecb100]"
+          >
             ₹{totalAmount}
           </span>
         </div>
       )}
 
-      <Input placeholder="Full Name" value={form.name} onChange={e => updateField("name", e.target.value)} />
-      <Input placeholder="Mobile Number" value={form.phone} onChange={e => updateField("phone", e.target.value)} />
-      <Input placeholder="Email Address" value={form.email} onChange={e => updateField("email", e.target.value)} />
+      <Input
+        placeholder="Full Name"
+        value={form.name}
+        onChange={e => updateField("name", e.target.value)}
+      />
+      <Input
+        placeholder="Mobile Number"
+        value={form.phone}
+        onChange={e => updateField("phone", e.target.value)}
+      />
+      <Input
+        placeholder="Email Address"
+        value={form.email}
+        onChange={e => updateField("email", e.target.value)}
+      />
 
-      <Select value={form.pickupCity} onValueChange={value => updateField("pickupCity", value)}>
+      {/* Travel date */}
+      <div className="flex flex-col gap-1">
+        <label className="text-xs text-white/50 pl-1">Travel Date</label>
+        <input
+          type="date"
+          min={minDate}
+          value={form.travelDate}
+          onChange={e => updateField("travelDate", e.target.value)}
+          className="w-full rounded-xl border border-[#252525] bg-[#111] px-3 py-2.5 text-white text-sm outline-none focus:border-[#ecb100] [color-scheme:dark]"
+        />
+      </div>
+
+      <Select
+        value={form.pickupCity}
+        onValueChange={value => updateField("pickupCity", value)}
+      >
         <SelectTrigger className="bg-[#111] border-[#252525] text-white">
           <SelectValue placeholder="Select Pickup City" />
         </SelectTrigger>
         <SelectContent>
-          {locations.filter(l => l.type === "PICKUP").map(l => (
-            <SelectItem key={l.id} value={l.name}>{l.name}</SelectItem>
+          {pickupLocations.map(l => (
+            <SelectItem key={l.id} value={l.name}>
+              {l.name}
+            </SelectItem>
           ))}
         </SelectContent>
       </Select>
 
-      <Select value={form.destination} onValueChange={value => updateField("destination", value)}>
+      <Select
+        value={form.destination}
+        onValueChange={value => updateField("destination", value)}
+      >
         <SelectTrigger className="bg-[#111] border-[#252525] text-white">
           <SelectValue placeholder="Select Destination" />
         </SelectTrigger>
         <SelectContent>
-          {locations.filter(l => l.type === "DESTINATION").map(l => (
-            <SelectItem key={l.id} value={l.name}>{l.name}</SelectItem>
+          {dropLocations.map(l => (
+            <SelectItem key={l.id} value={l.name}>
+              {l.name}
+            </SelectItem>
           ))}
         </SelectContent>
       </Select>
 
-      <Input placeholder="Pickup Address" value={form.pickupAddress} onChange={e => updateField("pickupAddress", e.target.value)} />
+      <Input
+        placeholder="Pickup Address"
+        value={form.pickupAddress}
+        onChange={e => updateField("pickupAddress", e.target.value)}
+      />
 
-      <div className="md:col-span-2 rounded-xl border border-[#252525] bg-[#111] px-4 py-3 text-[#c7c7c7]">
-        {form.pickupCity && form.destination ? `Route: ${form.pickupCity} → ${form.destination}` : "Route will be generated automatically"}
+      <div className="sm:col-span-2 rounded-xl border border-[#252525] bg-[#111] px-4 py-3 text-[#c7c7c7] text-sm">
+        {form.pickupCity && form.destination
+          ? `Route: ${form.pickupCity} → ${form.destination}`
+          : "Route will be generated automatically"}
       </div>
 
       <textarea
-        placeholder="Special Requirements"
+        placeholder="Special Requirements (optional)"
         value={form.requirements}
         onChange={e => updateField("requirements", e.target.value)}
-        className="md:col-span-2 min-h-32 rounded-xl border border-[#252525] bg-[#111] p-4 text-white outline-none focus:border-[#ecb100]"
+        className="sm:col-span-2 min-h-28 rounded-xl border border-[#252525] bg-[#111] p-4 text-white text-sm outline-none focus:border-[#ecb100]"
       />
 
-      <div className="md:col-span-2">
+      <div className="sm:col-span-2">
         <PaymentMethodPicker
           totalAmount={totalAmount}
           paymentType={paymentType}
@@ -196,7 +271,12 @@ export default function TourBookingForm({
         />
       </div>
 
-      <Button size="lg" disabled={loading} onClick={submitBooking} className="md:col-span-2 bg-[#ecb100] text-black hover:bg-[#f6c94c]">
+      <Button
+        size="lg"
+        disabled={loading}
+        onClick={submitBooking}
+        className="sm:col-span-2 bg-[#ecb100] text-black hover:bg-[#f6c94c]"
+      >
         {loading ? "Processing..." : "Book Your Tour"}
       </Button>
 
@@ -207,7 +287,6 @@ export default function TourBookingForm({
         totalAmount={paymentSummary?.total}
         amountPaid={paymentSummary?.paid}
       />
-
     </div>
   );
 }

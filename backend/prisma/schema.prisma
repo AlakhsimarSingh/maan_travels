@@ -178,6 +178,8 @@ model TourBooking {
 
   pickupAddress String
 
+  travelDate DateTime?   // ← add this
+
   requirements String?
 }
 

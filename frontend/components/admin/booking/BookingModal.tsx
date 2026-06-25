@@ -30,17 +30,26 @@ export default function BookingModal() {
   if (!open) return null;
 
   return (
-    <div onClick={closeModal} className="overlay-enter fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-      <div onClick={(e) => e.stopPropagation()} className="modal-enter relative bg-[#141414] border border-[#252525] rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+    <div
+      onClick={closeModal}
+      className="overlay-enter fixed inset-0 bg-black/70 z-50 flex items-start justify-center p-4 overflow-y-auto"
+    >
+      {/* min-h-full + my-auto keeps the modal vertically centred when content
+          is short, but lets it grow past the viewport (with outer scroll) on
+          mobile when the form is tall — no content is ever cut off. */}
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="modal-enter relative bg-[#141414] border border-[#252525] rounded-2xl w-full max-w-4xl my-auto"
+      >
         <button
           onClick={closeModal}
-          aria-label="Close"
+          aria-label="Close booking modal"
           className="absolute top-4 right-4 z-10 flex items-center justify-center w-9 h-9 rounded-full bg-[#1c1c1c] border border-[#2a2a2a] text-white/70 transition-colors hover:text-white hover:border-[#ecb100]/50"
         >
           <X size={18} />
         </button>
 
-        <div className="overflow-y-auto p-6 pt-16">
+        <div className="p-4 sm:p-6 pt-14">
           {type === "taxi" && (
             <TaxiBookingForm
               rideMode={prefill.rideMode || "oneway"}
