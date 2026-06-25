@@ -162,7 +162,7 @@ export default async function FleetPage({
         </Reveal>
 
         <Reveal className="mb-14" delay={60}>
-          <FleetFilter counts={counts} />
+          <FleetFilter />
         </Reveal>
 
         {/* FLEET GRID */}
