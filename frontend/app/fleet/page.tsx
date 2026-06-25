@@ -32,8 +32,12 @@ type Vehicle = {
   imageUrl?: string | null;
   category?: string | null;
   price?: number | null;
+  description?: string | null;
+  isSelfDrive?: boolean;
+  isTaxiFleet?: boolean;
   passengerCapacity?: number | null;
   suitcaseCapacity?: number | null;
+  rentalPerDay?: number | null;
 };
 
 async function getVehicles(): Promise<Vehicle[]> {
@@ -81,14 +85,16 @@ export default async function FleetPage() {
                 <FleetCard
                   name={vehicle.name}
                   image={vehicle.imageUrl || "/placeholder.jpg"}
-                  description={vehicle.category || "Premium Vehicle"}
-                  capacity={
-                    vehicle.passengerCapacity
-                      ? `${vehicle.passengerCapacity} passengers`
-                      : undefined
-                  }
+                  description={vehicle.description || ""}
                   category={vehicle.category || ""}
-                  price={vehicle.price ?? undefined}
+                  price={
+                    vehicle.isSelfDrive
+                      ? (vehicle.rentalPerDay ?? undefined)
+                      : (vehicle.price ?? undefined)
+                  }
+                  isSelfDrive={vehicle.isSelfDrive ?? false}
+                  isTaxiFleet={vehicle.isTaxiFleet ?? true}
+                  passengerCapacity={vehicle.passengerCapacity ?? undefined}
                 />
               </Reveal>
             ))}
@@ -100,8 +106,7 @@ export default async function FleetPage() {
         )}
       </section>
 
-      {/* Structured data — vehicle fleet listing helps surface individual
-          vehicles in rich results and reinforces site-wide TravelAgency entity */}
+      {/* Structured data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -117,13 +122,20 @@ export default async function FleetPage() {
                 name: v.name,
                 vehicleConfiguration: v.category || undefined,
                 image: v.imageUrl || undefined,
-                offers: v.price
-                  ? {
-                      "@type": "Offer",
-                      priceCurrency: "INR",
-                      price: v.price,
-                    }
-                  : undefined,
+                offers:
+                  v.isSelfDrive && v.rentalPerDay
+                    ? {
+                        "@type": "Offer",
+                        priceCurrency: "INR",
+                        price: v.rentalPerDay,
+                      }
+                    : v.price
+                    ? {
+                        "@type": "Offer",
+                        priceCurrency: "INR",
+                        price: v.price,
+                      }
+                    : undefined,
               },
             })),
           }),
