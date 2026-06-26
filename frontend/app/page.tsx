@@ -60,11 +60,11 @@ export default async function Home({
 }: {
   searchParams?: Promise<{ type?: string }>;
 }) {
-  const [routes, vehicles, testimonials] = await Promise.all([
+  const [routes, vehicles, testimonials, resolvedSearchParams] = await Promise.all([
     getRoutes(),
     getVehicles(),
     getTestimonials(),
-    // searchParams ?? Promise.resolve(undefined),
+    searchParams ?? Promise.resolve(undefined),
   ]);
 
   const taxiVehicles = vehicles.filter((v: any) => v.isTaxiFleet);
@@ -87,7 +87,7 @@ export default async function Home({
         </Reveal>
       </section>
 
-      <FleetSection vehicles={vehicles} />
+      <FleetSection vehicles={vehicles} filterValue={resolvedSearchParams?.type} />
       <WhyChooseUs />
       <section className="pt-12">
       <RouteSection title="Popular Tour Routes" routes={grouped.tour} vehicles={taxiVehicles} type="tour" />

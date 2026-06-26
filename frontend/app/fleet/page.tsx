@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 
 import FleetCard, { type FleetCardViewContext } from "@/components/home/FleetCard";
@@ -5,7 +6,6 @@ import FleetFilter from "@/components/home/FleetFilter";
 import Reveal from "@/components/common/Reveal";
 
 import {
-  countByFilterType,
   filterVehicles,
   parseFleetFilterParam,
   type FleetFilterType,
@@ -67,6 +67,15 @@ const FILTER_SEO: Record <
     eyebrow: "Taxi Fleet",
   },
 };
+
+// Static placeholder shown while FleetFilter (a client component using
+// useSearchParams) suspends during the initial server render. Sized to
+// roughly match the real pill row so there's no layout jump on hydration.
+function FleetFilterFallback() {
+  return (
+    <div className="h-[58px] w-full max-w-md animate-pulse rounded-full border border-[#2a2a2a] bg-[#0d0d0d]" />
+  );
+}
 
 function resolveViewContext(
   activeFilter: FleetFilterType,
@@ -130,7 +139,6 @@ export default async function FleetPage({
   ]);
 
   const activeFilter = parseFleetFilterParam(resolvedSearchParams.type);
-  const counts = countByFilterType(vehicles);
   const filtered = filterVehicles(vehicles, activeFilter);
   const seo = FILTER_SEO[activeFilter];
 
@@ -162,7 +170,9 @@ export default async function FleetPage({
         </Reveal>
 
         <Reveal className="mb-14" delay={60}>
-          <FleetFilter />
+          <Suspense fallback={<FleetFilterFallback />}>
+            <FleetFilter />
+          </Suspense>
         </Reveal>
 
         {/* FLEET GRID */}

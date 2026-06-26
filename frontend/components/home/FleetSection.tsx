@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
@@ -24,9 +25,6 @@ type Vehicle = {
   rentalPerDay?: number | null;
 };
 
-// "all" isn't a real per-vehicle context (a vehicle can't be priced as
-// "all"), so under the All Vehicles filter we fall back to each
-// vehicle's own dominant flag, same as before this feature existed.
 function resolveViewContext(
   activeFilter: FleetFilterType,
   vehicle: Vehicle
@@ -40,6 +38,15 @@ function resolveViewContext(
 function resolvePrice(viewContext: FleetCardViewContext, vehicle: Vehicle) {
   if (viewContext === "self-drive") return vehicle.rentalPerDay ?? undefined;
   return vehicle.price ?? undefined;
+}
+
+// Static placeholder shown while FleetFilter (a client component using
+// useSearchParams) suspends during the initial server render. Sized to
+// roughly match the real pill row so there's no layout jump on hydration.
+function FleetFilterFallback() {
+  return (
+    <div className="h-[50px] w-full max-w-md animate-pulse rounded-full border border-[#2a2a2a] bg-[#0d0d0d]" />
+  );
 }
 
 export default function FleetSection({
@@ -67,7 +74,9 @@ export default function FleetSection({
         </Reveal>
 
         <Reveal className="mb-12 flex justify-center" delay={60}>
-          <FleetFilter />
+          <Suspense fallback={<FleetFilterFallback />}>
+            <FleetFilter />
+          </Suspense>
         </Reveal>
 
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
