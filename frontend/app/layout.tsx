@@ -53,7 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           flex-col
         `}
       >
-        <ScrollToTop />
+        {/* <ScrollToTop /> */}
         <ConditionalLayout>{children}</ConditionalLayout>
       </body>
     </html>

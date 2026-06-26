@@ -40,14 +40,16 @@ export default function FleetFilter({
   const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const [indicator, setIndicator] = useState<{ left: number; width: number } | null>(null);
 
+  // Tracks whether we've completed the first render — used to suppress
+  // the "scroll active pill into view" effect on mount, since that
+  // effect's job is to follow user-driven filter changes, not to move
+  // anything on initial page load/refresh.
+  const hasMountedRef = useRef(false);
+
   const measure = () => {
     const el = itemRefs.current[active];
     const track = trackRef.current;
     if (!el || !track) return;
-    // Use offsetLeft (relative to the scrolling track), not
-    // getBoundingClientRect, since the track can be horizontally
-    // scrolled on mobile — a viewport-relative rect would put the
-    // indicator in the wrong place the moment the row is scrolled.
     setIndicator({ left: el.offsetLeft, width: el.offsetWidth });
   };
 
@@ -58,9 +60,17 @@ export default function FleetFilter({
     return () => window.removeEventListener("resize", measure);
   }, [active]);
 
-  // Keep the active pill in view (and the indicator visible) if it's
-  // scrolled off-screen when selected via keyboard/programmatically.
+  // Keep the active pill in view (scrolling the pill TRACK horizontally,
+  // not the page) when the filter changes. Explicitly skipped on the
+  // very first run — scrollIntoView's `block` option only minimizes
+  // vertical scrolling, it doesn't prevent it outright, so calling this
+  // on mount was scrolling the whole page down to the fleet section on
+  // every refresh.
   useEffect(() => {
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true;
+      return;
+    }
     itemRefs.current[active]?.scrollIntoView({
       behavior: "smooth",
       inline: "center",
@@ -102,9 +112,6 @@ export default function FleetFilter({
           sm:inline-flex sm:w-auto sm:flex-wrap sm:overflow-visible
         "
       >
-        {/* Sliding gold indicator — positioned with offsetLeft against
-            the scrolling track itself, so it tracks correctly whether
-            the row is scrolled or not. */}
         {indicator && (
           <span
             aria-hidden
