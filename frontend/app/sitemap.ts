@@ -47,6 +47,7 @@ const staticRoutes: Array<{
   // Low-traffic utility
   { path: "/gallery",                  priority: 0.5, changeFrequency: "monthly" },
   { path: "/feedback",                 priority: 0.5, changeFrequency: "monthly" },
+  { path: "/terms",                    priority: 0.4, changeFrequency: "yearly"  },
 ];
 
 // ---------------------------------------------------------------------------
