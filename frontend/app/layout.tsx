@@ -19,6 +19,9 @@ export const metadata: Metadata = {
   },
   description:
     "Premium chauffeur-driven cars, airport transfers, luxury tours and outstation journeys across Punjab, Himachal Pradesh, Jammu & Kashmir, Rajasthan and Delhi.",
+      verification: {
+    google: "4eX_X3JpHX77FIrG5ryniNQt_9zVpozQ_y6hPnxIHSQ",  // ← add this
+  },
   icons: {
     icon: [
       { url: "/icon-32.png", sizes: "32x32", type: "image/png" },
