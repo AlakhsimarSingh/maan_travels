@@ -282,8 +282,8 @@ Render's free tier spins the backend down after a period of inactivity, causing 
 The [Preview](#preview) section above expects images at these paths — create the folder and drop your screenshots in with these exact filenames (or edit the paths in the README to match your own):
 
 ```
-docs/
-└── screenshots/
+frontend/
+└── public/
     ├── desktop-home.png
     ├── mobile-home.png
     ├── desktop-fleet.png
