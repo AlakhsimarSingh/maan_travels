@@ -20,6 +20,8 @@ const nextConfig: NextConfig = {
       { source: "/tour-itineraries/:path*",                             destination: "/tour-packages",            permanent: true },
       { source: "/cab-booking/:path*",                                  destination: "/",                         permanent: true },
       { source: "/theme",                                               destination: "/",                         permanent: true },
+      { source: "/taxi-booking-rates/:path*", destination: "/go-taxi", permanent: true },
+      { source: "/taxi-booking-rates",        destination: "/go-taxi", permanent: true },
     ];
   },
 };
