@@ -142,15 +142,15 @@ export default function Testimonials({ testimonials }: { testimonials: Testimoni
       <div className="mx-auto max-w-7xl px-6">
 
         {/* Header */}
-        <div className={`mb-12 flex items-end justify-between reveal ${sectionInView ? "reveal-visible" : ""}`}>
-          <div>
+        <div className={`mb-12 reveal ${sectionInView ? "reveal-visible" : ""}`}>
+          <div className="text-center">
             <p className="mb-3 uppercase tracking-[0.3em] text-[#ecb100] text-xs sm:text-sm">Customer Reviews</p>
             <h2 className="text-3xl font-bold text-white sm:text-4xl md:text-5xl">
-              What Our <span className="text-[#ecb100]">Customers</span> Say
+              What Our Customers Say
             </h2>
           </div>
 
-          <div className="hidden items-center gap-3 sm:flex">
+          <div className="mt-6 hidden items-center justify-center gap-3 sm:flex">
             <button
               onClick={() => handleArrow(-1)}
               disabled={!canScrollLeft}
