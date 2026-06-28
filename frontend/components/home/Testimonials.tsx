@@ -214,11 +214,16 @@ export default function Testimonials({ testimonials }: { testimonials: Testimoni
                       : ""
                   }`}>
                     {/*
-                      On mobile we scale the card's inner content down uniformly
-                      so text, stars, badges all shrink proportionally.
-                      The outer div is still `cardWidth` px wide for scroll math.
+                      On mobile we shrink the card's content uniformly using
+                      CSS zoom rather than transform:scale(). zoom affects
+                      layout (both width AND height shrink together and the
+                      parent sizes to fit), so the ring border above stays
+                      flush against every edge. transform:scale() only
+                      shrinks visually while the box keeps its pre-scale
+                      layout size — that mismatch was what left a gap at
+                      the bottom (height was never compensated, only width was).
                     */}
-                    <div className={isMobile ? "scale-[0.78] origin-top-left" : ""} style={isMobile ? { width: `${100 / 0.78}%` } : {}}>
+                    <div style={isMobile ? { zoom: 0.78 } : undefined}>
                       <ReviewCard review={item} index={0} clampComments />
                     </div>
                   </div>
@@ -229,24 +234,6 @@ export default function Testimonials({ testimonials }: { testimonials: Testimoni
             <div className="flex-shrink-0" style={{ width: spacerWidth }} aria-hidden />
           </div>
         </div>
-
-        {/* Dots */}
-        {total > 1 && (
-          <div className="mt-2 flex items-center justify-center gap-2">
-            {testimonials.map((_, i) => (
-              <button
-                key={i}
-                aria-label={`Go to review ${i + 1}`}
-                onClick={() => { pauseAuto(); goTo(i); }}
-                className={`rounded-full transition-all duration-300 ${
-                  i === activeIndex
-                    ? "w-6 h-2 bg-[#ecb100]"
-                    : "w-2 h-2 bg-[#333] hover:bg-[#555]"
-                }`}
-              />
-            ))}
-          </div>
-        )}
 
       </div>
     </section>
