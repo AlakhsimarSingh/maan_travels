@@ -89,7 +89,20 @@ router.delete("/:id", requireAdminDevice, async (req, res) => {
       return res.status(404).json({ success: false, message: "Booking not found" });
     }
 
-    await prisma.booking.delete({ where: { id } });
+    // Delete all child records first — none of the sub-booking models have
+    // onDelete: Cascade in the schema, so Prisma won't clean them up
+    // automatically and throws a foreign key violation if we delete the
+    // parent Booking row first. deleteMany is safe even if 0 rows match.
+    await prisma.$transaction([
+      prisma.taxiBooking.deleteMany({ where: { bookingId: id } }),
+      prisma.airportTransfer.deleteMany({ where: { bookingId: id } }),
+      prisma.tourBooking.deleteMany({ where: { bookingId: id } }),
+      prisma.selfDriveBooking.deleteMany({ where: { bookingId: id } }),
+      prisma.luxuryBooking.deleteMany({ where: { bookingId: id } }),
+      prisma.weddingBooking.deleteMany({ where: { bookingId: id } }),
+      prisma.tempoBooking.deleteMany({ where: { bookingId: id } }),
+      prisma.booking.delete({ where: { id } }),
+    ]);
 
     res.json({ success: true, message: "Booking deleted successfully" });
   } catch (error) {
@@ -156,9 +169,8 @@ router.get("/:id", async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to fetch booking" });
   }
 });
-/* ---------------- UPDATE PAYMENT STATUS (ADMIN) ----------------
-   For the admin to record their verdict after manually comparing the
-   claimed amountPaid against the uploaded screenshot. */
+
+/* ---------------- UPDATE PAYMENT STATUS (ADMIN) ---------------- */
 router.patch("/:id/payment-status", requireAdminDevice, async (req, res) => {
   try {
     const id = getParam(req.params.id);
@@ -181,11 +193,8 @@ router.patch("/:id/payment-status", requireAdminDevice, async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to update payment status" });
   }
 });
-/* ---------------- GET SIGNED SCREENSHOT URL (ADMIN) ----------------
-   paymentScreenshot now stores a Supabase storage path, not a public
-   URL. This generates a short-lived (1hr) signed URL on demand so the
-   admin panel can display it without the file ever being publicly
-   accessible via a permanent link. */
+
+/* ---------------- GET SIGNED SCREENSHOT URL (ADMIN) ---------------- */
 router.get("/:id/screenshot", requireAdminDevice, async (req, res) => {
   try {
     const booking = await prisma.booking.findUnique({
@@ -264,8 +273,6 @@ router.post("/", paymentUpload.single("paymentScreenshot"), async (req, res) => 
       });
     }
 
-    // Upload to private Supabase bucket — stores a storage path, not a
-    // public URL. Use GET /:id/screenshot to retrieve a signed URL later.
     const screenshotPath = req.file
       ? await uploadPaymentScreenshot(req.file)
       : null;
