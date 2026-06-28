@@ -5,6 +5,7 @@ import FeedbackHero from "@/components/feedback/FeedbackHero";
 import FeedbackForm from "@/components/feedback/FeedbackForm";
 import ReviewsList from "@/components/feedback/ReviewsList";
 import ReviewsListSkeleton from "@/components/feedback/ReviewsListSkeleton";
+import FeedbackLayout from "@/components/feedback/FeedbackLayout";
 
 import { buildMetadata, buildBreadcrumbLd } from "@/src/lib/seo";
 
@@ -26,16 +27,15 @@ export default function FeedbackPage() {
       <FeedbackHero />
 
       <section className="py-24">
-        <div className="mx-auto grid max-w-7xl gap-14 px-6 lg:grid-cols-2">
-          <FeedbackForm />
-
-          <div>
-            <h2 className="mb-8 text-3xl font-bold text-white">Customer Experiences</h2>
-
-            <Suspense fallback={<ReviewsListSkeleton />}>
-              <ReviewsList />
-            </Suspense>
-          </div>
+        <div className="mx-auto max-w-7xl px-6">
+          <FeedbackLayout
+            form={<FeedbackForm />}
+            reviews={
+              <Suspense fallback={<ReviewsListSkeleton />}>
+                <ReviewsList />
+              </Suspense>
+            }
+          />
         </div>
       </section>
 

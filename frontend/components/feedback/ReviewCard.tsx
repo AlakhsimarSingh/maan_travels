@@ -26,14 +26,10 @@ function formatLabel(value?: string | null) {
 
 function driverLabel(value?: string | null) {
   switch (value) {
-    case "yes":
-      return "Professional driver";
-    case "somewhat":
-      return "Mostly professional driver";
-    case "no":
-      return "Driver fell short";
-    default:
-      return null;
+    case "yes":      return "Professional driver";
+    case "somewhat": return "Mostly professional driver";
+    case "no":       return "Driver fell short";
+    default:         return null;
   }
 }
 
@@ -47,7 +43,17 @@ function initials(name: string) {
     .toUpperCase();
 }
 
-export default function ReviewCard({ review, index = 0 }: { review: Review; index?: number }) {
+export default function ReviewCard({
+  review,
+  index = 0,
+  clampComments = false,
+}: {
+  review: Review;
+  index?: number;
+  /** When true, truncates long comments to 3 lines — used on the homepage
+   *  to keep all cards the same visual height in the grid. */
+  clampComments?: boolean;
+}) {
   const rating = review.vehicleRating || 0;
 
   return (
@@ -93,7 +99,15 @@ export default function ReviewCard({ review, index = 0 }: { review: Review; inde
         </div>
 
         {review.comments && (
-          <p className="mt-4 leading-relaxed text-[#c7c7c7]">{review.comments}</p>
+          <p
+            className={`mt-4 leading-relaxed text-[#c7c7c7] ${
+              clampComments
+                ? "line-clamp-3"   // 3-line cap on homepage keeps all cards equal height
+                : ""               // full text on /feedback page
+            }`}
+          >
+            {review.comments}
+          </p>
         )}
 
         <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-dashed border-[#252525] pt-4">

@@ -19,14 +19,15 @@ export default async function ReviewsList() {
   if (reviews.length === 0) {
     return (
       <p className="text-[#8a8a8a]">
-        No reviews available yet. Be the first to share your experience!
+        No reviews yet. Be the first to share your experience!
       </p>
     );
   }
 
   const ratedReviews = reviews.filter((r: any) => r.vehicleRating);
   const avgRating = ratedReviews.length
-    ? ratedReviews.reduce((sum: number, r: any) => sum + r.vehicleRating, 0) / ratedReviews.length
+    ? ratedReviews.reduce((sum: number, r: any) => sum + r.vehicleRating, 0) /
+      ratedReviews.length
     : 0;
 
   const reviewLd = {
@@ -42,13 +43,32 @@ export default async function ReviewsList() {
 
   return (
     <>
-      <div className="space-y-6">
+      {/* Review count summary */}
+      <p className="mb-6 text-sm text-[#555]">
+        {reviews.length} review{reviews.length !== 1 ? "s" : ""}
+        {avgRating > 0 && (
+          <span className="ml-2 text-[#ecb100]">
+            · {avgRating.toFixed(1)} / 5 avg
+          </span>
+        )}
+      </p>
+
+      <div className="space-y-5">
         {reviews.map((review: any, i: number) => (
-          <ReviewCard key={review.id} review={review} index={i} />
+          // On the feedback page we show full comment text (no clampComments)
+          // Stagger delay capped at 300ms so late cards don't wait forever
+          <ReviewCard
+            key={review.id}
+            review={review}
+            index={Math.min(i, 4)}
+          />
         ))}
       </div>
 
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(reviewLd) }} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(reviewLd) }}
+      />
     </>
   );
 }
