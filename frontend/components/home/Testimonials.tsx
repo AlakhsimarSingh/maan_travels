@@ -21,10 +21,11 @@ type Testimonial = {
 const CARD_GAP = 16;
 const AUTO_INTERVAL = 3500;
 
+// On mobile: fixed 260px cards so adjacent ones peek.
+// On desktop: 370px.
 function getCardWidth() {
   if (typeof window === "undefined") return 370;
-  if (window.innerWidth < 640) return Math.round(window.innerWidth * 0.72);
-  return 370;
+  return window.innerWidth < 640 ? 260 : 370;
 }
 
 export default function Testimonials({ testimonials }: { testimonials: Testimonial[] }) {
@@ -37,6 +38,7 @@ export default function Testimonials({ testimonials }: { testimonials: Testimoni
   const [activeIndex, setActiveIndex] = useState(0);
   const [spacerWidth, setSpacerWidth] = useState(0);
   const [cardWidth, setCardWidth] = useState(370);
+  const [isMobile, setIsMobile] = useState(false);
 
   const { ref: sectionRef, inView: sectionInView } = useInView();
 
@@ -48,7 +50,9 @@ export default function Testimonials({ testimonials }: { testimonials: Testimoni
     const el = trackRef.current;
     if (!el) return;
     const cw = getCardWidth();
+    const mobile = window.innerWidth < 640;
     setCardWidth(cw);
+    setIsMobile(mobile);
     setSpacerWidth(Math.max(0, (el.clientWidth - cw) / 2));
   }, []);
 
@@ -140,7 +144,7 @@ export default function Testimonials({ testimonials }: { testimonials: Testimoni
         {/* Header */}
         <div className={`mb-12 flex items-end justify-between reveal ${sectionInView ? "reveal-visible" : ""}`}>
           <div>
-            <p className="mb-3 uppercase tracking-[0.3em] text-[#ecb100]">Customer Reviews</p>
+            <p className="mb-3 uppercase tracking-[0.3em] text-[#ecb100] text-xs sm:text-sm">Customer Reviews</p>
             <h2 className="text-3xl font-bold text-white sm:text-4xl md:text-5xl">
               What Our <span className="text-[#ecb100]">Customers</span> Say
             </h2>
@@ -176,8 +180,8 @@ export default function Testimonials({ testimonials }: { testimonials: Testimoni
 
         {/* Track */}
         <div className="relative">
-          <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-12 bg-gradient-to-r from-[#0a0a0a] to-transparent sm:w-20" />
-          <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-12 bg-gradient-to-l from-[#0a0a0a] to-transparent sm:w-20" />
+          <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-10 bg-gradient-to-r from-[#0a0a0a] to-transparent sm:w-20" />
+          <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-10 bg-gradient-to-l from-[#0a0a0a] to-transparent sm:w-20" />
 
           <div
             ref={trackRef}
@@ -200,7 +204,7 @@ export default function Testimonials({ testimonials }: { testimonials: Testimoni
                   key={item.id}
                   onClick={() => { pauseAuto(); goTo(i); }}
                   style={{ width: cardWidth, flexShrink: 0 }}
-                  className={`transition-all duration-500 ease-out ${
+                  className={`transition-all duration-500 ease-out origin-center ${
                     isActive ? "scale-100 opacity-100" : "scale-[0.88] opacity-40"
                   }`}
                 >
@@ -209,7 +213,14 @@ export default function Testimonials({ testimonials }: { testimonials: Testimoni
                       ? "ring-2 ring-[#ecb100]/60 shadow-[0_0_32px_-4px_rgba(236,177,0,0.35)]"
                       : ""
                   }`}>
-                    <ReviewCard review={item} index={0} clampComments />
+                    {/*
+                      On mobile we scale the card's inner content down uniformly
+                      so text, stars, badges all shrink proportionally.
+                      The outer div is still `cardWidth` px wide for scroll math.
+                    */}
+                    <div className={isMobile ? "scale-[0.78] origin-top-left" : ""} style={isMobile ? { width: `${100 / 0.78}%` } : {}}>
+                      <ReviewCard review={item} index={0} clampComments />
+                    </div>
                   </div>
                 </div>
               );
@@ -221,7 +232,7 @@ export default function Testimonials({ testimonials }: { testimonials: Testimoni
 
         {/* Dots */}
         {total > 1 && (
-          <div className="mt-4 flex items-center justify-center gap-2">
+          <div className="mt-2 flex items-center justify-center gap-2">
             {testimonials.map((_, i) => (
               <button
                 key={i}
