@@ -159,22 +159,29 @@ export default function AirportsAdminPage() {
 
       <div className="space-y-2">
         {airports.map((a) => (
-          <div key={a.id} className="flex items-center justify-between bg-[#111] border border-[#252525] p-4 rounded-xl">
-            <div className="flex items-center gap-3">
+          <div
+            key={a.id}
+            className="flex flex-col gap-3 bg-[#111] border border-[#252525] p-4 rounded-xl sm:flex-row sm:items-center sm:justify-between"
+          >
+            <div className="flex min-w-0 items-center gap-3">
               {a.image ? (
-                <img src={resolveImageUrl(a.image, API_URL)} alt={a.name} className="w-12 h-12 rounded-lg object-cover" />
+                <img
+                  src={resolveImageUrl(a.image, API_URL)}
+                  alt={a.name}
+                  className="w-12 h-12 shrink-0 rounded-lg object-cover"
+                />
               ) : (
-                <div className="w-12 h-12 rounded-lg bg-[#1a1a1a] flex items-center justify-center text-white/30 text-xs">
+                <div className="w-12 h-12 shrink-0 rounded-lg bg-[#1a1a1a] flex items-center justify-center text-white/30 text-xs">
                   No image
                 </div>
               )}
-              <div>
-                <p className="font-medium">{a.name}</p>
+              <div className="min-w-0">
+                <p className="truncate font-medium">{a.name}</p>
                 <p className="text-xs text-white/50">{a.shortName} · {a.active ? "Active" : "Inactive"}</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4 flex-wrap sm:flex-nowrap sm:shrink-0 sm:justify-end">
               <button
                 onClick={() => openEdit(a)}
                 className="flex items-center gap-1 text-white/60 text-sm hover:text-white"

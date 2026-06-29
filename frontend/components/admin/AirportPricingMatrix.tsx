@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Plane } from "lucide-react";
 import { API_URL } from "@/src/services/bookingService";
 
 type Vehicle = { id: string; name: string; isTaxiFleet?: boolean };
@@ -13,6 +14,12 @@ export default function AirportPricingMatrix() {
   const [loading, setLoading] = useState(true);
   const [savingKey, setSavingKey] = useState<string | null>(null);
   const [flashKey, setFlashKey] = useState<string | null>(null);
+
+  // Lets the Save button read the input's live DOM value instead of the
+  // last-known price from state — onBlur alone covers desktop tabbing away,
+  // but on mobile someone is far more likely to type then tap Save directly
+  // without blurring first.
+  const inputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   useEffect(() => {
     loadData();
@@ -83,11 +90,15 @@ export default function AirportPricingMatrix() {
         <div
           key={airport.id}
           style={{ animationDelay: `${Math.min(ri, 10) * 50}ms` }}
-          className="card-enter border border-[#252525] rounded-2xl bg-[#111] p-4"
+          className="card-enter border border-[#252525] rounded-2xl bg-[#111] p-5"
         >
-          <h2 className="font-bold mb-4 text-[#ecb100]">{airport.name}</h2>
+          <h2 className="flex items-center gap-2 font-bold mb-5 text-[#ecb100]">
+            <Plane size={16} />
+            {airport.name}
+          </h2>
 
-          <div className="grid grid-cols-[1fr_120px_90px_90px] gap-4 text-xs uppercase tracking-wide text-gray-500 mb-1 px-1">
+          {/* Column headers — desktop only, the mobile stacked layout doesn't need them */}
+          <div className="hidden sm:grid grid-cols-[1fr_130px_90px_90px] gap-6 text-xs uppercase tracking-wide text-gray-500 mb-2 px-1">
             <span>Vehicle</span>
             <span>Price</span>
             <span>Status</span>
@@ -103,30 +114,47 @@ export default function AirportPricingMatrix() {
               <div
                 key={v.id}
                 className={`
-                  grid grid-cols-[1fr_120px_90px_90px] gap-4 items-center
-                  py-2.5 px-1 border-t border-[#222] rounded-md
-                  transition-colors duration-300
+                  flex flex-col gap-3 py-3.5 px-2 border-t border-[#1d1d1d] rounded-md
+                  transition-colors duration-300 hover:bg-white/[0.015]
+                  sm:grid sm:grid-cols-[1fr_130px_90px_90px] sm:items-center sm:gap-6 sm:py-3
                   ${flashKey === key ? "price-flash" : ""}
                 `}
               >
-                <span className="truncate">{v.name}</span>
+                <span className="min-w-0 truncate font-medium sm:font-normal">{v.name}</span>
 
-                <input
-                  defaultValue={existing?.price ?? 0}
-                  onBlur={(e) => updatePrice(airport.id, v.id, Number(e.target.value))}
-                  style={{ fontFamily: "var(--font-geist-mono)" }}
-                  className="bg-black border border-[#333] rounded-lg px-2 py-1.5 w-24 outline-none focus:border-[#ecb100]/60"
-                />
+                {/* On mobile this row groups price + status together; at sm+,
+                    `contents` makes the wrapper disappear so its two children
+                    drop straight into the desktop grid's price/status columns. */}
+                <div className="flex items-center gap-3 sm:contents">
+                  <div className="relative flex-1 sm:flex-none sm:w-[130px]">
+                    <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-gray-500">
+                      ₹
+                    </span>
+                    <input
+                      ref={(el) => { inputRefs.current[key] = el; }}
+                      defaultValue={existing?.price ?? 0}
+                      onBlur={(e) => updatePrice(airport.id, v.id, Number(e.target.value))}
+                      type="number"
+                      min={0}
+                      inputMode="decimal"
+                      aria-label={`Price for ${v.name} at ${airport.name}`}
+                      style={{ fontFamily: "var(--font-geist-mono)" }}
+                      className="w-full bg-black border border-[#333] rounded-lg pl-5.5 pr-2 py-2 text-right outline-none focus:border-[#ecb100]/60"
+                    />
+                  </div>
 
-                <span className="flex items-center gap-1.5 text-xs text-gray-400">
-                  <span className={`w-1.5 h-1.5 rounded-full ${isSet ? "bg-[#ecb100]" : "border border-gray-500"}`} />
-                  {isSet ? "Set" : "Not set"}
-                </span>
+                  <span className="flex shrink-0 items-center gap-1.5 text-xs text-gray-400">
+                    <span className={`w-1.5 h-1.5 rounded-full ${isSet ? "bg-[#ecb100]" : "border border-gray-500"}`} />
+                    {isSet ? "Set" : "Not set"}
+                  </span>
+                </div>
 
                 <button
-                  onClick={() => updatePrice(airport.id, v.id, existing?.price || 0)}
+                  onClick={() =>
+                    updatePrice(airport.id, v.id, Number(inputRefs.current[key]?.value || 0))
+                  }
                   disabled={savingKey === key}
-                  className="px-3 py-1.5 rounded-lg bg-[#ecb100] text-black text-xs font-medium hover:bg-[#f6c94c] disabled:opacity-50"
+                  className="w-full sm:w-auto px-3 py-2 sm:py-1.5 rounded-lg bg-[#ecb100] text-black text-xs font-medium hover:bg-[#f6c94c] disabled:opacity-50"
                 >
                   {savingKey === key ? "Saving" : "Save"}
                 </button>

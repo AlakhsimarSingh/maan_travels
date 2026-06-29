@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
@@ -21,11 +21,14 @@ import {
   Wallet,
   QrCode,
   FolderTree,
+  Globe,
+  LogOut,
 } from "lucide-react";
 
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminHeader from "@/components/admin/AdminHeader";
 import AdminGuard from "./AdminGaurd";
+import { logoutAdminDevice } from "@/src/services/adminDeviceService";
 
 const PUBLIC_ADMIN_PATHS = ["/admin/register-device"];
 
@@ -136,6 +139,7 @@ function MobileHeader() {
 
 function MobileBottomNav({ pathname }: { pathname: string }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const router = useRouter();
 
   // Close drawer on navigation
   useEffect(() => {
@@ -153,8 +157,31 @@ function MobileBottomNav({ pathname }: { pathname: string }) {
     return pathname?.startsWith(href);
   }
 
+  async function handleLogout() {
+    const confirmed = confirm("Log out this device from the admin panel?");
+    if (!confirmed) return;
+
+    setDrawerOpen(false);
+
+    try {
+      await logoutAdminDevice();
+    } finally {
+      router.replace("/admin/register-device");
+    }
+  }
+
   return (
     <>
+      <style>{`
+        .no-scrollbar {
+          scrollbar-width: none; /* Firefox */
+          -ms-overflow-style: none; /* old Edge / IE */
+        }
+        .no-scrollbar::-webkit-scrollbar {
+          display: none; /* Chrome, Safari, new Edge */
+        }
+      `}</style>
+
       {/* Bottom nav bar */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#1c1c1c] bg-[#0a0a0a] md:hidden">
         <div className="flex items-center justify-around">
@@ -215,7 +242,7 @@ function MobileBottomNav({ pathname }: { pathname: string }) {
         </div>
 
         {/* Grouped items */}
-        <div className="overflow-y-auto pb-8" style={{ maxHeight: "calc(80dvh - 57px)" }}>
+        <div className="no-scrollbar overflow-y-auto pb-8" style={{ maxHeight: "calc(80dvh - 57px)" }}>
           {MORE_GROUPS.map((group, gi) => (
             <div key={group.label} className={gi > 0 ? "mt-1" : ""}>
               <p className="px-5 pb-1 pt-4 text-[10px] font-semibold uppercase tracking-widest text-[#333]">
@@ -250,6 +277,32 @@ function MobileBottomNav({ pathname }: { pathname: string }) {
               </div>
             </div>
           ))}
+
+          {/* Account — View website / Logout */}
+          <div className="mt-1">
+            <p className="px-5 pb-1 pt-4 text-[10px] font-semibold uppercase tracking-widest text-[#333]">
+              Account
+            </p>
+            <div className="px-3">
+              <Link
+                href="/"
+                target="_blank"
+                onClick={() => setDrawerOpen(false)}
+                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] text-[#666] transition-colors hover:bg-[#ffffff08] hover:text-[#ccc]"
+              >
+                <Globe size={16} strokeWidth={1.8} className="text-[#444]" />
+                View website
+              </Link>
+
+              <button
+                onClick={handleLogout}
+                className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] text-[#666] transition-colors hover:bg-[#ffffff08] hover:text-red-400"
+              >
+                <LogOut size={16} strokeWidth={1.8} className="text-[#444]" />
+                Log out this device
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </>
