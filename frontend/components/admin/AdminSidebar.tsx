@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   FolderTree,
@@ -9,7 +10,6 @@ import {
   CalendarCheck,
   MessageSquare,
   Star,
-  Newspaper,
   ImageIcon,
   Settings,
   CarFront,
@@ -20,144 +20,119 @@ import {
   QrCode,
 } from "lucide-react";
 
-const items = [
-  {
-    title: "Dashboard",
-    href: "/admin",
-    icon: LayoutDashboard,
-  },
-  // {
-  //   title: "Categories",
-  //   href: "/admin/categories",
-  //   icon: FolderTree,
-  // },
-  {
-    title: "Vehicles",
-    href: "/admin/vehicles",
-    icon: Car,
-  },
-  {
-    title:"Luxury Cars",
-    href:"/admin/luxury-cars",
-    icon:CarFront,
-  },
-  {
-  title: "Tempo / Urbania",
-  href: "/admin/tempo",
-  icon: BusFront,
-},
-  {
-    title: "Bookings",
-    href: "/admin/bookings",
-    icon: CalendarCheck,
-  },
-  {
-    title: "Inquiries",
-    href: "/admin/inquiries",
-    icon: MessageSquare,
-  },
-  {
-    title: "Feedback",
-    href: "/admin/feedback",
-    icon: Star,
-  },
+type NavItem = {
+  title: string;
+  href: string;
+  icon: React.ElementType;
+  exact?: boolean;
+};
 
-  {
-  title: "Gallery",
-  href: "/admin/gallery",
-  icon: ImageIcon,
-},
+type NavGroup = {
+  label: string;
+  items: NavItem[];
+};
 
-    {
-    title: "Route Pricing",
-    href: "/admin/routes",
-    icon: Package,
-  },
-
+const NAV_GROUPS: NavGroup[] = [
   {
-    title: "Pricing Matrix",
-    href: "/admin/pricing-matrix",
-    icon: FolderTree,
-  },
-
- {
-  title: "Tour Locations",
-  href: "/admin/locations",
-  icon: MapPin,
-},
-  {
-    title: "Airports",
-    href: "/admin/airports",
-    icon: Plane,
+    label: "Overview",
+    items: [
+      { title: "Dashboard", href: "/admin", icon: LayoutDashboard, exact: true },
+    ],
   },
   {
-    title: "Airport Pricing",
-    href: "/admin/airports/pricing",
-    icon: Wallet,
+    label: "Fleet",
+    items: [
+      { title: "Vehicles", href: "/admin/vehicles", icon: Car },
+      { title: "Luxury Cars", href: "/admin/luxury-cars", icon: CarFront },
+      { title: "Tempo / Urbania", href: "/admin/tempo", icon: BusFront },
+    ],
   },
   {
-    title: "Payment Settings",
-    href: "/admin/payment-settings",
-    icon: QrCode,
+    label: "Bookings & CRM",
+    items: [
+      { title: "Bookings", href: "/admin/bookings", icon: CalendarCheck },
+      { title: "Inquiries", href: "/admin/inquiries", icon: MessageSquare },
+      { title: "Feedback", href: "/admin/feedback", icon: Star },
+    ],
   },
-  // {
-  //   title: "News",
-  //   href: "/admin/news",
-  //   icon: Newspaper,
-  // },
   {
-    title: "Settings",
-    href: "/admin/settings",
-    icon: Settings,
+    label: "Pricing & Routes",
+    items: [
+      { title: "Route Pricing", href: "/admin/routes", icon: Package },
+      { title: "Pricing Matrix", href: "/admin/pricing-matrix", icon: FolderTree },
+      { title: "Tour Locations", href: "/admin/locations", icon: MapPin },
+      { title: "Airports", href: "/admin/airports", icon: Plane },
+      { title: "Airport Pricing", href: "/admin/airports/pricing", icon: Wallet },
+    ],
+  },
+  {
+    label: "Content",
+    items: [
+      { title: "Gallery", href: "/admin/gallery", icon: ImageIcon },
+    ],
+  },
+  {
+    label: "System",
+    items: [
+      { title: "Payment Settings", href: "/admin/payment-settings", icon: QrCode },
+      { title: "Settings", href: "/admin/settings", icon: Settings },
+    ],
   },
 ];
 
 export default function AdminSidebar() {
-  return (
-    <aside
-      className="
-        w-72
-        border-r
-        border-border
-        bg-card
-      "
-    >
-      <div className="p-6">
-        <h2 className="text-xl font-bold">
-          Maan Travels
-        </h2>
+  const pathname = usePathname();
 
-        <p className="text-sm text-muted-foreground">
-          Admin Panel
-        </p>
+  function isActive(href: string, exact?: boolean) {
+    if (exact) return pathname === href;
+    return pathname?.startsWith(href);
+  }
+
+  return (
+    <aside className="flex w-60 flex-col border-r border-[#1c1c1c] bg-[#0a0a0a]">
+      {/* Brand */}
+      <div className="flex h-16 items-center gap-2.5 border-b border-[#1c1c1c] px-5">
+        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[#ecb100]">
+          <Car className="h-3.5 w-3.5 text-black" />
+        </div>
+        <div>
+          <p className="text-[13px] font-semibold leading-none text-white">Maan Travels</p>
+          <p className="mt-0.5 text-[10px] leading-none text-[#555]">Admin Panel</p>
+        </div>
       </div>
 
-      <nav className="space-y-1 px-3">
-        {items.map((item) => {
-          const Icon = item.icon;
-
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="
-                flex
-                items-center
-                gap-3
-                rounded-lg
-                px-4
-                py-3
-                text-sm
-                transition
-                hover:bg-accent
-              "
-            >
-              <Icon className="h-4 w-4" />
-
-              {item.title}
-            </Link>
-          );
-        })}
+      {/* Nav */}
+      <nav className="flex-1 overflow-y-auto py-3">
+        {NAV_GROUPS.map((group, gi) => (
+          <div key={group.label} className={gi > 0 ? "mt-4" : ""}>
+            <p className="mb-1 px-5 text-[10px] font-semibold uppercase tracking-widest text-[#3a3a3a]">
+              {group.label}
+            </p>
+            <div className="space-y-0.5 px-2">
+              {group.items.map((item) => {
+                const Icon = item.icon;
+                const active = isActive(item.href, item.exact);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`group flex items-center gap-2.5 rounded-md px-3 py-2 text-[13px] transition-colors ${
+                      active
+                        ? "border-l-2 border-[#ecb100] bg-[#ecb10012] text-[#ecb100]"
+                        : "border-l-2 border-transparent text-[#666] hover:bg-[#ffffff08] hover:text-[#ccc]"
+                    }`}
+                  >
+                    <Icon
+                      className={`h-3.5 w-3.5 shrink-0 ${active ? "text-[#ecb100]" : "text-[#444] group-hover:text-[#ccc]"}`}
+                      strokeWidth={active ? 2.2 : 1.8}
+                    />
+                    <span className="truncate">{item.title}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
     </aside>
   );
