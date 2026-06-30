@@ -26,7 +26,7 @@ import airportBookingRoutes from "./routes/airport-bookings.routes";
 import prisma from "./prisma";
 import uploadRoutes from "./routes/upload.routes";
 import pricingRoutes from "./routes/pricing.routes";
-
+import notifyRouter from "./routes/notify.routes";
 
 const app = express();
 
@@ -123,6 +123,7 @@ app.use("/api/inquiries"
   , inquiryRoutes
 );
 
+app.use("/api/notify", notifyRouter)
 app.use("/api/gallery", galleryRoutes);
 app.use("/api/airports", airportsCatalogRoutes);
 app.use("/api/pricing", pricingRoutes);

@@ -8,6 +8,7 @@ import {
   uploadPaymentScreenshot,
   getPaymentScreenshotUrl,
 } from "../middleware/uploadPayment";
+import { notifyOwnerNewBooking } from "../services/whatsapp.service";
 
 const router = Router();
 
@@ -305,6 +306,12 @@ router.post("/", paymentUpload.single("paymentScreenshot"), async (req, res) => 
       },
       include: { customer: true, taxi: true, vehicle: true },
     });
+
+    // Fire-and-forget — don't block or fail the booking response if the
+    // WhatsApp notification to the owner fails for any reason.
+    notifyOwnerNewBooking(booking).catch((err) =>
+      console.error("[whatsapp] Owner notify failed:", err)
+    );
 
     res.json({ success: true, booking });
   } catch (error) {
