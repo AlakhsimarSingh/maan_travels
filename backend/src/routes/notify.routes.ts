@@ -181,7 +181,7 @@ Hello ${booking.customer.name},
 Your booking for *${booking.serviceType}* has been cancelled.
 
 If this is a mistake or you'd like to rebook, please call us:
-📞 +91 98765 43210
+📞 +91 80544 04591
 🌐 https://www.maantravels.com`;
 }
 
