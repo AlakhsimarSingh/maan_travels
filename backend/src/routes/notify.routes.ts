@@ -169,7 +169,7 @@ Route: ${route}
 Total Fare: ${formatAmount(booking.totalAmount)}
 Amount Paid: ${formatAmount(booking.amountPaid)}${balanceText}
 
-For any queries, call us: +91 98765 43210
+For any queries, call us: +91 80544 04591
 🌐 https://www.maantravels.com`;
 }
 
