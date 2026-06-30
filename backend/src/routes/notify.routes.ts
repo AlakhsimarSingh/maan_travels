@@ -197,7 +197,7 @@ Please complete the payment:
 ${qrCodeUrl ? `🔗 *QR Code:* ${qrCodeUrl}` : ""}
 
 After paying, please send the screenshot in this chat.
-📞 +91 98765 43210`;
+📞 +91 80544 04591`;
 }
 
 function completedWA(booking: any): string {
