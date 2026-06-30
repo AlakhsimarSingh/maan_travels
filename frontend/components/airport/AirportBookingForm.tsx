@@ -15,7 +15,6 @@ import PaymentMethodPicker, { PaymentType } from "../booking/PaymentMethodPicker
 import { API_URL } from "@/src/services/bookingService";
 import { useBookingStatus } from "@/src/hooks/useBookingStatus";
 import { Airport, AirportVehicle } from "@/src/lib/fetchAirportTransferData";
-// import type { Airport, AirportVehicle } from "@/src/lib/fetchAirportTransferData";
 
 type Category = "Sedan" | "SUV" | "MPV";
 
@@ -232,6 +231,10 @@ export default function AirportBookingForm({
           />
         </div>
 
+        <p className="md:col-span-2 -mt-3 text-xs text-white/40">
+          Prices shown are based on pickup from Jalandhar. Fares may vary for other pickup locations and will be confirmed by our team.
+        </p>
+
         <div className="relative">
           <Popover>
             <PopoverTrigger asChild>
@@ -308,7 +311,7 @@ export default function AirportBookingForm({
                         <span style={{ fontFamily: "var(--font-geist-mono)" }}>₹{priceFor(v.id)}</span>
                       </div>
                       <div className="text-xs text-white/40 mt-0.5">
-                        {v.passengerCapacity ?? "-"} seats · {v.suitcaseCapacity ?? "-"} bags
+                        {v.passengerCapacity ?? "-"} seats · {v.suitcaseCapacity ?? "-"} bags · priced from Jalandhar
                       </div>
                     </button>
                   ))}
@@ -329,11 +332,16 @@ export default function AirportBookingForm({
       )}
 
       {selectedVehicle && totalAmount > 0 && (
-        <div className="flex items-center justify-between rounded-xl border border-[#ecb100]/30 bg-[#ecb100]/5 px-4 py-3">
-          <span className="text-sm text-white/70">Estimated fare</span>
-          <span style={{ fontFamily: "var(--font-geist-mono)" }} className="text-lg font-medium text-[#ecb100]">
-            ₹{totalAmount}
-          </span>
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between rounded-xl border border-[#ecb100]/30 bg-[#ecb100]/5 px-4 py-3">
+            <span className="text-sm text-white/70">Estimated fare</span>
+            <span style={{ fontFamily: "var(--font-geist-mono)" }} className="text-lg font-medium text-[#ecb100]">
+              ₹{totalAmount}
+            </span>
+          </div>
+          <p className="text-xs text-white/40 px-1">
+            Based on pickup from Jalandhar. Final fare may differ for other pickup locations.
+          </p>
         </div>
       )}
 

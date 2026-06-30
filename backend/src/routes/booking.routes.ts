@@ -257,10 +257,6 @@ router.post("/", paymentUpload.single("paymentScreenshot"), async (req, res) => 
       if (pricing) totalAmount = pricing.price;
     }
 
-    if (!totalAmount) {
-      totalAmount = vehicle.price || vehicle.rentalPerDay || 0;
-    }
-
     const type = paymentType === "full" || paymentType === "partial" ? paymentType : "later";
 
     let resolvedAmountPaid = 0;

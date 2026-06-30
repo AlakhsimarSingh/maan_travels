@@ -28,9 +28,16 @@ export default function BookingSuccess({
   if (!open) return null;
 
   const hasPaymentInfo =
-    amountPaid !== undefined && totalAmount !== undefined && totalAmount > 0;
+    amountPaid !== undefined && amountPaid > 0 &&
+    totalAmount !== undefined && totalAmount > 0;
 
   const priceUnconfirmed = totalAmount === 0;
+
+  // Customer hasn't paid anything yet, but we do have a (Jalandhar-based)
+  // estimate to show them — different message than "no pricing at all"
+  // and different from "here's your paid receipt".
+  const showEstimateOnly =
+    !hasPaymentInfo && totalAmount !== undefined && totalAmount > 0;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
@@ -54,6 +61,20 @@ export default function BookingSuccess({
           <p className="mt-3 text-sm text-[#ecb100]">ID: {bookingId}</p>
         )}
 
+        {showEstimateOnly && (
+          <div className="mt-4 rounded-xl border border-[#252525] bg-[#111] p-4 text-sm text-white">
+            <p>
+              Estimated fare:{" "}
+              <span style={{ fontFamily: "var(--font-geist-mono)" }} className="text-[#ecb100]">
+                ₹{totalAmount}
+              </span>
+            </p>
+            <p className="mt-2 text-xs text-white/40">
+              Based on pickup from Jalandhar. Final fare will be confirmed by our team based on your actual pickup location.
+            </p>
+          </div>
+        )}
+
         {hasPaymentInfo && (
           <div className="mt-4 rounded-xl border border-[#252525] bg-[#111] p-4 text-sm text-white">
             <p>
@@ -62,6 +83,9 @@ export default function BookingSuccess({
                 ₹{amountPaid}
               </span>{" "}
               of ₹{totalAmount}
+            </p>
+            <p className="mt-2 text-xs text-white/40">
+              Fare based on pickup from Jalandhar; final amount may be adjusted by our team for other pickup locations.
             </p>
 
             {bookingId && (
