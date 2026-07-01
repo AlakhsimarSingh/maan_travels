@@ -34,14 +34,12 @@ export default function TravelCostCalculator() {
   const [routeError, setRouteError] = useState("");
   const [routeMeta, setRouteMeta] = useState<{ origin: string; destination: string } | null>(null);
 
-  // Fetch only taxi-fleet vehicles from the live DB — luxury/self-drive/tempo excluded
   useEffect(() => {
     (async () => {
       try {
         setLoadingVehicles(true);
         const res = await fetch(`${API_URL}/api/vehicles`);
         const data = await res.json();
-
         const taxiOnly = (data?.vehicles || []).filter((v: any) => v.isTaxiFleet);
         setVehicles(taxiOnly);
       } catch (err) {
@@ -98,16 +96,13 @@ export default function TravelCostCalculator() {
           <p className="text-sm uppercase tracking-[0.3em] text-[#ecb100]">
             Free Travel Calculator
           </p>
-
           <h2 className="mt-4 text-4xl font-bold text-white md:text-5xl">
             Estimate Your Trip Cost
           </h2>
-
           <p className="mx-auto mt-4 max-w-xl text-[#8a8a8a]">
             Get an instant, no-obligation fare estimate for any taxi route — powered by real
             road distance, current fuel prices and toll estimates.
           </p>
-
           <p className="mx-auto mt-3 max-w-lg text-xs text-[#666]">
             This is a free planning tool only — figures are an approximate trip cost and exclude
             service charges, taxes and driver allowance. It does not represent Maan Travels'
@@ -117,38 +112,58 @@ export default function TravelCostCalculator() {
 
         {/* MAIN BOX */}
         <div className="mt-12 rounded-3xl border border-[#252525] bg-[#141414] p-6 sm:p-8">
+
           {/* STEP 1 — ROUTE */}
           <CalculatorStep step={1} title="Where are you going?">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="relative">
-                <MapPin size={17} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100]" />
+                <MapPin
+                  size={17}
+                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100]"
+                  aria-hidden="true"
+                />
                 <input
+                  aria-label="Starting point"
                   placeholder="From (e.g. Jalandhar)"
                   value={origin}
                   onChange={(e) => setOrigin(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && fetchDistance()}
                   className="h-12 w-full rounded-xl border border-[#252525] bg-black/40 pl-11 pr-4 text-white outline-none transition-colors focus:border-[#ecb100]"
                 />
               </div>
 
               <div className="relative">
-                <Navigation size={17} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100]" />
+                <Navigation
+                  size={17}
+                  className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100]"
+                  aria-hidden="true"
+                />
                 <input
+                  aria-label="Destination"
                   placeholder="To (e.g. Dalhousie)"
                   value={destination}
                   onChange={(e) => setDestination(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && fetchDistance()}
                   className="h-12 w-full rounded-xl border border-[#252525] bg-black/40 pl-11 pr-4 text-white outline-none transition-colors focus:border-[#ecb100]"
                 />
               </div>
             </div>
 
             <div className="mt-4 flex flex-wrap items-center gap-3">
-              <div className="flex rounded-xl border border-[#252525] bg-black/30 p-1">
+              <div
+                className="flex rounded-xl border border-[#252525] bg-black/30 p-1"
+                role="group"
+                aria-label="Trip type"
+              >
                 {(["oneway", "round"] as const).map((t) => (
                   <button
                     key={t}
                     onClick={() => setTripType(t)}
+                    aria-pressed={tripType === t}
                     className={`rounded-lg px-4 py-2 text-sm transition-colors duration-200 ${
-                      tripType === t ? "bg-[#ecb100] text-black" : "text-[#8a8a8a] hover:text-white"
+                      tripType === t
+                        ? "bg-[#ecb100] text-black"
+                        : "text-[#8a8a8a] hover:text-white"
                     }`}
                   >
                     {t === "oneway" ? "One way" : "Round trip"}
@@ -159,16 +174,17 @@ export default function TravelCostCalculator() {
               <button
                 onClick={fetchDistance}
                 disabled={loadingDistance}
+                aria-label="Calculate distance and fare estimate"
                 className="flex items-center gap-2 rounded-xl bg-[#ecb100] px-5 py-3 font-semibold text-black transition-all duration-200 hover:bg-[#f6c94c] active:scale-[0.98] disabled:opacity-60"
               >
                 {loadingDistance ? (
                   <>
-                    <Loader2 size={16} className="animate-spin" />
+                    <Loader2 size={16} className="animate-spin" aria-hidden="true" />
                     Calculating route...
                   </>
                 ) : (
                   <>
-                    <Calculator size={16} />
+                    <Calculator size={16} aria-hidden="true" />
                     Get Distance
                   </>
                 )}
@@ -176,7 +192,10 @@ export default function TravelCostCalculator() {
             </div>
 
             {routeError && (
-              <p className="mt-3 rounded-xl border border-red-500/30 bg-red-500/5 px-4 py-3 text-sm text-red-400">
+              <p
+                role="alert"
+                className="mt-3 rounded-xl border border-red-500/30 bg-red-500/5 px-4 py-3 text-sm text-red-400"
+              >
                 {routeError}
               </p>
             )}
@@ -186,7 +205,9 @@ export default function TravelCostCalculator() {
                 <p className="text-white">
                   <span className="text-[#ecb100]">{distance} km</span> one-way
                   {tripType === "round" && (
-                    <span className="text-[#8a8a8a]"> · {effectiveDistance} km round trip</span>
+                    <span className="text-[#8a8a8a]">
+                      {" "}· {effectiveDistance} km round trip
+                    </span>
                   )}
                 </p>
                 <p className="mt-1 text-xs text-[#666]">
@@ -205,7 +226,11 @@ export default function TravelCostCalculator() {
                 ))}
               </div>
             ) : (
-              <VehicleSelector vehicles={vehicles} selected={vehicle} setSelected={setVehicle} />
+              <VehicleSelector
+                vehicles={vehicles}
+                selected={vehicle}
+                setSelected={setVehicle}
+              />
             )}
           </CalculatorStep>
 
@@ -219,7 +244,7 @@ export default function TravelCostCalculator() {
           </CalculatorStep>
         </div>
 
-        {/* SEO-friendly explainer content — also builds user trust in the numbers */}
+        {/* SEO-friendly explainer content */}
         <div className="mt-10 grid gap-6 text-sm text-[#8a8a8a] sm:grid-cols-3">
           <div className="rounded-2xl border border-[#252525] bg-black/20 p-5">
             <p className="font-medium text-white">Real road distance</p>
