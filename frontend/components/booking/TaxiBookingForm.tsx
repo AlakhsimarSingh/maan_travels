@@ -134,18 +134,48 @@ export default function TaxiBookingForm({
         </div>
       )}
 
-      <Input placeholder="Full Name" value={form.name} onChange={e => updateField("name", e.target.value)} />
-      <Input placeholder="Mobile Number" value={form.phone} onChange={e => updateField("phone", e.target.value)} />
-      <Input placeholder="Email Address" value={form.email} onChange={e => updateField("email", e.target.value)} />
+      <Input
+        placeholder="Full Name"
+        value={form.name}
+        onChange={e => updateField("name", e.target.value)}
+        aria-label="Full Name"
+      />
+      <Input
+        placeholder="Mobile Number"
+        value={form.phone}
+        onChange={e => updateField("phone", e.target.value)}
+        aria-label="Mobile Number"
+      />
+      <Input
+        placeholder="Email Address"
+        value={form.email}
+        onChange={e => updateField("email", e.target.value)}
+        aria-label="Email Address"
+      />
 
       <BookingDatePicker placeholder="Select Pickup Date" value={pickupDate} onChange={setPickupDate} />
 
-      <Input placeholder="Pickup Location" value={form.pickup} onChange={e => updateField("pickup", e.target.value)} />
+      <Input
+        placeholder="Pickup Location"
+        value={form.pickup}
+        onChange={e => updateField("pickup", e.target.value)}
+        aria-label="Pickup Location"
+      />
 
       {rideMode === "local" ? (
-        <Input placeholder="City / Area for Local Travel" value={form.drop} onChange={e => updateField("drop", e.target.value)} />
+        <Input
+          placeholder="City / Area for Local Travel"
+          value={form.drop}
+          onChange={e => updateField("drop", e.target.value)}
+          aria-label="City or Area for Local Travel"
+        />
       ) : (
-        <Input placeholder="Drop Location" value={form.drop} onChange={e => updateField("drop", e.target.value)} />
+        <Input
+          placeholder="Drop Location"
+          value={form.drop}
+          onChange={e => updateField("drop", e.target.value)}
+          aria-label="Drop Location"
+        />
       )}
 
       {rideMode === "round" && (
@@ -154,7 +184,13 @@ export default function TaxiBookingForm({
 
       {rideMode === "local" && (
         <Select value={form.duration} onValueChange={value => updateField("duration", value)}>
-          <SelectTrigger className="h-12 bg-[#111] border-[#252525] text-white">
+          {/* aria-label gives the combobox button a discernible name before
+              any value is selected — fixes Lighthouse "Buttons must have
+              discernible text" for SelectTrigger with role="combobox". */}
+          <SelectTrigger
+            aria-label="Select Duration"
+            className="h-12 bg-[#111] border-[#252525] text-white"
+          >
             <SelectValue placeholder="Select Duration" />
           </SelectTrigger>
           <SelectContent>
@@ -166,7 +202,13 @@ export default function TaxiBookingForm({
       )}
 
       <Select value={form.persons} onValueChange={value => updateField("persons", value)}>
-        <SelectTrigger className="h-12 bg-[#111] border-[#252525] text-white">
+        {/* Same fix — this was the exact element Lighthouse flagged:
+            an empty combobox with placeholder="Passengers" but no
+            accessible name on the trigger button itself. */}
+        <SelectTrigger
+          aria-label="Number of Passengers"
+          className="h-12 bg-[#111] border-[#252525] text-white"
+        >
           <SelectValue placeholder="Passengers" />
         </SelectTrigger>
         <SelectContent>
@@ -180,6 +222,7 @@ export default function TaxiBookingForm({
         placeholder="Special Requirements"
         value={form.requirements}
         onChange={e => updateField("requirements", e.target.value)}
+        aria-label="Special Requirements"
         className="md:col-span-2 min-h-32 rounded-xl border border-[#252525] bg-[#111] p-4 text-white"
       />
 
@@ -194,7 +237,11 @@ export default function TaxiBookingForm({
         />
       </div>
 
-      <Button onClick={submitBooking} disabled={loading} className="md:col-span-2 h-12 bg-[#ecb100] text-black hover:bg-[#f6c94c]">
+      <Button
+        onClick={submitBooking}
+        disabled={loading}
+        className="md:col-span-2 h-12 bg-[#ecb100] text-black hover:bg-[#f6c94c]"
+      >
         {loading ? "Processing..." : "Submit Taxi Booking"}
       </Button>
 

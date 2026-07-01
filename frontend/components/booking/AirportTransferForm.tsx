@@ -161,7 +161,9 @@ export default function AirportTransferForm({
 
       <div className="relative h-12">
         <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
+        <label htmlFor="pickup" className="sr-only">Pickup Address</label>
         <Input
+          id="pickup"
           name="pickup"
           value={form.pickup}
           onChange={handleChange}
@@ -173,26 +175,36 @@ export default function AirportTransferForm({
       <div className="relative h-12">
         <PlaneTakeoff size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
         {prefillAirport ? (
-          <Input
-            name="airport"
-            value={form.airport}
-            readOnly
-            className={`${lockedFieldClass} pl-12`}
-          />
+          <>
+            <label htmlFor="airport" className="sr-only">Airport</label>
+            <Input
+              id="airport"
+              name="airport"
+              value={form.airport}
+              readOnly
+              aria-readonly="true"
+              className={`${lockedFieldClass} pl-12`}
+            />
+          </>
         ) : (
-          <select
-            name="airport"
-            value={form.airport}
-            onChange={handleChange}
-            className={`${fieldClass} pl-12`}
-          >
-            <option value="">Select Airport</option>
-            <option>Amritsar Airport</option>
-            <option>Chandigarh Airport</option>
-            <option>Adampur Airport</option>
-            <option>Delhi Airport</option>
-            <option>Ludhiana Airport</option>
-          </select>
+          <>
+            <label htmlFor="airport" className="sr-only">Select Airport</label>
+            <select
+              id="airport"
+              name="airport"
+              value={form.airport}
+              onChange={handleChange}
+              aria-label="Select Airport"
+              className={`${fieldClass} pl-12`}
+            >
+              <option value="">Select Airport</option>
+              <option>Amritsar Airport</option>
+              <option>Chandigarh Airport</option>
+              <option>Adampur Airport</option>
+              <option>Delhi Airport</option>
+              <option>Ludhiana Airport</option>
+            </select>
+          </>
         )}
       </div>
 
@@ -204,11 +216,14 @@ export default function AirportTransferForm({
 
       <div className="relative h-12">
         <Clock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white z-10" />
+        <label htmlFor="time" className="sr-only">Pickup Time</label>
         <Input
+          id="time"
           type="time"
           name="time"
           value={form.time}
           onChange={handleChange}
+          aria-label="Pickup Time"
           className={`${fieldClass} pl-12 [&::-webkit-calendar-picker-indicator]:invert`}
         />
       </div>
@@ -216,42 +231,59 @@ export default function AirportTransferForm({
       <div className="relative h-12">
         <Car size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
         {vehicleId ? (
-          <Input
-            value={vehicles.find((v) => v.id === vehicleId)?.name || "Selected Vehicle"}
-            readOnly
-            className={`${lockedFieldClass} pl-12`}
-          />
+          <>
+            <label htmlFor="vehicle" className="sr-only">Vehicle</label>
+            <Input
+              id="vehicle"
+              value={vehicles.find((v) => v.id === vehicleId)?.name || "Selected Vehicle"}
+              readOnly
+              aria-readonly="true"
+              className={`${lockedFieldClass} pl-12`}
+            />
+          </>
         ) : (
-          <select
-            name="vehicle"
-            value={form.vehicle}
-            onChange={handleChange}
-            className={`${fieldClass} pl-12`}
-          >
-            <option value="">Choose Vehicle</option>
-            {vehicles.map((vehicle) => (
-              <option key={vehicle.id} value={vehicle.id}>{vehicle.name}</option>
-            ))}
-          </select>
+          <>
+            <label htmlFor="vehicle" className="sr-only">Choose Vehicle</label>
+            <select
+              id="vehicle"
+              name="vehicle"
+              value={form.vehicle}
+              onChange={handleChange}
+              aria-label="Choose Vehicle"
+              className={`${fieldClass} pl-12`}
+            >
+              <option value="">Choose Vehicle</option>
+              {vehicles.map((vehicle) => (
+                <option key={vehicle.id} value={vehicle.id}>{vehicle.name}</option>
+              ))}
+            </select>
+          </>
         )}
       </div>
 
-      <select
-        name="passengers"
-        value={form.passengers}
-        onChange={handleChange}
-        className={fieldClass}
-      >
-        <option value="">Passengers</option>
-        <option value="1">1 Passenger</option>
-        <option value="2">2–4 Passengers</option>
-        <option value="3">5–7 Passengers</option>
-        <option value="4">8+ Passengers</option>
-      </select>
+      <div>
+        <label htmlFor="passengers" className="sr-only">Number of Passengers</label>
+        <select
+          id="passengers"
+          name="passengers"
+          value={form.passengers}
+          onChange={handleChange}
+          aria-label="Number of Passengers"
+          className={fieldClass}
+        >
+          <option value="">Passengers</option>
+          <option value="1">1 Passenger</option>
+          <option value="2">2–4 Passengers</option>
+          <option value="3">5–7 Passengers</option>
+          <option value="4">8+ Passengers</option>
+        </select>
+      </div>
 
       <div className="relative h-12">
         <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
+        <label htmlFor="name" className="sr-only">Your Name</label>
         <Input
+          id="name"
           name="name"
           value={form.name}
           onChange={handleChange}
@@ -260,7 +292,9 @@ export default function AirportTransferForm({
         />
       </div>
 
+      <label htmlFor="phone" className="sr-only">Phone Number</label>
       <Input
+        id="phone"
         name="phone"
         value={form.phone}
         onChange={handleChange}
@@ -270,7 +304,9 @@ export default function AirportTransferForm({
 
       <div className="relative h-12">
         <Luggage size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
+        <label htmlFor="suitcases" className="sr-only">Number of Suitcases</label>
         <Input
+          id="suitcases"
           type="number"
           name="suitcases"
           value={form.suitcases}
@@ -282,7 +318,9 @@ export default function AirportTransferForm({
 
       <div className="relative h-12">
         <Luggage size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
+        <label htmlFor="handbags" className="sr-only">Number of Handbags</label>
         <Input
+          id="handbags"
           type="number"
           name="handbags"
           value={form.handbags}

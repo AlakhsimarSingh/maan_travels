@@ -106,11 +106,6 @@ export default function TourBookingForm({
 
   const totalAmount = vehicleId ? price || 0 : 0;
 
-  // No RoutePricing exists for this route+vehicle combo — there's nothing
-  // to pay against yet. PaymentMethodPicker already hides the full/partial/
-  // later buttons in this case, but we also force the type back to
-  // "later" here as a safety net so a stale "full"/"partial" selection
-  // can never be submitted once price drops to unconfirmed.
   const priceUnconfirmed = totalAmount <= 0;
 
   useEffect(() => {
@@ -122,8 +117,6 @@ export default function TourBookingForm({
   const onPaymentTypeReset = () => setPaymentType("later");
 
   useEffect(() => {
-    // Pickup/destination are fixed by the route — no need to fetch the
-    // editable dropdown options at all.
     if (locked) return;
 
     const fetchLocations = async () => {
@@ -233,7 +226,6 @@ export default function TourBookingForm({
     }
   };
 
-  // Tomorrow's date as the minimum selectable date
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const minDate = tomorrow.toISOString().split("T")[0];
@@ -271,6 +263,7 @@ export default function TourBookingForm({
             value={form.name}
             onChange={e => updateField("name", e.target.value)}
             className={fieldClass}
+            aria-label="Full Name"
           />
         </div>
       </div>
@@ -284,6 +277,7 @@ export default function TourBookingForm({
             value={form.phone}
             onChange={e => updateField("phone", e.target.value)}
             className={fieldClass}
+            aria-label="Mobile Number"
           />
         </div>
       </div>
@@ -297,6 +291,7 @@ export default function TourBookingForm({
             value={form.email}
             onChange={e => updateField("email", e.target.value)}
             className={fieldClass}
+            aria-label="Email Address"
           />
         </div>
       </div>
@@ -305,9 +300,6 @@ export default function TourBookingForm({
       <SectionHeader label="Trip Details" />
 
       {locked ? (
-        /* Fixed-route summary — mirrors the route-line motif from the
-           route card this booking started from, so it reads as the same
-           route rather than a generic locked field. */
         <div className="sm:col-span-2 relative overflow-hidden rounded-xl border border-[#ecb100]/35 bg-gradient-to-br from-[#1c1608] to-[#111] px-4 py-4">
           <span className="absolute left-0 top-0 h-full w-[3px] bg-[#ecb100]" />
 
@@ -347,13 +339,21 @@ export default function TourBookingForm({
         </div>
       ) : (
         <>
+          {/* Pickup City — SelectTrigger has an explicit aria-label so it
+              has a discernible accessible name even before a value is
+              chosen. Without this, screen readers / AI agents see an
+              empty combobox button (Lighthouse: "Buttons must have
+              discernible text"). */}
           <div className="flex flex-col gap-1.5">
             <FieldLabel icon={MapPin}>Pickup City</FieldLabel>
             <Select
               value={form.pickupCity}
               onValueChange={value => updateField("pickupCity", value)}
             >
-              <SelectTrigger className="h-11 bg-[#111] border-[#252525] text-white focus:border-[#ecb100]">
+              <SelectTrigger
+                aria-label="Pickup City"
+                className="h-11 bg-[#111] border-[#252525] text-white focus:border-[#ecb100]"
+              >
                 <SelectValue placeholder="Select pickup city" />
               </SelectTrigger>
               <SelectContent>
@@ -366,13 +366,17 @@ export default function TourBookingForm({
             </Select>
           </div>
 
+          {/* Destination — same fix */}
           <div className="flex flex-col gap-1.5">
             <FieldLabel icon={MapPin}>Destination</FieldLabel>
             <Select
               value={form.destination}
               onValueChange={value => updateField("destination", value)}
             >
-              <SelectTrigger className="h-11 bg-[#111] border-[#252525] text-white focus:border-[#ecb100]">
+              <SelectTrigger
+                aria-label="Destination"
+                className="h-11 bg-[#111] border-[#252525] text-white focus:border-[#ecb100]"
+              >
                 <SelectValue placeholder="Select destination" />
               </SelectTrigger>
               <SelectContent>
@@ -396,6 +400,7 @@ export default function TourBookingForm({
             min={minDate}
             value={form.travelDate}
             onChange={e => updateField("travelDate", e.target.value)}
+            aria-label="Travel Date"
             className="w-full h-11 rounded-xl border border-[#252525] bg-[#111] pl-9 pr-3 text-white text-sm outline-none focus:border-[#ecb100] focus:ring-[2px] focus:ring-[#ecb100]/15 [color-scheme:dark]"
           />
         </div>
@@ -412,6 +417,7 @@ export default function TourBookingForm({
             value={form.pickupAddress}
             onChange={e => updateField("pickupAddress", e.target.value)}
             className={fieldClass}
+            aria-label={locked ? "Exact Pickup Address" : "Pickup Address"}
           />
         </div>
       </div>
@@ -430,6 +436,7 @@ export default function TourBookingForm({
           placeholder="Anything we should know — extra stops, luggage, accessibility needs..."
           value={form.requirements}
           onChange={e => updateField("requirements", e.target.value)}
+          aria-label="Special Requirements"
           className="min-h-28 rounded-xl border border-[#252525] bg-[#111] p-4 text-white text-sm placeholder:text-white/25 outline-none focus:border-[#ecb100] focus:ring-[2px] focus:ring-[#ecb100]/15"
         />
       </div>
