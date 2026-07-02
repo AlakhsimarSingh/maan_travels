@@ -67,6 +67,7 @@ export default function RoutePricingMatrix() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ routeId, vehicleId, price }),
+        credentials: "include",
       });
       const data = await res.json();
 
