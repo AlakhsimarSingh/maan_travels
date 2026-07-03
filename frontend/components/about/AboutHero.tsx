@@ -21,7 +21,7 @@ export default function AboutHero() {
 
           <Reveal delay={200}>
             <p className="mt-6 text-[#c7c7c7] text-lg">
-              Premium chauffeur-driven experiences across North India,
+              Premium taxi service experiences across Punjab and North India,
               designed for comfort, safety, and timeless elegance.
             </p>
           </Reveal>

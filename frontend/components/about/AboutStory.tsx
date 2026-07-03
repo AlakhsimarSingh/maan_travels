@@ -7,7 +7,7 @@ export default function AboutStory() {
 
         <Reveal>
           <p>
-            Maan Travels is a premium chauffeur-driven travel service based in
+            Maan Travels is a premium taxi service based in
             Jalandhar, delivering refined mobility solutions across North India
             and beyond. With over 15+ years of experience, we specialize in
             crafting seamless, comfortable, and reliable travel experiences for
@@ -18,7 +18,7 @@ export default function AboutStory() {
         <Reveal delay={80}>
           <p>
             We operate across major destinations including Himachal Pradesh,
-            Jammu & Kashmir, Punjab (including Chandigarh and Amritsar),
+            Jammu & Kashmir, Punjab (including Chandigarh), Haryana, Uttar Pradesh, Uttarakhand, Maharas
             Rajasthan, and Delhi, offering thoughtfully curated journeys
             designed for comfort, safety, and peace of mind.
           </p>

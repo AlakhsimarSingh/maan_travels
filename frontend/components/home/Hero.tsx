@@ -20,7 +20,7 @@ export default function Hero() {
           <div>
             <Reveal>
               <p className="mb-5 uppercase tracking-[0.4em] text-[#ecb100]">
-                Premium Chauffeur Service
+                Premium Taxi Service
               </p>
             </Reveal>
 
@@ -33,7 +33,7 @@ export default function Hero() {
 
             <Reveal delay={200}>
               <p className="mb-10 max-w-xl text-lg leading-relaxed text-[#c7c7c7]">
-                Premium chauffeur-driven cars, airport transfers, luxury tours, corporate
+                Premium taxi services, airport taxi services, luxury tours, corporate
                 travel, wedding transportation, and outstation journeys tailored for
                 comfort and style.
               </p>

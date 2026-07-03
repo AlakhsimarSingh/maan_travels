@@ -13,9 +13,9 @@ import MobileMenu from "./MobileMenu";
 const services = [
   { label: "Luxury Cars", href: "/luxury-cars" },
   { label: "Self Drive Rentals", href: "/self-drive" },
-  { label: "Go Taxi", href: "/go-taxi" },
+  { label: "Book Your Cab", href: "/go-taxi" },
   { label: "Tempo / Urbania Travellers", href: "/tempo-traveller-urbania" },
-  { label: "Airport Transfer", href: "/airport-transfer" },
+  { label: "Airport Pick/Drop Service", href: "/airport-transfer" },
   { label: "Wedding Cars", href: "/wedding-cars" },
 ];
 
