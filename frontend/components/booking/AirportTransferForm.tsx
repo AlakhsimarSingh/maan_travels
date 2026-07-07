@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -9,20 +9,28 @@ import BookingDatePicker from "./BookingDatePicker";
 import BookingSuccess from "@/components/common/BookingSuccess";
 import PaymentMethodPicker, { PaymentType } from "./PaymentMethodPicker";
 
-import { Clock, MapPin, User, Luggage, Car, PlaneTakeoff } from "lucide-react";
+import { Clock, MapPin, MapPinned, User, Luggage, Car, PlaneTakeoff, ArrowRightLeft } from "lucide-react";
 
 import { useBookingStatus } from "@/src/hooks/useBookingStatus";
 import { useVehicles } from "@/src/hooks/useVehicles";
 import { API_URL } from "@/src/services/bookingService";
 
+type Direction = "TO_AIRPORT" | "FROM_AIRPORT";
+
+type AirportOption = { id: string; name: string };
+type CityOption = { id: string; name: string; canPickup: boolean; canDrop: boolean; active: boolean };
+type CityPriceCell = { cityId: string; vehicleId: string; direction: Direction; price: number };
+
 export default function AirportTransferForm({
   routeId,
+  airportId: prefillAirportId,
   vehicleId,
   price,
   pickup: prefillPickup,
   airport: prefillAirport,
 }: {
   routeId?: string;
+  airportId?: string;
   vehicleId?: string;
   price?: number;
   pickup?: string;
@@ -31,9 +39,16 @@ export default function AirportTransferForm({
   const { vehicles } = useVehicles("taxi");
   const [travelDate, setTravelDate] = useState<Date | undefined>(undefined);
 
+  const [airports, setAirports] = useState<AirportOption[]>([]);
+  const [cities, setCities] = useState<CityOption[]>([]);
+  const [cityPricing, setCityPricing] = useState<CityPriceCell[]>([]);
+
+  const [direction, setDirection] = useState<Direction>("TO_AIRPORT");
+  const [selectedAirportId, setSelectedAirportId] = useState(prefillAirportId || "");
+  const [selectedCityId, setSelectedCityId] = useState("");
+
   const [form, setForm] = useState({
     pickup: prefillPickup || "",
-    airport: prefillAirport || "",
     time: "",
     vehicle: vehicleId || "",
     passengers: "",
@@ -51,25 +66,95 @@ export default function AirportTransferForm({
 
   const { success, bookingId, done, reset } = useBookingStatus();
 
-  const totalAmount = price || 0;
+  // Fetch real airports once — replaces the old hardcoded <option> list,
+  // since pricing now depends on a real airportId, not just a name string.
+  useEffect(() => {
+    fetch(`${API_URL}/api/airports`)
+      .then((res) => res.json())
+      .then((data) => setAirports(data.airports || []))
+      .catch(() => setAirports([]));
+  }, []);
+
+  // If the caller only gave us a name (legacy prefillAirport prop) and not
+  // an id, resolve it once the airport list has loaded.
+  useEffect(() => {
+    if (selectedAirportId || !prefillAirport || !airports.length) return;
+    const match = airports.find((a) => a.name === prefillAirport);
+    if (match) setSelectedAirportId(match.id);
+  }, [prefillAirport, airports, selectedAirportId]);
+
+  // Cities available for the current direction
+  useEffect(() => {
+    fetch(`${API_URL}/api/airport-cities?direction=${direction}`)
+      .then((res) => res.json())
+      .then((data) => setCities(data.cities || []))
+      .catch(() => setCities([]));
+  }, [direction]);
+
+  // Switching direction may invalidate the chosen city
+  useEffect(() => {
+    setSelectedCityId("");
+  }, [direction, selectedAirportId]);
+
+  // Full pricing grid for the selected airport
+  useEffect(() => {
+    if (!selectedAirportId) {
+      setCityPricing([]);
+      return;
+    }
+    fetch(`${API_URL}/api/airport-cities/pricing/${selectedAirportId}`)
+      .then((res) => res.json())
+      .then((data) => setCityPricing(data.pricing || []))
+      .catch(() => setCityPricing([]));
+  }, [selectedAirportId]);
+
+  const availableCities = useMemo(
+    () => cities.filter((c) => (direction === "TO_AIRPORT" ? c.canPickup : c.canDrop)),
+    [cities]
+  );
+
+  const selectedAirportName = airports.find((a) => a.id === selectedAirportId)?.name || prefillAirport || "";
+
+  // City + direction pricing is the source of truth now. The `price` prop
+  // (from a prefilled route/promo card) is only used as a placeholder
+  // before a city has been chosen, so the fare display is never blank.
+  const totalAmount = useMemo(() => {
+    if (selectedCityId && form.vehicle) {
+      const match = cityPricing.find(
+        (p) => p.cityId === selectedCityId && p.vehicleId === form.vehicle && p.direction === direction
+      );
+      if (match) return match.price;
+    }
+    return price || 0;
+  }, [selectedCityId, form.vehicle, cityPricing, direction, price]);
 
   // Sync if parent re-opens modal with new prefill values
   useEffect(() => {
     setForm((prev) => ({
       ...prev,
       pickup: prefillPickup || prev.pickup,
-      airport: prefillAirport || prev.airport,
       vehicle: vehicleId || prev.vehicle,
     }));
-  }, [prefillPickup, prefillAirport, vehicleId]);
+    if (prefillAirportId) setSelectedAirportId(prefillAirportId);
+  }, [prefillPickup, prefillAirportId, vehicleId]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async () => {
+    if (!selectedAirportId) {
+      alert("Please select an airport");
+      return;
+    }
+
+    if (!selectedCityId) {
+      alert("Please select your city");
+      return;
+    }
+
     if (
-      !form.pickup || !form.airport || !travelDate || !form.time ||
+      !form.pickup || !travelDate || !form.time ||
       !form.vehicle || !form.passengers || !form.name || !form.phone ||
       !form.suitcases || !form.handbags
     ) {
@@ -94,7 +179,10 @@ export default function AirportTransferForm({
       data.append("name", form.name);
       data.append("phone", form.phone);
       data.append("pickup", form.pickup);
-      data.append("airport", form.airport);
+      data.append("airport", selectedAirportName);
+      data.append("airportId", selectedAirportId);
+      data.append("cityId", selectedCityId);
+      data.append("direction", direction);
       data.append("travelDate", travelDate.toISOString());
       data.append("pickupTime", form.time);
       data.append("vehicleId", form.vehicle);
@@ -159,28 +247,62 @@ export default function AirportTransferForm({
         </div>
       )}
 
+      <div className="md:col-span-2">
+        <p className="mb-3 text-sm uppercase tracking-wide text-white/50">Direction of travel</p>
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            onClick={() => setDirection("TO_AIRPORT")}
+            className={`
+              flex items-center justify-center gap-2 h-12 rounded-xl border font-medium transition-all duration-200
+              ${direction === "TO_AIRPORT"
+                ? "border-[#ecb100] bg-[#ecb100]/10 text-[#ecb100]"
+                : "border-[#252525] bg-[#111] text-white/60 hover:border-[#ecb100]/30"}
+            `}
+          >
+            <ArrowRightLeft size={16} />
+            To Airport
+          </button>
+          <button
+            type="button"
+            onClick={() => setDirection("FROM_AIRPORT")}
+            className={`
+              flex items-center justify-center gap-2 h-12 rounded-xl border font-medium transition-all duration-200
+              ${direction === "FROM_AIRPORT"
+                ? "border-[#ecb100] bg-[#ecb100]/10 text-[#ecb100]"
+                : "border-[#252525] bg-[#111] text-white/60 hover:border-[#ecb100]/30"}
+            `}
+          >
+            <ArrowRightLeft size={16} className="rotate-180" />
+            From Airport
+          </button>
+        </div>
+      </div>
+
       <div className="relative h-12">
         <MapPin size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
-        <label htmlFor="pickup" className="sr-only">Pickup Address</label>
+        <label htmlFor="pickup" className="sr-only">
+          {direction === "TO_AIRPORT" ? "Pickup Address" : "Drop Address"}
+        </label>
         <Input
           id="pickup"
           name="pickup"
           value={form.pickup}
           onChange={handleChange}
-          placeholder="Pickup Address"
+          placeholder={direction === "TO_AIRPORT" ? "Pickup Address" : "Drop Address"}
           className={`${fieldClass} pl-12`}
         />
       </div>
 
       <div className="relative h-12">
         <PlaneTakeoff size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
-        {prefillAirport ? (
+        {prefillAirportId || prefillAirport ? (
           <>
             <label htmlFor="airport" className="sr-only">Airport</label>
             <Input
               id="airport"
               name="airport"
-              value={form.airport}
+              value={selectedAirportName}
               readOnly
               aria-readonly="true"
               className={`${lockedFieldClass} pl-12`}
@@ -192,20 +314,37 @@ export default function AirportTransferForm({
             <select
               id="airport"
               name="airport"
-              value={form.airport}
-              onChange={handleChange}
+              value={selectedAirportId}
+              onChange={(e) => setSelectedAirportId(e.target.value)}
               aria-label="Select Airport"
               className={`${fieldClass} pl-12`}
             >
               <option value="">Select Airport</option>
-              <option>Amritsar Airport</option>
-              <option>Chandigarh Airport</option>
-              <option>Adampur Airport</option>
-              <option>Delhi Airport</option>
-              <option>Ludhiana Airport</option>
+              {airports.map((a) => (
+                <option key={a.id} value={a.id}>{a.name}</option>
+              ))}
             </select>
           </>
         )}
+      </div>
+
+      <div className="relative h-12">
+        <MapPinned size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
+        <label htmlFor="city" className="sr-only">Select City</label>
+        <select
+          id="city"
+          value={selectedCityId}
+          onChange={(e) => setSelectedCityId(e.target.value)}
+          aria-label="Select City"
+          className={`${fieldClass} pl-12`}
+        >
+          <option value="">
+            {availableCities.length ? "Select your city" : "No cities available for this direction"}
+          </option>
+          {availableCities.map((c) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
       </div>
 
       <BookingDatePicker

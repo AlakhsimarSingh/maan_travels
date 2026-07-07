@@ -155,6 +155,9 @@ model AirportTransfer {
   airport String
   terminal String?
 
+  cityId String?
+  direction String @default("TO_AIRPORT")
+
   travelDate DateTime
   pickupTime String
   vehicle String
@@ -430,6 +433,7 @@ model Airport {
   active Boolean @default(true)
 
   pricing AirportPricing[]
+  cityPricing AirportCityPricing[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -471,4 +475,41 @@ model Inquiry {
   status String @default("new")   // new | contacted | closed
 
   createdAt DateTime @default(now())
+}
+
+model AirportCity {
+  id String @id @default(cuid())
+
+  name String @unique
+
+  // Can a customer be picked up FROM this city, traveling TO an airport
+  canPickup Boolean @default(true)
+
+  // Can a customer be dropped INTO this city, coming FROM an airport
+  canDrop Boolean @default(true)
+
+  active Boolean @default(true)
+
+  pricing AirportCityPricing[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AirportCityPricing {
+  id String @id @default(cuid())
+
+  airportId String
+  cityId    String
+  vehicleId String
+
+  // "TO_AIRPORT" | "FROM_AIRPORT" — priced independently since fares differ by direction
+  direction String
+
+  price Int
+
+  airport Airport     @relation(fields: [airportId], references: [id], onDelete: Cascade)
+  city    AirportCity @relation(fields: [cityId], references: [id], onDelete: Cascade)
+
+  @@unique([airportId, cityId, vehicleId, direction])
 }

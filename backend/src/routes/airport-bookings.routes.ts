@@ -6,22 +6,58 @@ import { notifyOwnerNewBookingEmail } from "../services/ownerNotification.servic
 import { findOrCreateCustomer } from "../lib/customerUpsert";
 
 const router = Router();
+const VALID_DIRECTIONS = ["TO_AIRPORT", "FROM_AIRPORT"];
 
 router.post("/", paymentUpload.single("paymentScreenshot"), async (req, res) => {
   try {
-    const { name, phone, pickup, airport, airportId, terminal, travelDate, pickupTime, vehicleId, passengers, suitcases, handbags, routeId, paymentType, amountPaid } = req.body;
+    const {
+      name, phone, pickup, airport, airportId, terminal, travelDate, pickupTime,
+      vehicleId, passengers, suitcases, handbags, routeId,
+      cityId, direction,
+      paymentType, amountPaid,
+    } = req.body;
 
     if (!vehicleId) return res.status(400).json({ success: false, message: "vehicleId is required" });
     if (!airport) return res.status(400).json({ success: false, message: "airport is required" });
 
+    const resolvedDirection = VALID_DIRECTIONS.includes(direction) ? direction : "TO_AIRPORT";
+
     const vehicle = await prisma.vehicle.findUnique({ where: { id: vehicleId } });
     if (!vehicle) return res.status(400).json({ success: false, message: "Invalid vehicle" });
 
+    // Validate the city actually supports the requested direction
+    if (cityId) {
+      const city = await prisma.airportCity.findUnique({ where: { id: cityId } });
+      if (!city || !city.active) {
+        return res.status(400).json({ success: false, message: "Invalid city" });
+      }
+      if (resolvedDirection === "TO_AIRPORT" && !city.canPickup) {
+        return res.status(400).json({ success: false, message: "This city does not support airport pickup" });
+      }
+      if (resolvedDirection === "FROM_AIRPORT" && !city.canDrop) {
+        return res.status(400).json({ success: false, message: "This city does not support airport drop-off" });
+      }
+    }
+
     let totalAmount = 0;
-    if (airportId) {
-      const airportPricing = await prisma.airportPricing.findUnique({ where: { airportId_vehicleId: { airportId, vehicleId } } });
+
+    // Most specific: airport + city + vehicle + direction
+    if (airportId && cityId) {
+      const cityPricing = await prisma.airportCityPricing.findUnique({
+        where: { airportId_cityId_vehicleId_direction: { airportId, cityId, vehicleId, direction: resolvedDirection } },
+      });
+      if (cityPricing) totalAmount = cityPricing.price;
+    }
+
+    // Fallback: legacy flat per-airport pricing (airports not yet migrated to city pricing)
+    if (!totalAmount && airportId) {
+      const airportPricing = await prisma.airportPricing.findUnique({
+        where: { airportId_vehicleId: { airportId, vehicleId } },
+      });
       if (airportPricing) totalAmount = airportPricing.price;
     }
+
+    // Legacy fallback: route pricing
     if (!totalAmount && routeId) {
       const routePricing = await prisma.routePricing.findUnique({ where: { routeId_vehicleId: { routeId, vehicleId } } });
       if (routePricing) totalAmount = routePricing.price;
@@ -58,6 +94,8 @@ router.post("/", paymentUpload.single("paymentScreenshot"), async (req, res) => 
             passengers: Number(passengers),
             suitcases: Number(suitcases || 0),
             handbags: Number(handbags || 0),
+            cityId: cityId || null,
+            direction: resolvedDirection,
           },
         },
       },

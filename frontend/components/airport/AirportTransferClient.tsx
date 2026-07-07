@@ -4,11 +4,8 @@ import { useState } from "react";
 
 import AirportHero from "./AirportHero";
 import AirportBookingForm from "./AirportBookingForm";
-// import StepProgress from "./StepProgress";
-import { Airport, AirportVehicle } from "@/src/lib/fetchAirportTransferData";
 import StepProgress from "./StepProgress";
-
-// import type { Airport, AirportVehicle } from "@/src/lib/fetchAirportTransferData";
+import { Airport, AirportVehicle, AirportCity } from "@/src/lib/fetchAirportTransferData";
 
 const STEPS = ["Airport", "Vehicle", "Trip Details", "Payment"];
 
@@ -19,16 +16,19 @@ const STEPS = ["Airport", "Vehicle", "Trip Details", "Payment"];
 export default function AirportTransferClient({
   airports = [],
   vehicles = [],
+  cities = [],
 }: {
   airports?: Airport[];
   vehicles?: AirportVehicle[];
+  cities?: AirportCity[];
 }) {
   const [selectedAirport, setSelectedAirport] = useState<Airport | null>(null);
 
   // The form reports which of ITS internal steps (vehicle / details /
   // payment) it's currently on — the form keeps owning that state
-  // internally (it's complex: 10+ fields, capacity checks, payment
-  // picker), this wrapper just needs to know enough to drive the bar.
+  // internally (it's complex: direction + city + 10+ fields, capacity
+  // checks, payment picker), this wrapper just needs to know enough to
+  // drive the progress bar.
   const [formStep, setFormStep] = useState(0); // 0 = vehicle, 1 = details, 2 = payment
 
   // Overall step is derived: airport selection always counts as step 0
@@ -51,6 +51,7 @@ export default function AirportTransferClient({
         <AirportBookingForm
           airport={selectedAirport}
           vehicles={vehicles}
+          cities={cities}
           onStepChange={setFormStep}
         />
       </section>

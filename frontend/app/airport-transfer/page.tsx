@@ -1,7 +1,6 @@
 import AirportTransferClient from "@/components/airport/AirportTransferClient";
 import AirportBenefits from "@/components/airport/AirportBenefits";
 
-// import { fetchAirportTransferData } from "@/src/lib/fetchAirportTransferData";
 import { buildMetadata, buildBreadcrumbLd, siteUrl } from "@/src/lib/seo";
 import { fetchAirportTransferData } from "@/src/lib/fetchAirportTransferData";
 
@@ -16,9 +15,7 @@ const pageUrl = `${siteUrl}/airport-transfer`;
 
 export default async function AirportTransferPage() {
   // Fetched ONCE, on the server, before any HTML reaches the browser —
-  // airports and taxi-fleet vehicles in parallel, replacing two separate
-  // client-side hooks (useAirports + useVehicles) that used to fire
-  // independently after the JS bundle loaded.
+  // airports, taxi-fleet vehicles, and transfer cities in parallel.
   const data = await fetchAirportTransferData();
 
   const serviceLd = {
@@ -79,10 +76,13 @@ export default async function AirportTransferPage() {
         Airport transfers available for {data.airports.map((a) => a.name).join(", ")}
       </h2>
 
-      <AirportTransferClient airports={data.airports} vehicles={data.vehicles} />
+      <AirportTransferClient
+        airports={data.airports}
+        vehicles={data.vehicles}
+        cities={data.cities}
+      />
 
       <AirportBenefits />
     </>
   );
 }
-

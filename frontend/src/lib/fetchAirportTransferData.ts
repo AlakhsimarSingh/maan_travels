@@ -23,9 +23,18 @@ export type AirportVehicle = {
   isTaxiFleet: boolean;
 };
 
+export type AirportCity = {
+  id: string;
+  name: string;
+  canPickup: boolean;
+  canDrop: boolean;
+  active: boolean;
+};
+
 export type AirportTransferData = {
   airports: Airport[];
   vehicles: AirportVehicle[];
+  cities: AirportCity[];
 };
 
 // A safe, always-defined fallback. Every caller of fetchAirportTransferData
@@ -35,6 +44,7 @@ export type AirportTransferData = {
 export const EMPTY_AIRPORT_TRANSFER_DATA: AirportTransferData = {
   airports: [],
   vehicles: [],
+  cities: [],
 };
 
 async function safeFetchJson(path: string): Promise<any> {
@@ -53,20 +63,19 @@ async function safeFetchJson(path: string): Promise<any> {
 
 /**
  * Server-only fetch — runs inside the Server Component (page.tsx), never
- * in the browser. Fetches airports AND taxi-fleet vehicles IN PARALLEL on
- * the server, before any HTML reaches the browser. This replaces what
- * used to be two separate client-side hooks (useAirports + useVehicles
- * inside the form) firing independently after the JS bundle loaded.
+ * in the browser. Fetches airports, taxi-fleet vehicles, and airport-transfer
+ * cities IN PARALLEL on the server, before any HTML reaches the browser.
  *
- * ALWAYS returns the full { airports, vehicles } shape — never undefined,
- * never a partial object — even if one or both underlying requests fail.
- * This is deliberate: a component destructuring this return value should
- * never need to guard against the top-level object itself being missing.
+ * ALWAYS returns the full { airports, vehicles, cities } shape — never
+ * undefined, never a partial object — even if one or more underlying
+ * requests fail. A component destructuring this return value should never
+ * need to guard against the top-level object itself being missing.
  */
 export async function fetchAirportTransferData(): Promise<AirportTransferData> {
-  const [airportsData, vehiclesData] = await Promise.all([
+  const [airportsData, vehiclesData, citiesData] = await Promise.all([
     safeFetchJson("/api/airports"),
     safeFetchJson("/api/vehicles"),
+    safeFetchJson("/api/airport-cities"),
   ]);
 
   const airports: Airport[] =
@@ -83,5 +92,10 @@ export async function fetchAirportTransferData(): Promise<AirportTransferData> {
   // the same default the old client-side useVehicles() hook used.
   const vehicles = allVehicles.filter((v) => v.isTaxiFleet === true);
 
-  return { airports, vehicles };
+  const cities: AirportCity[] =
+    citiesData?.success && Array.isArray(citiesData.cities)
+      ? citiesData.cities
+      : [];
+
+  return { airports, vehicles, cities };
 }

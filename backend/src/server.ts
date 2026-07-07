@@ -27,15 +27,15 @@ import prisma from "./prisma";
 import uploadRoutes from "./routes/upload.routes";
 import pricingRoutes from "./routes/pricing.routes";
 import notifyRouter from "./routes/notify.routes";
-
+import airportCitiesRouter from "./routes/airport-cities.routes";
 const app = express();
 
 /* ---------------------------------------------------------------------
-   CORS — must explicitly whitelist origins (not the "*" wildcard) and
-   set credentials: true for the admin device cookie to ever be sent
-   or received by the browser. A wildcard origin + credentials is
-   actually rejected outright by browsers, so this isn't optional once
-   cookie-based auth is in play.
+CORS — must explicitly whitelist origins (not the "*" wildcard) and
+set credentials: true for the admin device cookie to ever be sent
+or received by the browser. A wildcard origin + credentials is
+actually rejected outright by browsers, so this isn't optional once
+cookie-based auth is in play.
 --------------------------------------------------------------------- */
 const ALLOWED_ORIGINS = [
   "https://www.maantravels.com",
@@ -95,6 +95,9 @@ app.use(
 );
 app.use("/api/luxury", 
   luxuryRoutes
+);
+app.use("/api/airport-cities", 
+  airportCitiesRouter
 );
 app.use("/api/tempo-bookings", 
   tempoRoutes
