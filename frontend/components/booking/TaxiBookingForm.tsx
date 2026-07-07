@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 import BookingDatePicker from "./BookingDatePicker";
+// import BookingTimePicker from "./BookingTimePicker";
 import BookingSuccess from "@/components/common/BookingSuccess";
 import PaymentMethodPicker, { PaymentType } from "./PaymentMethodPicker";
 
@@ -19,6 +20,7 @@ import {
 
 import { API_URL } from "@/src/services/bookingService";
 import { useBookingStatus } from "@/src/hooks/useBookingStatus";
+import BookingTimePicker from "./BookingTimePicker";
 
 export default function TaxiBookingForm({
   rideMode,
@@ -32,7 +34,9 @@ export default function TaxiBookingForm({
   price?: number;
 }) {
   const [pickupDate, setPickupDate] = useState<Date>();
+  const [pickupTime, setPickupTime] = useState<string>("");
   const [returnDate, setReturnDate] = useState<Date>();
+  const [returnTime, setReturnTime] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
   const [form, setForm] = useState({
@@ -83,7 +87,9 @@ export default function TaxiBookingForm({
       data.append("vehicleId", selectedVehicleId);
       if (routeId) data.append("routeId", routeId);
       data.append("travelDate", pickupDate ? pickupDate.toISOString() : "");
+      data.append("pickupTime", pickupTime || "");
       if (returnDate) data.append("returnDate", returnDate.toISOString());
+      if (returnTime) data.append("returnTime", returnTime);
       data.append("persons", form.persons);
       data.append(
         "requirements",
@@ -153,7 +159,11 @@ export default function TaxiBookingForm({
         aria-label="Email Address"
       />
 
-      <BookingDatePicker placeholder="Select Pickup Date" value={pickupDate} onChange={setPickupDate} />
+      {/* Pickup date + time, always paired */}
+      <div className="md:col-span-2 grid grid-cols-2 gap-3">
+        <BookingDatePicker placeholder="Pickup Date" value={pickupDate} onChange={setPickupDate} />
+        <BookingTimePicker placeholder="Pickup Time" value={pickupTime} onChange={setPickupTime} />
+      </div>
 
       <Input
         placeholder="Pickup Location"
@@ -179,14 +189,14 @@ export default function TaxiBookingForm({
       )}
 
       {rideMode === "round" && (
-        <BookingDatePicker placeholder="Select Return Date" value={returnDate} onChange={setReturnDate} />
+        <div className="md:col-span-2 grid grid-cols-2 gap-3">
+          <BookingDatePicker placeholder="Return Date" value={returnDate} onChange={setReturnDate} />
+          <BookingTimePicker placeholder="Return Time" value={returnTime} onChange={setReturnTime} />
+        </div>
       )}
 
       {rideMode === "local" && (
         <Select value={form.duration} onValueChange={value => updateField("duration", value)}>
-          {/* aria-label gives the combobox button a discernible name before
-              any value is selected — fixes Lighthouse "Buttons must have
-              discernible text" for SelectTrigger with role="combobox". */}
           <SelectTrigger
             aria-label="Select Duration"
             className="h-12 bg-[#111] border-[#252525] text-white"
@@ -202,9 +212,6 @@ export default function TaxiBookingForm({
       )}
 
       <Select value={form.persons} onValueChange={value => updateField("persons", value)}>
-        {/* Same fix — this was the exact element Lighthouse flagged:
-            an empty combobox with placeholder="Passengers" but no
-            accessible name on the trigger button itself. */}
         <SelectTrigger
           aria-label="Number of Passengers"
           className="h-12 bg-[#111] border-[#252525] text-white"

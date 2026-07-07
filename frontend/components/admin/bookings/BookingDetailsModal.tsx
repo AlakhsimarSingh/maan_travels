@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import {
   X, Phone, Mail, MessageCircle, Send, ShieldCheck,
   ShieldX, CheckCircle2, XCircle, Loader2, AlertTriangle,
+  Car, ChevronDown, ChevronUp,
 } from "lucide-react";
 
 import { PaymentScreenshot } from "@/components/admin/PaymentScreenshot";
@@ -52,11 +53,22 @@ export default function BookingDetailsModal({
   const [notifyResult, setNotifyResult] = useState<NotifyResult | null>(null);
   const [notifyType, setNotifyType] = useState<string | null>(null);
 
+  // Driver details — collected here for a one-off WhatsApp/email send,
+  // never persisted to the booking or the database.
+  const [showDriverForm, setShowDriverForm] = useState(false);
+  const [driverName, setDriverName] = useState("");
+  const [driverPhone, setDriverPhone] = useState("");
+  const [carNumber, setCarNumber] = useState("");
+
   useEffect(() => {
     setPaymentStatus(booking?.paymentStatus || "pending");
     setBookingStatus(booking?.status || "pending");
     setNotifyResult(null);
     setNotifyType(null);
+    setShowDriverForm(false);
+    setDriverName("");
+    setDriverPhone("");
+    setCarNumber("");
   }, [booking?.id, booking?.paymentStatus, booking?.status]);
 
   useEffect(() => {
@@ -112,7 +124,7 @@ export default function BookingDetailsModal({
     }
   };
 
-  const sendNotification = async (type: string) => {
+  const sendNotification = async (type: string, extra: Record<string, string> = {}) => {
     setNotifyLoading(true);
     setNotifyResult(null);
     try {
@@ -120,7 +132,7 @@ export default function BookingDetailsModal({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ type }),
+        body: JSON.stringify({ type, ...extra }),
       });
       const data = await res.json();
       setNotifyResult(data);
@@ -136,6 +148,17 @@ export default function BookingDetailsModal({
     } finally {
       setNotifyLoading(false);
     }
+  };
+
+  const driverFormValid = driverName.trim() && driverPhone.trim() && carNumber.trim();
+
+  const handleSendDriverDetails = async () => {
+    if (!driverFormValid) return;
+    await sendNotification("driver_details", {
+      driverName: driverName.trim(),
+      driverPhone: driverPhone.trim(),
+      carNumber: carNumber.trim(),
+    });
   };
 
   const inner = (
@@ -154,6 +177,16 @@ export default function BookingDetailsModal({
       onStatusChange={handleStatusChange}
       onSendNotification={sendNotification}
       onSetNotifyType={setNotifyType}
+      showDriverForm={showDriverForm}
+      onToggleDriverForm={() => setShowDriverForm((v) => !v)}
+      driverName={driverName}
+      driverPhone={driverPhone}
+      carNumber={carNumber}
+      onDriverNameChange={setDriverName}
+      onDriverPhoneChange={setDriverPhone}
+      onCarNumberChange={setCarNumber}
+      driverFormValid={!!driverFormValid}
+      onSendDriverDetails={handleSendDriverDetails}
     />
   );
 
@@ -215,6 +248,10 @@ function ModalContent({
   notifyLoading, notifyResult, notifyType,
   onPaymentStatusChange, onStatusChange,
   onSendNotification, onSetNotifyType,
+  showDriverForm, onToggleDriverForm,
+  driverName, driverPhone, carNumber,
+  onDriverNameChange, onDriverPhoneChange, onCarNumberChange,
+  driverFormValid, onSendDriverDetails,
 }: any) {
 
   const STATUS_OPTIONS = ["pending", "confirmed", "completed", "cancelled"];
@@ -351,7 +388,7 @@ function ModalContent({
         </p>
 
         {/* Quick-pick buttons */}
-        <div className="grid grid-cols-2 gap-2 mb-3">
+        <div className="grid grid-cols-2 gap-2 mb-2">
           {[
             { type: "confirmed", label: "Confirmed", color: "blue" },
             { type: "cancelled", label: "Cancelled", color: "red" },
@@ -381,6 +418,55 @@ function ModalContent({
             );
           })}
         </div>
+
+        {/* Driver details toggle — sits below the quick-pick grid, full width */}
+        <button
+          onClick={onToggleDriverForm}
+          className="w-full flex items-center justify-center gap-1.5 rounded-lg border border-[#ecb100]/25 bg-[#ecb100]/5 py-2 text-xs font-medium text-[#ecb100] transition-all hover:bg-[#ecb100]/10 active:scale-95 mb-3"
+        >
+          <Car size={13} />
+          Send Driver Details
+          {showDriverForm ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+        </button>
+
+        {showDriverForm && (
+          <div className="mb-3 rounded-xl border border-[#252525] bg-[#0f0f0f] p-3 space-y-2.5">
+            <p className="text-[10px] uppercase tracking-widest text-[#666]">
+              Not saved — used only to send this message
+            </p>
+            <input
+              value={driverName}
+              onChange={(e) => onDriverNameChange(e.target.value)}
+              placeholder="Driver name"
+              className="w-full rounded-lg border border-[#252525] bg-[#141414] px-3 py-2.5 text-sm text-white placeholder:text-[#555] outline-none focus:border-[#ecb100]/50"
+            />
+            <input
+              value={driverPhone}
+              onChange={(e) => onDriverPhoneChange(e.target.value)}
+              placeholder="Driver phone number"
+              inputMode="tel"
+              className="w-full rounded-lg border border-[#252525] bg-[#141414] px-3 py-2.5 text-sm text-white placeholder:text-[#555] outline-none focus:border-[#ecb100]/50"
+            />
+            <input
+              value={carNumber}
+              onChange={(e) => onCarNumberChange(e.target.value.toUpperCase())}
+              placeholder="Car number (e.g. PB08 AB 1234)"
+              className="w-full rounded-lg border border-[#252525] bg-[#141414] px-3 py-2.5 text-sm text-white placeholder:text-[#555] outline-none focus:border-[#ecb100]/50 uppercase"
+            />
+            <button
+              onClick={onSendDriverDetails}
+              disabled={!driverFormValid || notifyLoading}
+              className="w-full flex items-center justify-center gap-1.5 rounded-lg bg-[#ecb100] py-2.5 text-xs font-semibold text-black transition-all active:scale-95 disabled:opacity-40"
+            >
+              {notifyLoading && notifyType === "driver_details" ? (
+                <Loader2 size={12} className="animate-spin" />
+              ) : (
+                <Send size={12} />
+              )}
+              Send to Customer
+            </button>
+          </div>
+        )}
 
         {/* Result */}
         {notifyResult && (
@@ -436,6 +522,10 @@ function ModalContent({
               ? new Date(booking.taxi.travelDate).toLocaleDateString("en-IN")
               : "-"
           } />
+          <Detail label="Pickup Time" value={booking.taxi.pickupTime || "-"} />
+          {booking.taxi.rideMode === "round" && (
+            <Detail label="Return Time" value={booking.taxi.returnTime || "-"} />
+          )}
         </Section>
       )}
 

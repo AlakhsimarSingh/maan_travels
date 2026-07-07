@@ -148,7 +148,11 @@ router.get("/:id/screenshot", requireAdminDevice, async (req, res) => {
 /* ---------------- CREATE TAXI BOOKING (PUBLIC) ---------------- */
 router.post("/", paymentUpload.single("paymentScreenshot"), async (req, res) => {
   try {
-    const { name, email, phone, pickup, drop, rideMode, vehicleId, routeId, travelDate, requirements, paymentType, amountPaid } = req.body;
+    const {
+      name, email, phone, pickup, drop, rideMode, vehicleId, routeId,
+      travelDate, returnDate, pickupTime, returnTime,
+      requirements, paymentType, amountPaid,
+    } = req.body;
 
     if (!vehicleId) return res.status(400).json({ success: false, message: "vehicleId is required" });
 
@@ -186,7 +190,19 @@ router.post("/", paymentUpload.single("paymentScreenshot"), async (req, res) => 
         amountPaid: resolvedAmountPaid,
         paymentScreenshot: screenshotPath,
         paymentStatus: type === "later" ? "not_required" : "pending",
-        taxi: { create: { rideMode, pickup, drop, vehicle: vehicle.name, travelDate: travelDate ? new Date(travelDate) : null, requirements } },
+        returnDate: returnDate ? new Date(returnDate) : undefined,
+        taxi: {
+          create: {
+            rideMode,
+            pickup,
+            drop,
+            vehicle: vehicle.name,
+            travelDate: travelDate ? new Date(travelDate) : null,
+            pickupTime: pickupTime || null,
+            returnTime: returnTime || null,
+            requirements,
+          },
+        },
       },
       include: { customer: true, taxi: true, vehicle: true },
     });

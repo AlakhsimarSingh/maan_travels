@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import BookingDatePicker from "./BookingDatePicker";
 import BookingSuccess from "@/components/common/BookingSuccess";
-
+import BookingTimePicker, { formatTime12h } from "./BookingTimePicker";
 import { API_URL } from "@/src/services/bookingService";
 import { useBookingStatus } from "@/src/hooks/useBookingStatus";
 import { useVehicles } from "@/src/hooks/useVehicles";
@@ -39,12 +39,12 @@ export default function BookingForm() {
 
   const { vehicles } = useVehicles("taxi");
   const [travelDate, setTravelDate] = useState<Date>();
+  const [travelTime, setTravelTime] = useState<string>("");
 
   const [loading, setLoading] = useState(false);
   const [activeCategory, setActiveCategory] = useState<Category | null>(null);
 
   const hoverTimeout = useRef<NodeJS.Timeout | null>(null);
-
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -87,6 +87,7 @@ export default function BookingForm() {
       !!form.pickup,
       rideType === "local" || !!form.drop,
       !!travelDate,
+      !!travelTime,
       !!form.vehicle,
       !!form.name && !!form.phone,
     ];
@@ -101,6 +102,7 @@ export default function BookingForm() {
     if (rideType === "taxi" && !form.drop) missing.push("Drop location");
     if (!form.vehicle) missing.push("Vehicle");
     if (!travelDate) missing.push("Travel date");
+    if (!travelTime) missing.push("Pickup time");
     return missing;
   };
 
@@ -145,6 +147,7 @@ export default function BookingForm() {
           rideMode: rideType === "local" ? "local" : tripMode,
           requirements: form.requirements,
           travelDate: travelDate?.toISOString() || null,
+          pickupTime: travelTime || null,
         }),
       });
 
@@ -163,6 +166,7 @@ export default function BookingForm() {
           requirements: "",
         });
         setTravelDate(undefined);
+        setTravelTime("");
         setTouched({});
       } else {
         setFormError(data.message || "Booking couldn't go through. Please check your details.");
@@ -302,8 +306,9 @@ export default function BookingForm() {
             )}
           </div>
 
-          <div className="mb-6">
+          <div className="mb-6 grid grid-cols-2 gap-3">
             <BookingDatePicker value={travelDate} onChange={setTravelDate} />
+            <BookingTimePicker placeholder="Pickup Time" value={travelTime} onChange={setTravelTime} />
           </div>
 
           <div className="mb-2 grid gap-4 sm:grid-cols-3">

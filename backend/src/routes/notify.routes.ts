@@ -77,6 +77,28 @@ function airportDetailsWA(booking: any): string {
   return lines;
 }
 
+function taxiDetailsRows(booking: any): string {
+  if (!booking.taxi) return "";
+  const t = booking.taxi;
+  const rows = [];
+  if (t.pickupTime) {
+    rows.push(`<div class="info-row"><span class="info-label">Pickup Time</span><span class="info-value">${t.pickupTime}</span></div>`);
+  }
+  if (t.returnTime) {
+    rows.push(`<div class="info-row"><span class="info-label">Return Time</span><span class="info-value">${t.returnTime}</span></div>`);
+  }
+  return rows.join("");
+}
+
+function taxiDetailsWA(booking: any): string {
+  if (!booking.taxi) return "";
+  const t = booking.taxi;
+  let lines = "";
+  if (t.pickupTime) lines += `\nPickup Time: ${t.pickupTime}`;
+  if (t.returnTime) lines += `\nReturn Time: ${t.returnTime}`;
+  return lines;
+}
+
 // ── Phone normalization ─────────────────────────────────────────
 // Handles:
 //   9501038811        -> 919501038811   (plain 10-digit local number)
@@ -164,6 +186,7 @@ function confirmedEmail(booking: any, balance: number): string {
       <div class="info-row"><span class="info-label">Service</span><span class="info-value">${booking.serviceType}</span></div>
       <div class="info-row"><span class="info-label">Route</span><span class="info-value">${getBookingRoute(booking)}</span></div>
       ${airportDetailsRows(booking)}
+      ${taxiDetailsRows(booking)}
       <div class="info-row"><span class="info-label">Total Fare</span><span class="info-value">${formatAmount(booking.totalAmount)}</span></div>
       <div class="info-row"><span class="info-label">Amount Paid</span><span class="info-value">${formatAmount(booking.amountPaid)}</span></div>
       ${balance > 0 ? `<div class="info-row"><span class="info-label">Balance Due</span><span class="info-value" style="color:#ecb100">${formatAmount(balance)}</span></div>` : ""}
@@ -221,6 +244,7 @@ function confirmedWA(booking: any, balance: number): string {
   const route = getBookingRoute(booking);
   const balanceText = balance > 0 ? `\nBalance due: ${formatAmount(balance)}` : "";
   const airportExtra = booking.airport ? `\n${airportDetailsWA(booking)}` : "";
+  const taxiExtra = booking.taxi ? taxiDetailsWA(booking) : "";
   return `✅ *Booking Confirmed — Maan Travels*
 
 Hello ${booking.customer.name},
@@ -275,6 +299,39 @@ We'd love to hear your feedback:
 ⭐ https://www.maantravels.com/feedback
 
 Thank you for choosing Maan Travels! 🚗`;
+}
+
+function driverDetailsEmail(booking: any, driverName: string, driverPhone: string, carNumber: string): string {
+  return emailBase("Your driver details", `
+    <div class="chip" style="background:#3b82f6;color:#fff;">Driver Assigned</div>
+    <p>Hello <span class="highlight">${booking.customer.name}</span>,</p>
+    <p>Your driver has been assigned for your upcoming trip. Please find the details below.</p>
+    <div>
+      <div class="info-row"><span class="info-label">Driver Name</span><span class="info-value">${driverName}</span></div>
+      <div class="info-row"><span class="info-label">Driver Phone</span><span class="info-value">${driverPhone}</span></div>
+      <div class="info-row"><span class="info-label">Car Number</span><span class="info-value">${carNumber}</span></div>
+      <div class="info-row"><span class="info-label">Route</span><span class="info-value">${getBookingRoute(booking)}</span></div>
+    </div>
+    <p style="margin-top:16px;">Please save this number and reach out directly to your driver for any pickup coordination.</p>
+    <a class="cta" href="tel:${driverPhone.replace(/[^0-9+]/g, "")}">Call Driver</a>
+  `);
+}
+
+function driverDetailsWA(booking: any, driverName: string, driverPhone: string, carNumber: string): string {
+  return `🚖 *Driver Assigned — Maan Travels*
+
+Hello ${booking.customer.name},
+
+Your driver has been assigned for your trip.
+
+👤 *Driver:* ${driverName}
+📞 *Phone:* ${driverPhone}
+🚘 *Car Number:* ${carNumber}
+📍 *Route:* ${getBookingRoute(booking)}
+
+Please contact your driver directly for pickup coordination.
+
+For any other queries, call us: +91 80544 04591`;
 }
 
 // ── Route: POST /api/notify/:id ────────────────────────────────
@@ -342,8 +399,25 @@ router.post("/:id", requireAdminDevice, async (req, res) => {
         html = completedEmail(booking);
         waMessage = completedWA(booking);
         break;
+
+      case "driver_details": {
+        const { driverName, driverPhone, carNumber } = req.body as {
+          driverName?: string; driverPhone?: string; carNumber?: string;
+        };
+        if (!driverName?.trim() || !driverPhone?.trim() || !carNumber?.trim()) {
+          return res.status(400).json({
+            success: false,
+            message: "driverName, driverPhone and carNumber are required",
+          });
+        }
+        subject = "Your driver details — Maan Travels";
+        html = driverDetailsEmail(booking, driverName.trim(), driverPhone.trim(), carNumber.trim());
+        waMessage = driverDetailsWA(booking, driverName.trim(), driverPhone.trim(), carNumber.trim());
+        break;
+      }
       default:
         return res.status(400).json({ success: false, message: "Invalid notification type" });
+      
     }
 
     // Send email if address exists

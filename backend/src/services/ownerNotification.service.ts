@@ -59,6 +59,8 @@ function buildHtml(booking: any): string {
       row("Drop", b.taxi.drop),
       row("Vehicle", b.taxi.vehicle),
       row("Travel Date", fmtDate(b.taxi.travelDate)),
+      row("Pickup Time", b.taxi.pickupTime),
+      row("Return Time", b.taxi.returnTime),
       row("Requirements", b.taxi.requirements),
     ].join("");
   } else if (b.airport) {

@@ -143,6 +143,10 @@ model TaxiBooking {
 
   travelDate DateTime?
 
+  pickupTime String?
+
+  returnTime String?
+
   requirements  String?
 }
 
