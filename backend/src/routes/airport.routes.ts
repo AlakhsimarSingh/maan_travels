@@ -48,16 +48,35 @@ function getParam(value: string | string[] | undefined): string {
   return value ?? "";
 }
 
+function toLegacyPricing(cityPricing: Array<{ vehicleId: string; price: number }>) {
+  const pricingMap = new Map<string, number>();
+
+  for (const entry of cityPricing) {
+    if (entry.vehicleId) {
+      pricingMap.set(entry.vehicleId, entry.price);
+    }
+  }
+
+  return Array.from(pricingMap.entries()).map(([vehicleId, price]) => ({ vehicleId, price }));
+}
+
+function serializeAirports(airports: Array<{ id: string; name: string; shortName: string; image: string | null; description: string | null; active: boolean; cityPricing: Array<{ vehicleId: string; price: number }>; createdAt: Date; updatedAt: Date }>) {
+  return airports.map((airport) => ({
+    ...airport,
+    pricing: toLegacyPricing(airport.cityPricing || []),
+  }));
+}
+
 // PUBLIC — active airports only
 router.get("/", async (req, res) => {
   try {
     const airports = await prisma.airport.findMany({
       where: { active: true },
-      include: { pricing: true },
+      include: { cityPricing: true },
       orderBy: { createdAt: "asc" },
     });
 
-    res.json({ success: true, airports });
+    res.json({ success: true, airports: serializeAirports(airports as any) });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Failed to fetch airports" });
@@ -68,11 +87,11 @@ router.get("/", async (req, res) => {
 router.get("/all", requireAdminDevice, async (req, res) => {
   try {
     const airports = await prisma.airport.findMany({
-      include: { pricing: true },
+      include: { cityPricing: true },
       orderBy: { createdAt: "asc" },
     });
 
-    res.json({ success: true, airports });
+    res.json({ success: true, airports: serializeAirports(airports as any) });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Failed to fetch airports" });
@@ -173,10 +192,32 @@ router.post("/pricing", requireAdminDevice, async (req, res) => {
       return res.status(400).json({ success: false, message: "airportId, vehicleId, and price are required" });
     }
 
-    const updated = await prisma.airportPricing.upsert({
-      where: { airportId_vehicleId: { airportId, vehicleId } },
+    const city = await prisma.airportCity.findFirst({
+      select: { id: true },
+      orderBy: { createdAt: "asc" },
+    });
+
+    if (!city) {
+      return res.status(400).json({ success: false, message: "No airport city is available for pricing" });
+    }
+
+    const updated = await prisma.airportCityPricing.upsert({
+      where: {
+        airportId_cityId_vehicleId_direction: {
+          airportId,
+          cityId: city.id,
+          vehicleId,
+          direction: "TO_AIRPORT",
+        },
+      },
       update: { price },
-      create: { airportId, vehicleId, price },
+      create: {
+        airportId,
+        cityId: city.id,
+        vehicleId,
+        direction: "TO_AIRPORT",
+        price,
+      },
     });
 
     res.json({ success: true, updated });
