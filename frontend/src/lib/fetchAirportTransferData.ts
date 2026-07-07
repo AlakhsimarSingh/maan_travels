@@ -11,7 +11,6 @@ export type Airport = {
   shortName: string;
   image: string | null;
   description: string | null;
-  pricing: AirportPricing[];
 };
 
 export type AirportVehicle = {

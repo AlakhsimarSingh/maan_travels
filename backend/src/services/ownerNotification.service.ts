@@ -62,8 +62,11 @@ function buildHtml(booking: any): string {
       row("Requirements", b.taxi.requirements),
     ].join("");
   } else if (b.airport) {
+    const isFromAirport = b.airport.direction === "FROM_AIRPORT";
     serviceRows = [
-      row("Pickup", b.airport.pickup),
+      row("Direction", isFromAirport ? "Airport → City (Drop)" : "City → Airport (Pickup)"),
+      row("City", b.airport.city?.name),
+      row(isFromAirport ? "Drop" : "Pickup", b.airport.pickup),
       row("Airport", b.airport.airport),
       row("Terminal", b.airport.terminal),
       row("Travel Date", fmtDate(b.airport.travelDate)),

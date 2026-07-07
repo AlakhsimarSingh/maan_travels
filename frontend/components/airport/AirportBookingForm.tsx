@@ -146,13 +146,11 @@ export default function AirportBookingForm({
   // per-airport pricing for airports that haven't been migrated to
   // city-based pricing yet.
   const priceFor = (vehicleId: string) => {
-    if (selectedCityId) {
-      const match = cityPricing.find(
-        (p) => p.cityId === selectedCityId && p.vehicleId === vehicleId && p.direction === direction
-      );
-      if (match) return match.price;
-    }
-    return airport?.pricing.find(p => p.vehicleId === vehicleId)?.price || 0;
+    if (!selectedCityId) return 0;
+    const match = cityPricing.find(
+      (p) => p.cityId === selectedCityId && p.vehicleId === vehicleId && p.direction === direction
+    );
+    return match?.price ?? 0;
   };
 
   const totalAmount = selectedVehicleId ? priceFor(selectedVehicleId) : 0;

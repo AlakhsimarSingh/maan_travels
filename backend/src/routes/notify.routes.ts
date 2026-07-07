@@ -28,9 +28,14 @@ function formatAmount(amount: number | null | undefined): string {
   return `₹${amount.toLocaleString("en-IN")}`;
 }
 
+function airportRouteText(a: any): string {
+  const isFromAirport = a.direction === "FROM_AIRPORT";
+  return isFromAirport ? `${a.airport} → ${a.pickup}` : `${a.pickup} → ${a.airport}`;
+}
+
 function getBookingRoute(booking: any): string {
   if (booking.taxi) return `${booking.taxi.pickup} → ${booking.taxi.drop || "—"}`;
-  if (booking.airport) return `${booking.airport.pickup} → ${booking.airport.airport}`;
+  if (booking.airport) return airportRouteText(booking.airport);
   if (booking.tour) return `${booking.tour.pickupCity} → ${booking.tour.destination}`;
   if (booking.selfDrive) return `Self Drive — ${booking.selfDrive.vehicle?.name || ""}`;
   if (booking.luxury) return `${booking.luxury.pickup} → ${booking.luxury.destination}`;
@@ -39,11 +44,68 @@ function getBookingRoute(booking: any): string {
   return booking.serviceType || "Booking";
 }
 
+// ── Airport-specific detail helpers (keeps notify consistent with admin modal) ──
+function airportDetailsRows(booking: any): string {
+  if (!booking.airport) return "";
+  const a = booking.airport;
+  const isFromAirport = a.direction === "FROM_AIRPORT";
+  const rows = [
+    `<div class="info-row"><span class="info-label">Direction</span><span class="info-value">${isFromAirport ? "Airport → City" : "City → Airport"}</span></div>`,
+    `<div class="info-row"><span class="info-label">${isFromAirport ? "Drop" : "Pickup"}</span><span class="info-value">${a.pickup}</span></div>`,
+    `<div class="info-row"><span class="info-label">Airport</span><span class="info-value">${a.airport}</span></div>`,
+  ];
+  if (a.terminal) {
+    rows.push(`<div class="info-row"><span class="info-label">Terminal</span><span class="info-value">${a.terminal}</span></div>`);
+  }
+  if (a.travelDate) {
+    rows.push(`<div class="info-row"><span class="info-label">Travel Date</span><span class="info-value">${new Date(a.travelDate).toLocaleDateString("en-IN")}</span></div>`);
+  }
+  if (a.pickupTime) {
+    rows.push(`<div class="info-row"><span class="info-label">Time</span><span class="info-value">${a.pickupTime}</span></div>`);
+  }
+  return rows.join("");
+}
+
+function airportDetailsWA(booking: any): string {
+  if (!booking.airport) return "";
+  const a = booking.airport;
+  const isFromAirport = a.direction === "FROM_AIRPORT";
+  let lines = `Direction: ${isFromAirport ? "Airport → City" : "City → Airport"}\n${isFromAirport ? "Drop" : "Pickup"}: ${a.pickup}\nAirport: ${a.airport}`;
+  if (a.terminal) lines += `\nTerminal: ${a.terminal}`;
+  if (a.travelDate) lines += `\nTravel Date: ${new Date(a.travelDate).toLocaleDateString("en-IN")}`;
+  if (a.pickupTime) lines += `\nTime: ${a.pickupTime}`;
+  return lines;
+}
+
+// ── Phone normalization ─────────────────────────────────────────
+// Handles:
+//   9501038811        -> 919501038811   (plain 10-digit local number)
+//   09501038811        -> 919501038811   (leading trunk 0)
+//   919501038811        -> 919501038811   (already has country code, no +)
+//   +919501038811       -> 919501038811   (already has +)
+function normalizePhone(phone: string): string {
+  let digits = phone.replace(/[^0-9+]/g, "");
+
+  // Already has a + prefix — trust it, just strip the +
+  if (digits.startsWith("+")) {
+    return digits.slice(1);
+  }
+
+  // Strip leading zero(s) — trunk prefix like 09501038811
+  digits = digits.replace(/^0+/, "");
+
+  // Already has country code without + (e.g. 919501038811 — 12 digits starting with 91)
+  if (digits.length === 12 && digits.startsWith("91")) {
+    return digits;
+  }
+
+  // Plain 10-digit local number — assume India
+  return `91${digits}`;
+}
+
 function buildWhatsAppLink(phone: string, message: string): string {
-  const clean = phone.replace(/[^0-9+]/g, "");
-  // Add country code if missing
-  const normalized = clean.startsWith("+") ? clean : `+91${clean}`;
-  return `https://wa.me/${normalized.replace("+", "")}?text=${encodeURIComponent(message)}`;
+  const normalized = normalizePhone(phone);
+  return `https://wa.me/${normalized}?text=${encodeURIComponent(message)}`;
 }
 
 // ── Email templates ────────────────────────────────────────────
@@ -101,6 +163,7 @@ function confirmedEmail(booking: any, balance: number): string {
     <div>
       <div class="info-row"><span class="info-label">Service</span><span class="info-value">${booking.serviceType}</span></div>
       <div class="info-row"><span class="info-label">Route</span><span class="info-value">${getBookingRoute(booking)}</span></div>
+      ${airportDetailsRows(booking)}
       <div class="info-row"><span class="info-label">Total Fare</span><span class="info-value">${formatAmount(booking.totalAmount)}</span></div>
       <div class="info-row"><span class="info-label">Amount Paid</span><span class="info-value">${formatAmount(booking.amountPaid)}</span></div>
       ${balance > 0 ? `<div class="info-row"><span class="info-label">Balance Due</span><span class="info-value" style="color:#ecb100">${formatAmount(balance)}</span></div>` : ""}
@@ -157,6 +220,7 @@ function completedEmail(booking: any): string {
 function confirmedWA(booking: any, balance: number): string {
   const route = getBookingRoute(booking);
   const balanceText = balance > 0 ? `\nBalance due: ${formatAmount(balance)}` : "";
+  const airportExtra = booking.airport ? `\n${airportDetailsWA(booking)}` : "";
   return `✅ *Booking Confirmed — Maan Travels*
 
 Hello ${booking.customer.name},
@@ -165,7 +229,7 @@ Your booking has been *confirmed*. 🎉
 
 📋 *Details*
 Service: ${booking.serviceType}
-Route: ${route}
+Route: ${route}${airportExtra}
 Total Fare: ${formatAmount(booking.totalAmount)}
 Amount Paid: ${formatAmount(booking.amountPaid)}${balanceText}
 

@@ -441,7 +441,12 @@ function ModalContent({
 
       {booking.airport && (
         <Section title="Airport Transfer">
-          <Detail label="Pickup" value={booking.airport.pickup} />
+          <Detail
+            label="Direction"
+            value={booking.airport.direction === "FROM_AIRPORT" ? "Airport → City (Drop)" : "City → Airport (Pickup)"}
+          />
+          <Detail label="City" value={booking.airport.city?.name || "-"} />
+          <Detail label={booking.airport.direction === "FROM_AIRPORT" ? "Drop" : "Pickup"} value={booking.airport.pickup} />
           <Detail label="Airport" value={booking.airport.airport} />
           <Detail label="Terminal" value={booking.airport.terminal || "-"} />
           <Detail label="Travel Date" value={new Date(booking.airport.travelDate).toLocaleDateString("en-IN")} />

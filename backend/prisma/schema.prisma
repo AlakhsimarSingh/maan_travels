@@ -156,6 +156,7 @@ model AirportTransfer {
   terminal String?
 
   cityId String?
+  city   AirportCity? @relation(fields: [cityId], references: [id])
   direction String @default("TO_AIRPORT")
 
   travelDate DateTime
@@ -432,25 +433,12 @@ model Airport {
   description String?
   active Boolean @default(true)
 
-  pricing AirportPricing[]
   cityPricing AirportCityPricing[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model AirportPricing {
-  id String @id @default(cuid())
-
-  airportId String
-  vehicleId String
-
-  price Int
-
-  airport Airport @relation(fields: [airportId], references: [id], onDelete: Cascade)
-
-  @@unique([airportId, vehicleId])
-}
 
 model GalleryImage {
   id String @id @default(cuid())
@@ -491,6 +479,7 @@ model AirportCity {
   active Boolean @default(true)
 
   pricing AirportCityPricing[]
+  transfers AirportTransfer[] 
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

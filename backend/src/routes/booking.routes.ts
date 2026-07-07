@@ -18,7 +18,15 @@ router.get("/all", requireAdminDevice, async (req, res) => {
   try {
     const bookings = await prisma.booking.findMany({
       orderBy: { createdAt: "desc" },
-      include: { customer: true, vehicle: true, route: true, taxi: true, airport: true, tour: true, selfDrive: { include: { vehicle: true } }, luxury: { include: { luxuryCar: true } }, wedding: { include: { luxuryCar: true } }, tempo: { include: { vehicle: true } } },
+      include: {
+        customer: true, vehicle: true, route: true, taxi: true,
+        airport: { include: { city: true } },
+        tour: true,
+        selfDrive: { include: { vehicle: true } },
+        luxury: { include: { luxuryCar: true } },
+        wedding: { include: { luxuryCar: true } },
+        tempo: { include: { vehicle: true } },
+      },
     });
     res.json({ success: true, bookings });
   } catch (error) {
@@ -33,7 +41,15 @@ router.patch("/:id/status", requireAdminDevice, async (req, res) => {
     const { status } = req.body;
     const allowedStatuses = ["pending", "confirmed", "completed", "cancelled"];
     if (!allowedStatuses.includes(status)) return res.status(400).json({ success: false, message: "Invalid status" });
-    const updated = await prisma.booking.update({ where: { id }, data: { status }, include: { customer: true, vehicle: true, route: true, taxi: true, airport: true, tour: true, selfDrive: true, luxury: true, wedding: true, tempo: true } });
+    const updated = await prisma.booking.update({
+      where: { id },
+      data: { status },
+      include: {
+        customer: true, vehicle: true, route: true, taxi: true,
+        airport: { include: { city: true } },
+        tour: true, selfDrive: true, luxury: true, wedding: true, tempo: true,
+      },
+    });
     res.json({ success: true, booking: updated });
   } catch (error) {
     console.error(error);
@@ -67,7 +83,15 @@ router.get("/", requireAdminDevice, async (req, res) => {
   try {
     const bookings = await prisma.booking.findMany({
       orderBy: { createdAt: "desc" },
-      include: { customer: true, vehicle: true, route: true, taxi: true, airport: true, tour: true, selfDrive: { include: { vehicle: true } }, luxury: { include: { luxuryCar: true } }, wedding: { include: { luxuryCar: true } }, tempo: { include: { vehicle: true } } },
+      include: {
+        customer: true, vehicle: true, route: true, taxi: true,
+        airport: { include: { city: true } },
+        tour: true,
+        selfDrive: { include: { vehicle: true } },
+        luxury: { include: { luxuryCar: true } },
+        wedding: { include: { luxuryCar: true } },
+        tempo: { include: { vehicle: true } },
+      },
     });
     res.json({ success: true, bookings });
   } catch (error) {
@@ -78,7 +102,14 @@ router.get("/", requireAdminDevice, async (req, res) => {
 
 router.get("/:id", async (req, res) => {
   try {
-    const booking = await prisma.booking.findUnique({ where: { id: getParam(req.params.id) }, include: { customer: true, vehicle: true, route: true, taxi: true, airport: true, tour: true, selfDrive: true, luxury: true, wedding: true, tempo: true } });
+    const booking = await prisma.booking.findUnique({
+      where: { id: getParam(req.params.id) },
+      include: {
+        customer: true, vehicle: true, route: true, taxi: true,
+        airport: { include: { city: true } },
+        tour: true, selfDrive: true, luxury: true, wedding: true, tempo: true,
+      },
+    });
     if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
     res.json({ success: true, booking });
   } catch (error) {
@@ -172,7 +203,14 @@ router.post("/", paymentUpload.single("paymentScreenshot"), async (req, res) => 
 
 router.get("/:id/receipt", async (req, res) => {
   try {
-    const booking = await prisma.booking.findUnique({ where: { id: getParam(req.params.id) }, include: { customer: true, vehicle: true, route: true, taxi: true, airport: true, tour: true } });
+    const booking = await prisma.booking.findUnique({
+      where: { id: getParam(req.params.id) },
+      include: {
+        customer: true, vehicle: true, route: true, taxi: true,
+        airport: { include: { city: true } },
+        tour: true,
+      },
+    });
     if (!booking) return res.status(404).json({ success: false, message: "Booking not found" });
 
     res.setHeader("Content-Type", "application/pdf");
@@ -193,7 +231,14 @@ router.get("/:id/receipt", async (req, res) => {
     if (booking.route) doc.text(`Route: ${booking.route.title}`);
     if (booking.vehicle) doc.text(`Vehicle: ${booking.vehicle.name}`);
     if (booking.taxi) { doc.text(`Pickup: ${booking.taxi.pickup}`); if (booking.taxi.drop) doc.text(`Drop: ${booking.taxi.drop}`); }
-    if (booking.airport) { doc.text(`Pickup: ${booking.airport.pickup}`); doc.text(`Airport: ${booking.airport.airport}`); }
+    if (booking.airport) {
+      const isFromAirport = booking.airport.direction === "FROM_AIRPORT";
+      doc.text(`Direction: ${isFromAirport ? "Airport to city (drop)" : "City to airport (pickup)"}`);
+      if (booking.airport.city) doc.text(`City: ${booking.airport.city.name}`);
+      doc.text(`${isFromAirport ? "Drop" : "Pickup"}: ${booking.airport.pickup}`);
+      doc.text(`Airport: ${booking.airport.airport}`);
+      if (booking.airport.terminal) doc.text(`Terminal: ${booking.airport.terminal}`);
+    }
     if (booking.tour) { doc.text(`Pickup city: ${booking.tour.pickupCity}`); doc.text(`Destination: ${booking.tour.destination}`); }
     doc.moveDown();
     doc.fontSize(14).text(`Total fare: Rs. ${booking.totalAmount ?? 0}`);
