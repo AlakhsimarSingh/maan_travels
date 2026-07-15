@@ -287,7 +287,7 @@ export default function TempoUrbaniaBookingForm({
                         if (errors.travelDate)
                           setErrors((prev) => ({ ...prev, travelDate: undefined }));
                       }}
-                      disabled={{ before: new Date() }}
+                      disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                     />
                   </PopoverContent>
                 </Popover>

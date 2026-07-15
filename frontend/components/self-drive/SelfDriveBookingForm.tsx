@@ -400,7 +400,7 @@ function DatePicker({
             mode="single"
             selected={date}
             onSelect={setDate}
-            disabled={minDate ? { before: minDate } : undefined}
+            disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
           />
         </PopoverContent>
       </Popover>

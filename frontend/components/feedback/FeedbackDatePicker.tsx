@@ -37,7 +37,7 @@ export default function FeedbackDatePicker({
             mode="single"
             selected={value}
             onSelect={onChange}
-            disabled={(date) => date > new Date()}
+            disabled={(date) => date > new Date(new Date().setHours(23, 59, 59, 999))}
             defaultMonth={value}
           />
         </PopoverContent>

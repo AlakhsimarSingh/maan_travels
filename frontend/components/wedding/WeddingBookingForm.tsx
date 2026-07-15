@@ -206,7 +206,7 @@ export default function WeddingBookingForm({ car }: { car: any }) {
                         setDate(d);
                         setCalendarOpen(false);
                       }}
-                      disabled={(d) => d < new Date()}
+                      disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                     />
                   </PopoverContent>
                 </Popover>

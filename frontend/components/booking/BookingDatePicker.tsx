@@ -56,7 +56,7 @@ export default function BookingDatePicker({
           mode="single"
           selected={value}       // ← reflects current selection
           onSelect={handleSelect}
-          disabled={(date) => date < new Date()}
+          disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
         />
       </PopoverContent>
     </Popover>
