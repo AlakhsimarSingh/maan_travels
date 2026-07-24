@@ -90,11 +90,11 @@ export default async function Home({
       <FleetSection vehicles={vehicles} filterValue={resolvedSearchParams?.type} />
       <WhyChooseUs />
       <section className="pt-12">
-      <RouteSection title="Popular Tour Routes" routes={grouped.tour} vehicles={taxiVehicles} type="tour" />
       <RouteSection title="Popular Airport Transfers" routes={grouped.airport} vehicles={taxiVehicles} type="airport" />
+      <RouteSection title="Local Within City" routes={grouped.local} vehicles={taxiVehicles} type="taxi" />
+      <RouteSection title="Popular Tour Routes" routes={grouped.tour} vehicles={taxiVehicles} type="tour" />
       <RouteSection title="Popular Destinations" routes={grouped.destination} vehicles={taxiVehicles} type="taxi" />
       <RouteSection title="Popular One Way Routes" routes={grouped.one_way} vehicles={taxiVehicles} type="taxi" />
-      <RouteSection title="Local Within City" routes={grouped.local} vehicles={taxiVehicles} type="taxi" />
       </section>
       <Testimonials testimonials={testimonials} />
 
