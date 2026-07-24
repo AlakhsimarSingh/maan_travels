@@ -277,27 +277,27 @@ export default function AirportBookingForm({
             type="button"
             onClick={() => setDirection("TO_AIRPORT")}
             className={`
-              flex items-center justify-center gap-2 h-12 rounded-xl border font-medium transition-all duration-200
+              flex h-12 items-center justify-center gap-2 rounded-xl border text-sm font-medium transition-all duration-200 sm:text-base
               ${direction === "TO_AIRPORT"
                 ? "border-[#ecb100] bg-[#ecb100]/10 text-[#ecb100]"
                 : "border-[#252525] bg-[#111] text-white/60 hover:border-[#ecb100]/30"}
             `}
           >
-            <ArrowRightLeft size={16} />
-            To Airport
+            <ArrowRightLeft size={16} className="shrink-0" />
+            <span className="truncate">To Airport</span>
           </button>
           <button
             type="button"
             onClick={() => setDirection("FROM_AIRPORT")}
             className={`
-              flex items-center justify-center gap-2 h-12 rounded-xl border font-medium transition-all duration-200
+              flex h-12 items-center justify-center gap-2 rounded-xl border text-sm font-medium transition-all duration-200 sm:text-base
               ${direction === "FROM_AIRPORT"
                 ? "border-[#ecb100] bg-[#ecb100]/10 text-[#ecb100]"
                 : "border-[#252525] bg-[#111] text-white/60 hover:border-[#ecb100]/30"}
             `}
           >
-            <ArrowRightLeft size={16} className="rotate-180" />
-            From Airport
+            <ArrowRightLeft size={16} className="rotate-180 shrink-0" />
+            <span className="truncate">From Airport</span>
           </button>
         </div>
       </div>
@@ -307,7 +307,7 @@ export default function AirportBookingForm({
         <select
           value={selectedCityId}
           onChange={(e) => setSelectedCityId(e.target.value)}
-          className={`${fieldClass} pl-12 appearance-none`}
+          className={`${fieldClass} pl-12 pr-4 appearance-none`}
         >
           <option value="" className="bg-[#111]">
             {availableCities.length ? "Select your city" : "No cities available for this direction"}
@@ -350,11 +350,11 @@ export default function AirportBookingForm({
           <Popover>
             <PopoverTrigger asChild>
               <button className={`${fieldClass} flex items-center gap-3 px-4 text-left`}>
-                <CalendarDays size={18} className="text-[#ecb100]" />
-                <span>{travelDate ? format(travelDate, "dd MMM yyyy") : "Select Travel Date"}</span>
+                <CalendarDays size={18} className="shrink-0 text-[#ecb100]" />
+                <span className="truncate">{travelDate ? format(travelDate, "dd MMM yyyy") : "Select Travel Date"}</span>
               </button>
             </PopoverTrigger>
-            <PopoverContent className="border-[#252525] bg-[#141414] p-0">
+            <PopoverContent className="w-auto border-[#252525] bg-[#141414] p-0">
               <Calendar mode="single" selected={travelDate} onSelect={setTravelDate} />
             </PopoverContent>
           </Popover>
@@ -376,31 +376,37 @@ export default function AirportBookingForm({
         <div>
           <p className="mb-3 text-sm uppercase tracking-wide text-white/50">Choose your vehicle</p>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
             {(Object.keys(grouped) as Category[]).map((cat) => (
               <div key={cat} className="relative">
                 <div
                   onMouseEnter={() => setActiveCategory(cat)}
                   onClick={() => toggleCategory(cat)}
                   className={`
-                    rounded-2xl border bg-[#111] p-4 cursor-pointer transition-all duration-200
-                    hover:border-[#ecb100]/40
+                    flex items-center justify-between rounded-2xl border bg-[#111] p-4 cursor-pointer transition-all duration-200
+                    hover:border-[#ecb100]/40 sm:block
                     ${activeCategory === cat ? "border-[#ecb100]/60" : "border-[#252525]"}
                   `}
                 >
-                  <p className="font-medium text-white">{cat}</p>
+                  <div>
+                    <p className="font-medium text-white">{cat}</p>
 
-                  {grouped[cat].some(v => v.id === selectedVehicleId) && (
-                    <p className="mt-1 text-xs text-[#ecb100]">
-                      {grouped[cat].find(v => v.id === selectedVehicleId)?.name}
-                    </p>
-                  )}
+                    {grouped[cat].some(v => v.id === selectedVehicleId) && (
+                      <p className="mt-1 text-xs text-[#ecb100]">
+                        {grouped[cat].find(v => v.id === selectedVehicleId)?.name}
+                      </p>
+                    )}
+                  </div>
+
+                  <span className="text-xs text-white/40 sm:hidden">
+                    {grouped[cat].length} option{grouped[cat].length === 1 ? "" : "s"}
+                  </span>
                 </div>
 
                 {activeCategory === cat && (
                   <div
                     onMouseLeave={() => setActiveCategory(null)}
-                    className="absolute left-0 top-full mt-2 w-full rounded-2xl border border-[#252525] bg-black/95 backdrop-blur-lg shadow-xl z-50 overflow-hidden"
+                    className="absolute left-0 right-0 top-full mt-2 rounded-2xl border border-[#252525] bg-black/95 backdrop-blur-lg shadow-xl z-50 overflow-hidden"
                   >
                     {grouped[cat].length === 0 && (
                       <p className="px-4 py-3 text-sm text-white/40">No vehicles in this category</p>
@@ -414,13 +420,13 @@ export default function AirportBookingForm({
                           setActiveCategory(null);
                         }}
                         className={`
-                          w-full text-left px-4 py-3 text-sm transition-colors
+                          w-full text-left px-4 py-3.5 sm:py-3 text-sm transition-colors
                           ${selectedVehicleId === v.id ? "bg-[#ecb100]/10 text-[#ecb100]" : "text-white hover:bg-white/5"}
                         `}
                       >
-                        <div className="flex items-center justify-between">
-                          <span>{v.name}</span>
-                          <span style={{ fontFamily: "var(--font-geist-mono)" }}>₹{priceFor(v.id)}</span>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="truncate">{v.name}</span>
+                          <span className="shrink-0" style={{ fontFamily: "var(--font-geist-mono)" }}>₹{priceFor(v.id)}</span>
                         </div>
                         <div className="text-xs text-white/40 mt-0.5">
                           {v.passengerCapacity ?? "-"} seats · {v.suitcaseCapacity ?? "-"} bags
@@ -462,7 +468,7 @@ export default function AirportBookingForm({
         </div>
       )}
 
-      <div className="grid gap-5 md:grid-cols-2">
+      <div className="grid gap-5 sm:grid-cols-2">
 
         <div className="relative h-12">
           <Users size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100] z-10" />
