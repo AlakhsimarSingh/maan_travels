@@ -6,7 +6,7 @@ import WhyChooseUs from "@/components/home/WhyChooseUs";
 import Testimonials from "@/components/home/Testimonials";
 import CTASection from "@/components/home/CTASection";
 import TravelCostCalculator from "@/components/calculator/TravelCostCalculator";
-import BookingForm from "@/components/home/BookingForm";
+import TrustMarquee from "@/components/home/TrustMarquee";
 import RouteSection from "@/components/home/RouteSection";
 import Reveal from "@/components/common/Reveal";
 
@@ -79,22 +79,17 @@ export default async function Home({
 
   return (
     <>
-      <Hero />
-
-      <section className="pt-10 pb-8">
-        <Reveal>
-          <BookingForm vehicles={taxiVehicles} />
-        </Reveal>
-      </section>
+      <Hero vehicles={taxiVehicles} />
+      <TrustMarquee />
 
       <FleetSection vehicles={vehicles} filterValue={resolvedSearchParams?.type} />
       <WhyChooseUs />
       <section className="pt-12">
-      <RouteSection title="Popular Airport Transfers" routes={grouped.airport} vehicles={taxiVehicles} type="airport" />
-      <RouteSection title="Local Within City" routes={grouped.local} vehicles={taxiVehicles} type="taxi" />
-      <RouteSection title="Popular Tour Routes" routes={grouped.tour} vehicles={taxiVehicles} type="tour" />
-      <RouteSection title="Popular Destinations" routes={grouped.destination} vehicles={taxiVehicles} type="taxi" />
-      <RouteSection title="Popular One Way Routes" routes={grouped.one_way} vehicles={taxiVehicles} type="taxi" />
+        <RouteSection title="Popular Airport Transfers" routes={grouped.airport} vehicles={taxiVehicles} type="airport" />
+        <RouteSection title="Local Within City" routes={grouped.local} vehicles={taxiVehicles} type="taxi" />
+        <RouteSection title="Popular Tour Routes" routes={grouped.tour} vehicles={taxiVehicles} type="tour" />
+        <RouteSection title="Popular Destinations" routes={grouped.destination} vehicles={taxiVehicles} type="taxi" />
+        <RouteSection title="Popular One Way Routes" routes={grouped.one_way} vehicles={taxiVehicles} type="taxi" />
       </section>
       <Testimonials testimonials={testimonials} />
 
