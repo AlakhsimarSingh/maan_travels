@@ -11,11 +11,11 @@ import MegaMenu from "./MegaMenu";
 import MobileMenu from "./MobileMenu";
 
 const services = [
-  { label: "Luxury Cars", href: "/luxury-cars" },
+  { label: "Airport Pick/Drop Service", href: "/airport-transfer" },
   { label: "Self Drive Rentals", href: "/self-drive" },
   { label: "Book Your Cab", href: "/go-taxi" },
+  { label: "Luxury Cars", href: "/luxury-cars" },
   { label: "Tempo / Urbania Travellers", href: "/tempo-traveller-urbania" },
-  { label: "Airport Pick/Drop Service", href: "/airport-transfer" },
   { label: "Wedding Cars", href: "/wedding-cars" },
 ];
 

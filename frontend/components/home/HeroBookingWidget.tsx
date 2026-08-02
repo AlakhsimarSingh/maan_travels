@@ -5,10 +5,11 @@ import { CarFront, PlaneTakeoff, Compass, Car, Users } from "lucide-react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-import BookingStep from "@/components/booking/BookingStep";
+// import BookingStep from "@/components/booking/BookingStep";
 import TaxiBookingForm from "@/components/booking/TaxiBookingForm";
 import TourBookingForm from "@/components/booking/TourBookingForm";
 import AirportTransferForm from "@/components/booking/AirportTransferForm";
+import BookingStep from "../booking/BookingStep";
 
 type Vehicle = {
   id: string;
