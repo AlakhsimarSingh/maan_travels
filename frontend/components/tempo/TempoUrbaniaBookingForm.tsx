@@ -46,7 +46,7 @@ type FormErrors = Partial<Record<keyof FormState | "travelDate", string>>;
 
 const EMPTY_FORM: FormState = {
   name: "",
-  phone: "",
+  phone: "+",
   pickup: "",
   destination: "",
   passengers: "",
@@ -54,6 +54,32 @@ const EMPTY_FORM: FormState = {
   tripType: "Round Trip",
   requirements: "",
 };
+
+// Enforces "+<country code> <number>" — e.g. "+91 9501038811" or "+1 4155552671".
+// Country codes vary in length (1-3 digits), so instead of hardcoding one,
+// this keeps the input clean as the user types (single leading "+", digits,
+// one space separating the code from the number, digits-only after that)
+// while still letting them type the space themselves. Final shape is
+// checked by PHONE_REGEX below.
+function sanitizePhoneInput(raw: string): string {
+  // Drop every "+" then keep only digits/spaces, so a stray "+" mid-string
+  // or a pasted letter can't sneak in.
+  const cleaned = raw.replace(/\+/g, "").replace(/[^\d ]/g, "");
+  const collapsed = cleaned.replace(/\s+/g, " ").replace(/^ /, "");
+
+  const firstSpaceIdx = collapsed.indexOf(" ");
+  if (firstSpaceIdx === -1) {
+    // Still typing the country code — cap it at 3 digits.
+    return `+${collapsed.slice(0, 3)}`;
+  }
+
+  const code = collapsed.slice(0, firstSpaceIdx).slice(0, 3);
+  const number = collapsed.slice(firstSpaceIdx + 1).replace(/\s+/g, "").slice(0, 14);
+  return `+${code} ${number}`;
+}
+
+// Requires a "+", a 1-3 digit country code, a space, then a 6-14 digit number.
+const PHONE_REGEX = /^\+\d{1,3} \d{6,14}$/;
 
 export default function TempoUrbaniaBookingForm({
   vehicle,
@@ -77,9 +103,15 @@ export default function TempoUrbaniaBookingForm({
     if (errors[key]) setErrors((prev) => ({ ...prev, [key]: undefined }));
   };
 
+  const handlePhoneChange = (value: string) => {
+    const sanitized = sanitizePhoneInput(value);
+    setForm((prev) => ({ ...prev, phone: sanitized }));
+    if (errors.phone) setErrors((prev) => ({ ...prev, phone: undefined }));
+  };
+
   /* ---------------- PROGRESS STEPS ---------------- */
   const steps = [
-    { label: "Your Details", complete: Boolean(form.name.trim() && form.phone.trim()) },
+    { label: "Your Details", complete: Boolean(form.name.trim() && PHONE_REGEX.test(form.phone)) },
     { label: "Trip Info", complete: Boolean(form.pickup.trim() && form.destination.trim()) },
     {
       label: "Schedule",
@@ -89,7 +121,7 @@ export default function TempoUrbaniaBookingForm({
       label: "Ready",
       complete: Boolean(
         form.name.trim() &&
-          form.phone.trim() &&
+          PHONE_REGEX.test(form.phone) &&
           form.pickup.trim() &&
           form.destination.trim() &&
           travelDate &&
@@ -105,9 +137,11 @@ export default function TempoUrbaniaBookingForm({
 
     if (!form.name.trim()) next.name = "Enter your full name";
 
-    if (!form.phone.trim()) next.phone = "Enter a phone number";
-    else if (!/^\+?\d{10,13}$/.test(form.phone.replace(/\s/g, "")))
-      next.phone = "Enter a valid phone number";
+    if (!form.phone.trim() || form.phone.trim() === "+") {
+      next.phone = "Enter a phone number";
+    } else if (!PHONE_REGEX.test(form.phone)) {
+      next.phone = "Enter with country code and a space, e.g. +91 9501038811 or +1 4155552671";
+    }
 
     if (!form.pickup.trim()) next.pickup = "Enter a pickup location";
     if (!form.destination.trim()) next.destination = "Enter a destination";
@@ -239,11 +273,11 @@ export default function TempoUrbaniaBookingForm({
 
               <Input
                 icon={<Phone size={18} />}
-                placeholder="Phone Number"
+                placeholder="+91 9501038811"
                 type="tel"
                 value={form.phone}
                 error={errors.phone}
-                onChange={(v) => handleChange("phone", v)}
+                onChange={handlePhoneChange}
               />
 
               <Input

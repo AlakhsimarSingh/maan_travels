@@ -23,6 +23,32 @@ const STEPS = [
 
 type StepKey = (typeof STEPS)[number]["key"];
 
+// Enforces "+<country code> <number>" — e.g. "+91 9501038811" or "+1 4155552671".
+// Country codes vary in length (1-3 digits), so instead of hardcoding one,
+// this keeps the input clean as the user types (single leading "+", digits,
+// one space separating the code from the number, digits-only after that)
+// while still letting them type the space themselves. Final shape is
+// checked by PHONE_REGEX below.
+function sanitizePhoneInput(raw: string): string {
+  // Drop every "+" then keep only digits/spaces, so a stray "+" mid-string
+  // or a pasted letter can't sneak in.
+  const cleaned = raw.replace(/\+/g, "").replace(/[^\d ]/g, "");
+  const collapsed = cleaned.replace(/\s+/g, " ").replace(/^ /, "");
+
+  const firstSpaceIdx = collapsed.indexOf(" ");
+  if (firstSpaceIdx === -1) {
+    // Still typing the country code — cap it at 3 digits.
+    return `+${collapsed.slice(0, 3)}`;
+  }
+
+  const code = collapsed.slice(0, firstSpaceIdx).slice(0, 3);
+  const number = collapsed.slice(firstSpaceIdx + 1).replace(/\s+/g, "").slice(0, 14);
+  return `+${code} ${number}`;
+}
+
+// Requires a "+", a 1-3 digit country code, a space, then a 6-14 digit number.
+const PHONE_REGEX = /^\+\d{1,3} \d{6,14}$/;
+
 export default function TourBookingCard({
   pickup,
   destination,
@@ -34,7 +60,7 @@ export default function TourBookingCard({
 
   const [form, setForm] = useState({
     name: "",
-    phone: "",
+    phone: "+",
     pickupAddress: "",
     requirements: "",
   });
@@ -65,8 +91,14 @@ export default function TourBookingCard({
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
+  const updatePhone = (value: string) => {
+    setForm((prev) => ({ ...prev, phone: sanitizePhoneInput(value) }));
+  };
+
   const markTouched = (field: string) =>
     setTouched((prev) => ({ ...prev, [field]: true }));
+
+  const isPhoneValid = PHONE_REGEX.test(form.phone);
 
   const submitBooking = async () => {
     if (!hasRoute) {
@@ -74,9 +106,15 @@ export default function TourBookingCard({
       return;
     }
 
-    if (!form.name || !form.phone || !form.pickupAddress) {
+    if (!form.name || !form.phone || form.phone === "+" || !form.pickupAddress) {
       setTouched({ name: true, phone: true, pickupAddress: true });
       setFormError("Please fill in your name, phone, and pickup address.");
+      return;
+    }
+
+    if (!isPhoneValid) {
+      setTouched((prev) => ({ ...prev, phone: true }));
+      setFormError("Enter your phone with country code and a space, e.g. +91 9501038811 or +1 4155552671.");
       return;
     }
 
@@ -103,7 +141,7 @@ export default function TourBookingCard({
 
       done((res as any)?.booking?.id);
 
-      setForm({ name: "", phone: "", pickupAddress: "", requirements: "" });
+      setForm({ name: "", phone: "+", pickupAddress: "", requirements: "" });
       setTouched({});
     } catch (error) {
       console.log(error);
@@ -113,6 +151,8 @@ export default function TourBookingCard({
   };
 
   const fieldError = (field: string, value: string) => touched[field] && !value;
+  const phoneError =
+    touched.phone && (form.phone === "+" || !form.phone ? true : !isPhoneValid);
 
   return (
     <div className="mx-auto max-w-3xl px-6">
@@ -161,11 +201,12 @@ export default function TourBookingCard({
 
                   <FormInput
                     icon={<Phone size={18} />}
-                    placeholder="Phone number"
+                    placeholder="+91 9501038811"
+                    type="tel"
                     value={form.phone}
-                    onChange={(v) => updateField("phone", v)}
+                    onChange={updatePhone}
                     onBlur={() => markTouched("phone")}
-                    error={fieldError("phone", form.phone)}
+                    error={phoneError}
                   />
 
                   <FormInput
@@ -177,6 +218,12 @@ export default function TourBookingCard({
                     error={fieldError("pickupAddress", form.pickupAddress)}
                   />
                 </div>
+
+                {phoneError && (
+                  <p className="mt-2 text-xs text-red-400">
+                    Enter with country code and a space, e.g. +91 9501038811 or +1 4155552671
+                  </p>
+                )}
 
                 <div className="relative mt-5">
                   <MessageSquare
@@ -362,6 +409,7 @@ function FormInput({
   onChange,
   onBlur,
   error,
+  type = "text",
 }: {
   icon: React.ReactNode;
   placeholder: string;
@@ -369,6 +417,7 @@ function FormInput({
   onChange: (v: string) => void;
   onBlur?: () => void;
   error?: boolean;
+  type?: string;
 }) {
   return (
     <div className="relative">
@@ -377,6 +426,7 @@ function FormInput({
       </div>
 
       <input
+        type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onBlur={onBlur}
