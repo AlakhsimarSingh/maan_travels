@@ -36,9 +36,13 @@ export default function RouteCard({
 }: Props) {
   const label = category ? categoryLabels[category] ?? category : null;
 
-  const pricedVehicles = vehicles.filter((v) =>
-    pricing.some((p) => p.vehicleId === v.id)
-  );
+  const priceOf = (vehicleId: string) =>
+    pricing.find((p) => p.vehicleId === vehicleId)?.price ?? Infinity;
+
+  // Cheapest first, so the default selection matches "Starting from".
+  const pricedVehicles = vehicles
+    .filter((v) => pricing.some((p) => p.vehicleId === v.id))
+    .sort((a, b) => priceOf(a.id) - priceOf(b.id));
 
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | undefined>(
     pricedVehicles[0]?.id

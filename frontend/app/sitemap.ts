@@ -1,5 +1,7 @@
 import type { MetadataRoute } from "next";
 
+import { tourPackages } from "@/src/data/packages";
+
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.maantravels.com";
 
 const API_URL =
@@ -38,6 +40,7 @@ const staticRoutes: Array<{
   { path: "/luxury-cars",              priority: 0.9, changeFrequency: "weekly"  },
   { path: "/wedding-cars",             priority: 0.9, changeFrequency: "weekly"  },
   { path: "/tour-packages",            priority: 0.9, changeFrequency: "weekly"  },
+  { path: "/packages",                 priority: 0.8, changeFrequency: "monthly" },
 
   // Supporting pages
   { path: "/fleet",                    priority: 0.8, changeFrequency: "weekly"  },
@@ -64,48 +67,38 @@ async function getLuxuryCarRoutes(): Promise<MetadataRoute.Sitemap> {
 
     if (!data?.success) return [];
 
-    // Wedding booking pages — one per luxury car, keyed by slug.
-    // These are the actual indexable car detail + booking pages.
-    return (data.luxuryCars || []).map((car: any) => ({
-      url: `${baseUrl}/wedding-booking/${car.slug}`,
-      lastModified: car.updatedAt ? new Date(car.updatedAt) : new Date(),
-      changeFrequency: "monthly" as const,
-      priority: 0.8,
-    }));
-  } catch {
-    return [];
-  }
-}
-
-async function getTourLocationRoutes(): Promise<MetadataRoute.Sitemap> {
-  try {
-    const res = await fetch(`${API_URL}/api/locations/active`, {
-      next: { revalidate: 3600 },
+    // One detail page and one wedding booking page per luxury car.
+    return (data.luxuryCars || []).flatMap((car: any) => {
+      const lastModified = car.updatedAt ? new Date(car.updatedAt) : new Date();
+      return [
+        {
+          url: `${baseUrl}/luxury-cars/${car.slug}`,
+          lastModified,
+          changeFrequency: "monthly" as const,
+          priority: 0.8,
+        },
+        {
+          url: `${baseUrl}/wedding-booking/${car.slug}`,
+          lastModified,
+          changeFrequency: "monthly" as const,
+          priority: 0.8,
+        },
+      ];
     });
-    const data = await res.json();
-
-    if (!data?.success) return [];
-
-    // Tour packages filter — each destination is a unique landing surface
-    // worth indexing, since users search "tour from Jalandhar to Manali" etc.
-    return (data.locations || [])
-      .filter((loc: any) => loc.canDrop)
-      .map((loc: any) => ({
-        url: `${baseUrl}/tour-packages?destination=${encodeURIComponent(loc.name)}`,
-        lastModified: new Date(),
-        changeFrequency: "weekly" as const,
-        priority: 0.75,
-      }));
   } catch {
     return [];
   }
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [luxuryCarRoutes, tourLocationRoutes] = await Promise.all([
-    getLuxuryCarRoutes(),
-    getTourLocationRoutes(),
-  ]);
+  const luxuryCarRoutes = await getLuxuryCarRoutes();
+
+  const packageRoutes: MetadataRoute.Sitemap = tourPackages.map((pkg) => ({
+    url: `${baseUrl}/packages/${pkg.slug}`,
+    lastModified: new Date(),
+    changeFrequency: "monthly" as const,
+    priority: 0.75,
+  }));
 
   return [
     // Static routes first — crawlers process earlier entries sooner
@@ -118,6 +111,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     // Dynamic routes
     ...luxuryCarRoutes,
-    ...tourLocationRoutes,
+    ...packageRoutes,
   ];
 }

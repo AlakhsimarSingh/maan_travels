@@ -252,9 +252,9 @@ export default function LuxuryCarModal({
             />
           </Field>
 
-          <Field label="Features" hint="Comma separated, e.g. Chauffeur, Bluetooth, Sunroof">
+          <Field label="Features" hint="Comma separated, e.g. Taxi Driver, Bluetooth, Sunroof">
             <input
-              placeholder="Chauffeur, Bluetooth, Sunroof"
+              placeholder="Taxi Driver, Bluetooth, Sunroof"
               className={inputClass(false)}
               value={form.features}
               onChange={(e) => setField("features", e.target.value)}

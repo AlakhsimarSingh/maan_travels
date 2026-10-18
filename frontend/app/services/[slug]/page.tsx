@@ -1,21 +1,51 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
 
+import type { Metadata } from "next";
+
 import { services } from "@/src/data/services";
 
+// Canonical home of each service — these pages duplicate them.
+const CANONICAL_PATH: Record<string, string> = {
+  "luxury-cars": "/luxury-cars",
+  "airport-transfer": "/airport-transfer",
+};
 
-export default function ServicePage({
+
+export function generateStaticParams() {
+  return services.map((item) => ({ slug: item.slug }));
+}
+
+export async function generateMetadata({
   params,
 }: {
-  params: {
-    slug:string;
-  };
-}) {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const service = services.find((item) => item.slug === slug);
+  if (!service) return {};
 
+  return {
+    title: `${service.title} in Jalandhar & Punjab`,
+    description: service.shortDescription,
+    alternates: { canonical: CANONICAL_PATH[slug] ?? `/services/${slug}` },
+  };
+}
+
+export default async function ServicePage({
+  params,
+}: {
+  params: Promise<{
+    slug:string;
+  }>;
+}) {
+  // `params` is a Promise in Next 16 — reading `.slug` synchronously was
+  // always undefined, so every service page 404'd.
+  const { slug } = await params;
 
   const service =
     services.find(
-      item => item.slug === params.slug
+      item => item.slug === slug
     );
 
 

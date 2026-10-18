@@ -7,16 +7,16 @@ import ContactInfo from "@/components/contact/ContactInfo";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.maantravels.com";
 
 export const metadata: Metadata = {
-  title: "Contact Us | Maan Travels Jalandhar",
+  title: "Contact Us | Book a Taxi in Jalandhar 24/7",
   description:
-    "Get in touch with Maan Travels for luxury car rentals, airport transfers, tour packages and corporate travel across Punjab. Call, email or visit our Jalandhar office.",
+    "Call or WhatsApp Maan Travels, Jalandhar to book a taxi 24/7 — Delhi to Jalandhar cabs, airport transfers, outstation taxis and tour packages. Visit us at BMC Chowk, Jalandhar.",
   alternates: {
     canonical: `${siteUrl}/contact`,
   },
   openGraph: {
-    title: "Contact Us | Maan Travels",
+    title: "Contact Maan Travels | Taxi Service in Jalandhar",
     description:
-      "Reach Maan Travels for luxury travel, corporate transport and tour packages across Punjab.",
+      "Book a taxi in Jalandhar 24/7 — Delhi ⇄ Jalandhar cabs, airport transfers and outstation taxis across Punjab.",
     type: "website",
     url: `${siteUrl}/contact`,
   },

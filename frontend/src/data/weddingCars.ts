@@ -10,7 +10,7 @@ description:
 "Make a grand wedding entrance with the iconic Mercedes G-Wagon, combining luxury, presence and unmatched style.",
 features:[
 "Premium Luxury SUV",
-"Chauffeur Driven",
+"Taxi with Driver",
 "Royal Wedding Entry"
 ]
 },
@@ -27,7 +27,7 @@ description:
 features:[
 "Luxury Interiors",
 "Spacious Cabin",
-"Professional Chauffeur"
+"Professional Taxi Driver"
 ]
 },
 

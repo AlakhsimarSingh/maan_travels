@@ -51,6 +51,7 @@ export default function VehicleSelector({
                   src={v.imageUrl}
                   alt={v.name}
                   fill
+                  sizes="56px"
                   className="object-cover transition-transform duration-300 group-hover:scale-110"
                 />
               ) : (

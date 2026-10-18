@@ -10,13 +10,14 @@ const API_URL =
   "http://localhost:5000";
 
 export const metadata: Metadata = {
-  title: "Luxury Wedding Car Rental Punjab | Maan Travels",
+  title: "Wedding Car Rental in Jalandhar & Punjab",
   description:
-    "Book Mercedes Maybach, G-Wagon, Range Rover, Jaguar and premium chauffeur-driven wedding cars across Punjab. Royal groom entry, bride arrival and wedding convoy packages.",
+    "Book luxury wedding cars in Jalandhar, Ludhiana, Amritsar and across Punjab — Mercedes Maybach, G-Wagon, Range Rover, Jaguar and Fortuner with drivers for groom entry and doli.",
+  alternates: { canonical: "/wedding-cars" },
   openGraph: {
-    title: "Luxury Wedding Car Rental Punjab | Maan Travels",
+    title: "Wedding Car Rental in Jalandhar & Punjab | Maan Travels",
     description:
-      "Premium chauffeur-driven wedding cars for groom entry, bride arrival and wedding convoys across Punjab.",
+      "Premium wedding cars with taxi drivers for groom entry, bride arrival and wedding convoys across Punjab.",
     type: "website",
   },
 };

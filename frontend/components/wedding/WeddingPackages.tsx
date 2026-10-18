@@ -13,7 +13,7 @@ const packages = [
   {
     title: "Bride Arrival Package",
     description:
-      "Elegant chauffeur-driven luxury vehicles for a graceful bride arrival experience.",
+      "Elegant luxury taxi vehicles for a graceful bride arrival experience.",
     icon: Heart,
   },
   {

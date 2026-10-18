@@ -40,7 +40,7 @@ export default function TempoUrbaniaFleet({
           </h2>
 
           <p className="mt-4 text-[#8a8a8a]">
-            Premium AC travellers with professional chauffeurs.
+            Premium AC travellers with professional taxi drivers.
           </p>
         </div>
 

@@ -19,7 +19,7 @@ const services = [
   {
     title: "Airport Transfers",
     description:
-      "Reliable pickup and drop services with professional chauffeurs.",
+      "Reliable pickup and drop services with professional taxi drivers.",
     icon: Plane,
     href: "/airport-transfer",
   },

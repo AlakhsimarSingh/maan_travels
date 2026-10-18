@@ -24,6 +24,9 @@ type SeoInput = {
  */
 export function buildMetadata({ title, description, path, image }: SeoInput): Metadata {
   const url = `${siteUrl}${path}`;
+  // <title> gets " | Maan Travels" from the root layout's template; social
+  // previews don't, so add the brand there explicitly.
+  const socialTitle = title.includes("Maan Travels") ? title : `${title} | Maan Travels`;
   const ogImage = image
     ? image.startsWith("http")
       ? image
@@ -37,7 +40,7 @@ export function buildMetadata({ title, description, path, image }: SeoInput): Me
       canonical: url,
     },
     openGraph: {
-      title,
+      title: socialTitle,
       description,
       url,
       siteName: "Maan Travels",
@@ -47,7 +50,7 @@ export function buildMetadata({ title, description, path, image }: SeoInput): Me
     },
     twitter: {
       card: "summary_large_image",
-      title,
+      title: socialTitle,
       description,
       images: [ogImage],
     },

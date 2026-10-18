@@ -8,10 +8,12 @@ import { tourPackages } from "@/src/data/packages";
 export const metadata = {
 
 title:
-"Tour Packages | Maan Travels",
+"Tour Packages from Jalandhar | Amritsar & Himachal",
 
 description:
-"Explore Amritsar, Himachal and Kashmir tour packages with Maan Travels."
+"Explore Amritsar darshan, Himachal, Dalhousie, Dharamshala and Kashmir tour packages from Jalandhar and Punjab with Maan Travels — taxi, hotel guidance and sightseeing.",
+
+alternates: { canonical: "/packages" },
 
 };
 

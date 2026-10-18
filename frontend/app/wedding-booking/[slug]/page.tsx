@@ -15,6 +15,12 @@ async function getCar(slug: string) {
   return data?.car || null;
 }
 
+// Render each car on its first visit, then serve it from cache (ISR)
+// instead of server-rendering on every request.
+export function generateStaticParams() {
+  return [];
+}
+
 export default async function WeddingBookingPage({ params }: Props) {
   const { slug } = await params;
   const car = await getCar(slug);
@@ -65,7 +71,7 @@ export default async function WeddingBookingPage({ params }: Props) {
 
                 <div className="rounded-xl border border-[#252525] bg-black/30 p-4">
                   <p className="text-xs uppercase text-[#8a8a8a]">Experience</p>
-                  <p className="mt-1 text-white">Chauffeur Driven</p>
+                  <p className="mt-1 text-white">Taxi with Driver</p>
                 </div>
               </div>
             </div>
@@ -88,7 +94,7 @@ export default async function WeddingBookingPage({ params }: Props) {
             name: `${car.name} Wedding Car Rental`,
             description:
               car.description ||
-              `Book ${car.name} for weddings with premium chauffeur service in Punjab.`,
+              `Book ${car.name} for weddings with premium taxi service in Punjab.`,
             image: car.image,
             brand: { "@type": "Brand", name: "Maan Travels" },
             offers: car.price
@@ -115,13 +121,13 @@ export async function generateMetadata({ params }: Props) {
 
   const description =
     car.description ||
-    `Book ${car.name} for weddings with premium chauffeur service across Punjab.`;
+    `Book ${car.name} for weddings with premium taxi service across Punjab.`;
 
   return {
-    title: `${car.name} Wedding Car Rental | Maan Travels`,
+    title: `${car.name} Wedding Car on Rent in Jalandhar & Punjab`,
     description,
     openGraph: {
-      title: `${car.name} Wedding Car Rental | Maan Travels`,
+      title: `${car.name} Wedding Car on Rent in Jalandhar & Punjab | Maan Travels`,
       description,
       images: car.image ? [{ url: car.image }] : undefined,
     },

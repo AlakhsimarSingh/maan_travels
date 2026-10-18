@@ -50,7 +50,7 @@ export default function HeroTrustCard() {
         <div className="flex items-center justify-between">
           <div>
             <Counter value={24} suffix="/7" />
-            <p className="text-[#8a8a8a]">Chauffeur Availability</p>
+            <p className="text-[#8a8a8a]">Taxi Availability</p>
           </div>
           <Clock3 className="h-10 w-10 text-[#ecb100] opacity-80" strokeWidth={1.5} />
         </div>

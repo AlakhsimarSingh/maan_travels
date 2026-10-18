@@ -26,7 +26,7 @@ export default function AboutStory() {
 
         <Reveal delay={160}>
           <p>
-            Our fleet is driven by professionally trained chauffeurs who
+            Our fleet is driven by professionally trained taxi drivers who
             prioritize punctuality, discretion, and passenger safety. Every
             journey is guided by a commitment to service excellence, ensuring
             travel becomes an experience in itself.

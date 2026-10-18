@@ -37,7 +37,7 @@ a:
 {
 q:"Do you provide drivers with the vehicle?",
 a:
-"Yes. All Tempo Traveller and Urbania rentals include professional chauffeurs for a safe and comfortable journey."
+"Yes. All Tempo Traveller and Urbania rentals include professional taxi drivers for a safe and comfortable journey."
 },
 
 

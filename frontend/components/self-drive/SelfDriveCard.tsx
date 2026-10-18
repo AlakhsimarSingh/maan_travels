@@ -46,7 +46,7 @@ export default function SelfDriveCard({
         <>
           {/* COLLAPSED CARD */}
           <div className="relative h-60">
-            <Image src={imgSrc} alt={vehicle.name || "Vehicle"} fill className="object-cover" />
+            <Image src={imgSrc} alt={vehicle.name || "Vehicle"} fill sizes="(min-width: 1280px) 400px, (min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw" className="object-cover" />
 
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
 
@@ -98,7 +98,7 @@ export default function SelfDriveCard({
         <motion.div layout className="grid lg:grid-cols-2">
           {/* IMAGE */}
           <div className="relative min-h-[420px]">
-            <Image src={imgSrc} alt={vehicle.name || "Vehicle"} fill className="object-cover" />
+            <Image src={imgSrc} alt={vehicle.name || "Vehicle"} fill sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
           </div>
 
           {/* DETAILS */}

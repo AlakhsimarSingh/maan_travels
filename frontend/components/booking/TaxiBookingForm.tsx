@@ -22,6 +22,8 @@ import {
 import { API_URL } from "@/src/services/bookingService";
 import { useBookingStatus } from "@/src/hooks/useBookingStatus";
 import BookingStep from "./BookingStep";
+import { EmailInput, PhoneInput } from "@/components/common/ContactInputs";
+import { DEFAULT_PHONE_PREFIX, isValidPhone, validateEmail, validatePhone } from "@/src/lib/contactValidation";
 
 export default function TaxiBookingForm({
   rideMode,
@@ -43,10 +45,11 @@ export default function TaxiBookingForm({
   const [returnDate, setReturnDate] = useState<Date>();
   const [returnTime, setReturnTime] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [showContactErrors, setShowContactErrors] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
-    phone: "",
+    phone: DEFAULT_PHONE_PREFIX,
     email: "",
     pickup: "",
     drop: "",
@@ -69,6 +72,14 @@ export default function TaxiBookingForm({
   };
 
   const submitBooking = async () => {
+    const contactError = validatePhone(form.phone) || validateEmail(form.email, { required: false });
+    if (contactError) {
+      setShowContactErrors(true);
+      setOpenStep(startIndex + 1);
+      alert(contactError);
+      return;
+    }
+
     if ((paymentType === "full" || paymentType === "partial") && !screenshot) {
       alert("Please upload a screenshot of your payment");
       return;
@@ -132,7 +143,7 @@ export default function TaxiBookingForm({
   };
 
   const routeDone = !!(form.pickup && (rideMode === "local" || form.drop) && pickupDate && pickupTime);
-  const detailsDone = !!(form.name && form.phone && form.persons);
+  const detailsDone = !!(form.name && isValidPhone(form.phone) && form.persons);
   const routeSummary = form.pickup
     ? rideMode === "local"
       ? form.pickup
@@ -209,8 +220,8 @@ export default function TaxiBookingForm({
       >
         <div className="grid gap-3 sm:grid-cols-2">
           <Input placeholder="Full Name" value={form.name} onChange={(e) => updateField("name", e.target.value)} aria-label="Full Name" />
-          <Input placeholder="Mobile Number" value={form.phone} onChange={(e) => updateField("phone", e.target.value)} aria-label="Mobile Number" />
-          <Input placeholder="Email Address" value={form.email} onChange={(e) => updateField("email", e.target.value)} aria-label="Email Address" />
+          <PhoneInput value={form.phone} onChange={(v) => updateField("phone", v)} showError={showContactErrors} aria-label="Mobile Number" />
+          <EmailInput placeholder="Email Address" value={form.email} onChange={(v) => updateField("email", v)} showError={showContactErrors} aria-label="Email Address" />
 
           <Select value={form.persons} onValueChange={(value) => updateField("persons", value)}>
             <SelectTrigger aria-label="Number of Passengers" className="h-12 bg-[#111] border-[#252525] text-white">

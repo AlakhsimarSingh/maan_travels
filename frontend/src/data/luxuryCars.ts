@@ -9,7 +9,7 @@ export const luxuryCars = [
       "Experience unmatched luxury and road presence with the Mercedes G-Wagon, available for premium weddings, VIP travel and special occasions.",
     features:[
       "Premium Interior",
-      "Luxury Chauffeur Service",
+      "Luxury Taxi Service",
       "Powerful Performance",
       "VIP Comfort"
     ]

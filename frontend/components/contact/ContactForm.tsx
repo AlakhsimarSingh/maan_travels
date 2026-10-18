@@ -5,12 +5,21 @@ import { User, Mail, Phone, Tag, MessageSquare, Send, CheckCircle2 } from "lucid
 
 import { Button } from "@/components/ui/button";
 import { createInquiry } from "@/src/services/inquiryService";
+import { FieldError } from "@/components/common/ContactInputs";
+import {
+  DEFAULT_PHONE_PREFIX,
+  PHONE_PLACEHOLDER,
+  formatPhoneInput,
+  isPhoneEmpty,
+  validateEmail,
+  validatePhone,
+} from "@/src/lib/contactValidation";
 
 export default function ContactForm() {
   const [form, setForm] = useState({
     name: "",
     email: "",
-    phone: "",
+    phone: DEFAULT_PHONE_PREFIX,
     subject: "",
     message: "",
   });
@@ -30,9 +39,16 @@ export default function ContactForm() {
   const fieldError = (field: string, value: string) => touched[field] && !value;
 
   const handleSubmit = async () => {
-    if (!form.name || !form.email || !form.phone || !form.message) {
+    if (!form.name || !form.email || isPhoneEmpty(form.phone) || !form.message) {
       setTouched({ name: true, email: true, phone: true, message: true });
       setError("Please fill in all required fields.");
+      return;
+    }
+
+    const contactError = validateEmail(form.email) || validatePhone(form.phone);
+    if (contactError) {
+      setTouched((prev) => ({ ...prev, email: true, phone: true }));
+      setError(contactError);
       return;
     }
 
@@ -49,7 +65,7 @@ export default function ContactForm() {
       }
 
       setSuccess(true);
-      setForm({ name: "", email: "", phone: "", subject: "", message: "" });
+      setForm({ name: "", email: "", phone: DEFAULT_PHONE_PREFIX, subject: "", message: "" });
       setTouched({});
     } catch (err) {
       console.error(err);
@@ -99,19 +115,24 @@ export default function ContactForm() {
           icon={<Mail size={18} />}
           placeholder="Email address"
           type="email"
+          inputMode="email"
+          autoComplete="email"
           value={form.email}
-          onChange={(v) => updateField("email", v)}
+          onChange={(v) => updateField("email", v.trim())}
           onBlur={() => markTouched("email")}
-          error={fieldError("email", form.email)}
+          error={fieldError("email", form.email) || (touched.email && validateEmail(form.email))}
         />
 
         <FieldInput
           icon={<Phone size={18} />}
-          placeholder="Mobile number"
+          placeholder={PHONE_PLACEHOLDER}
+          type="tel"
+          inputMode="tel"
+          autoComplete="tel"
           value={form.phone}
-          onChange={(v) => updateField("phone", v)}
+          onChange={(v) => updateField("phone", formatPhoneInput(v))}
           onBlur={() => markTouched("phone")}
-          error={fieldError("phone", form.phone)}
+          error={touched.phone && validatePhone(form.phone)}
         />
 
         <FieldInput
@@ -167,31 +188,41 @@ function FieldInput({
   onBlur,
   error,
   type = "text",
+  inputMode,
+  autoComplete,
 }: {
   icon: React.ReactNode;
   placeholder: string;
   value: string;
   onChange: (v: string) => void;
   onBlur?: () => void;
-  error?: boolean;
+  /** true highlights the field; a string also shows it as a message. */
+  error?: boolean | string | null;
   type?: string;
+  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
+  autoComplete?: string;
 }) {
   return (
-    <div className="relative">
-      <div className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100]">
-        {icon}
-      </div>
+    <div>
+      <div className="relative">
+        <div className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100]">
+          {icon}
+        </div>
 
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onBlur={onBlur}
-        placeholder={placeholder}
-        className={`h-12 w-full rounded-xl border bg-[#111] pl-12 pr-4 text-white outline-none transition-colors placeholder:text-[#666] ${
-          error ? "border-red-500/60" : "border-[#252525] focus:border-[#ecb100]"
-        }`}
-      />
+        <input
+          type={type}
+          inputMode={inputMode}
+          autoComplete={autoComplete}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onBlur={onBlur}
+          placeholder={placeholder}
+          className={`h-12 w-full rounded-xl border bg-[#111] pl-12 pr-4 text-white outline-none transition-colors placeholder:text-[#666] ${
+            error ? "border-red-500/60" : "border-[#252525] focus:border-[#ecb100]"
+          }`}
+        />
+      </div>
+      {typeof error === "string" && <FieldError message={error} />}
     </div>
   );
 }

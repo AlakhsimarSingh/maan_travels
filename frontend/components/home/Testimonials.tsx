@@ -42,7 +42,6 @@ export default function Testimonials({ testimonials }: { testimonials: Testimoni
 
   const { ref: sectionRef, inView: sectionInView } = useInView();
 
-  if (!testimonials.length) return null;
   const total = testimonials.length;
   const cardStep = cardWidth + CARD_GAP;
 
@@ -133,6 +132,8 @@ export default function Testimonials({ testimonials }: { testimonials: Testimoni
     if (!el) return;
     goTo(Math.max(0, Math.min(Math.round(el.scrollLeft / cardStep), total - 1)));
   };
+
+  if (!total) return null;
 
   const canScrollLeft = activeIndex > 0;
   const canScrollRight = activeIndex < total - 1;

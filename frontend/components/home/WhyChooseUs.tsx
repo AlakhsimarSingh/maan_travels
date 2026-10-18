@@ -2,8 +2,8 @@ import { Clock3, ShieldCheck, CarFront, Headphones } from "lucide-react";
 import Reveal from "@/components/common/Reveal";
 
 const features = [
-  { icon: Clock3, title: "24/7 Availability", description: "Round-the-clock booking and support for all your travel needs." },
-  { icon: ShieldCheck, title: "Safe & Reliable", description: "Professional chauffeurs and well-maintained vehicles." },
+  { icon: Clock3, title: "24/7 Availability", description: "Round-the-clock taxi booking in Jalandhar and support for every trip, day or night." },
+  { icon: ShieldCheck, title: "Safe & Reliable", description: "Professional taxi drivers and well-maintained vehicles." },
   { icon: CarFront, title: "Premium Fleet", description: "Luxury cars, tempo travellers and coaches for every journey." },
   { icon: Headphones, title: "Dedicated Support", description: "Quick assistance before, during and after your trip." },
 ];

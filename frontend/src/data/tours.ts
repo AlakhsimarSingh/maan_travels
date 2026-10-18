@@ -100,7 +100,7 @@ description:
 Jaipur:{
 image:"/images/tours/jaipur.jpg",
 description:
-"Explore royal Rajasthan with comfortable chauffeur driven vehicles."
+"Explore royal Rajasthan with comfortable taxi vehicles."
 },
 
 

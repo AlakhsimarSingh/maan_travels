@@ -14,6 +14,14 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { createTourBooking } from "@/src/services/bookingService";
 import { useBookingStatus } from "@/src/hooks/useBookingStatus";
+import {
+  DEFAULT_PHONE_PREFIX,
+  PHONE_PLACEHOLDER,
+  formatPhoneInput,
+  isPhoneEmpty,
+  isValidPhone,
+  validatePhone,
+} from "@/src/lib/contactValidation";
 
 const STEPS = [
   { key: "route", label: "Route" },
@@ -22,32 +30,6 @@ const STEPS = [
 ] as const;
 
 type StepKey = (typeof STEPS)[number]["key"];
-
-// Enforces "+<country code> <number>" — e.g. "+91 9501038811" or "+1 4155552671".
-// Country codes vary in length (1-3 digits), so instead of hardcoding one,
-// this keeps the input clean as the user types (single leading "+", digits,
-// one space separating the code from the number, digits-only after that)
-// while still letting them type the space themselves. Final shape is
-// checked by PHONE_REGEX below.
-function sanitizePhoneInput(raw: string): string {
-  // Drop every "+" then keep only digits/spaces, so a stray "+" mid-string
-  // or a pasted letter can't sneak in.
-  const cleaned = raw.replace(/\+/g, "").replace(/[^\d ]/g, "");
-  const collapsed = cleaned.replace(/\s+/g, " ").replace(/^ /, "");
-
-  const firstSpaceIdx = collapsed.indexOf(" ");
-  if (firstSpaceIdx === -1) {
-    // Still typing the country code — cap it at 3 digits.
-    return `+${collapsed.slice(0, 3)}`;
-  }
-
-  const code = collapsed.slice(0, firstSpaceIdx).slice(0, 3);
-  const number = collapsed.slice(firstSpaceIdx + 1).replace(/\s+/g, "").slice(0, 14);
-  return `+${code} ${number}`;
-}
-
-// Requires a "+", a 1-3 digit country code, a space, then a 6-14 digit number.
-const PHONE_REGEX = /^\+\d{1,3} \d{6,14}$/;
 
 export default function TourBookingCard({
   pickup,
@@ -60,7 +42,7 @@ export default function TourBookingCard({
 
   const [form, setForm] = useState({
     name: "",
-    phone: "+",
+    phone: DEFAULT_PHONE_PREFIX,
     pickupAddress: "",
     requirements: "",
   });
@@ -92,13 +74,13 @@ export default function TourBookingCard({
   };
 
   const updatePhone = (value: string) => {
-    setForm((prev) => ({ ...prev, phone: sanitizePhoneInput(value) }));
+    setForm((prev) => ({ ...prev, phone: formatPhoneInput(value) }));
   };
 
   const markTouched = (field: string) =>
     setTouched((prev) => ({ ...prev, [field]: true }));
 
-  const isPhoneValid = PHONE_REGEX.test(form.phone);
+  const isPhoneValid = isValidPhone(form.phone);
 
   const submitBooking = async () => {
     if (!hasRoute) {
@@ -106,7 +88,7 @@ export default function TourBookingCard({
       return;
     }
 
-    if (!form.name || !form.phone || form.phone === "+" || !form.pickupAddress) {
+    if (!form.name || isPhoneEmpty(form.phone) || !form.pickupAddress) {
       setTouched({ name: true, phone: true, pickupAddress: true });
       setFormError("Please fill in your name, phone, and pickup address.");
       return;
@@ -114,7 +96,7 @@ export default function TourBookingCard({
 
     if (!isPhoneValid) {
       setTouched((prev) => ({ ...prev, phone: true }));
-      setFormError("Enter your phone with country code and a space, e.g. +91 9501038811 or +1 4155552671.");
+      setFormError(validatePhone(form.phone) ?? "Enter a valid phone number.");
       return;
     }
 
@@ -141,7 +123,7 @@ export default function TourBookingCard({
 
       done((res as any)?.booking?.id);
 
-      setForm({ name: "", phone: "+", pickupAddress: "", requirements: "" });
+      setForm({ name: "", phone: DEFAULT_PHONE_PREFIX, pickupAddress: "", requirements: "" });
       setTouched({});
     } catch (error) {
       console.log(error);
@@ -152,7 +134,7 @@ export default function TourBookingCard({
 
   const fieldError = (field: string, value: string) => touched[field] && !value;
   const phoneError =
-    touched.phone && (form.phone === "+" || !form.phone ? true : !isPhoneValid);
+    touched.phone && !isPhoneValid;
 
   return (
     <div className="mx-auto max-w-3xl px-6">
@@ -201,7 +183,7 @@ export default function TourBookingCard({
 
                   <FormInput
                     icon={<Phone size={18} />}
-                    placeholder="+91 9501038811"
+                    placeholder={PHONE_PLACEHOLDER}
                     type="tel"
                     value={form.phone}
                     onChange={updatePhone}
@@ -221,7 +203,7 @@ export default function TourBookingCard({
 
                 {phoneError && (
                   <p className="mt-2 text-xs text-red-400">
-                    Enter with country code and a space, e.g. +91 9501038811 or +1 4155552671
+                    {validatePhone(form.phone)}
                   </p>
                 )}
 

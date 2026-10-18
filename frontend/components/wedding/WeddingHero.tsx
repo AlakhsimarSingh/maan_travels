@@ -121,7 +121,7 @@ text-[#c7c7c7]
 
 >
 
-Create a grand wedding entrance with premium luxury cars including Mercedes Maybach, G-Wagon, Range Rover, Jaguar and chauffeur-driven wedding vehicles across Punjab.
+Create a grand wedding entrance with premium luxury cars including Mercedes Maybach, G-Wagon, Range Rover, Jaguar and wedding taxi vehicles across Punjab.
 
 </p>
 

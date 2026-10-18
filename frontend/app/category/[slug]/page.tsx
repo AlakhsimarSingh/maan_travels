@@ -1,12 +1,37 @@
 import { notFound } from "next/navigation";
 
+import type { Metadata } from "next";
+
 import { categories } from "@/src/data/categories";
+
+// Canonical home of each category — these pages duplicate them.
+const CANONICAL_PATH: Record<string, string> = {
+  "luxury-cars": "/luxury-cars",
+  "tempo-traveller": "/tempo-traveller-urbania",
+  "tour-packages": "/tour-packages",
+};
 
 type Props = {
   params: Promise<{
     slug: string;
   }>;
 };
+
+export function generateStaticParams() {
+  return categories.map((item) => ({ slug: item.slug }));
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const category = categories.find((item) => item.slug === slug);
+  if (!category) return {};
+
+  return {
+    title: `${category.name} in Jalandhar & Punjab`,
+    description: `${category.description} in Jalandhar and across Punjab, Delhi, Haryana, Himachal Pradesh and Rajasthan — Maan Travels.`,
+    alternates: { canonical: CANONICAL_PATH[slug] ?? `/category/${slug}` },
+  };
+}
 
 export default async function CategoryPage({
   params,

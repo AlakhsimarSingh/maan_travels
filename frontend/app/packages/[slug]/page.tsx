@@ -16,6 +16,10 @@ type Props = {
 
 
 
+export function generateStaticParams() {
+  return tourPackages.map((item) => ({ slug: item.slug }));
+}
+
 export default async function PackageDetailsPage({
   params,
 }:Props){
@@ -471,7 +475,7 @@ export async function generateMetadata({
 
  return {
 
-   title:`${pkg.title} | Maan Travels`,
+   title:`${pkg.title} from Jalandhar`,
    description:pkg.shortDescription,
 
  };

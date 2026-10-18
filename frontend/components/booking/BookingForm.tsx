@@ -10,6 +10,14 @@ import BookingTimePicker, { formatTime12h } from "./BookingTimePicker";
 import { API_URL } from "@/src/services/bookingService";
 import { useBookingStatus } from "@/src/hooks/useBookingStatus";
 import { useVehicles } from "@/src/hooks/useVehicles";
+import { EmailInput, PhoneInput } from "@/components/common/ContactInputs";
+import {
+  DEFAULT_PHONE_PREFIX,
+  isPhoneEmpty,
+  isValidPhone,
+  validateEmail,
+  validatePhone,
+} from "@/src/lib/contactValidation";
 
 import {
   Select,
@@ -48,7 +56,7 @@ export default function BookingForm() {
   const [form, setForm] = useState({
     name: "",
     email: "",
-    phone: "",
+    phone: DEFAULT_PHONE_PREFIX,
     pickup: "",
     drop: "",
     vehicle: "",
@@ -89,15 +97,15 @@ export default function BookingForm() {
       !!travelDate,
       !!travelTime,
       !!form.vehicle,
-      !!form.name && !!form.phone,
+      !!form.name && isValidPhone(form.phone),
     ];
     return Math.round((checks.filter(Boolean).length / checks.length) * 100);
-  }, [form.pickup, form.drop, travelDate, form.vehicle, form.name, form.phone, rideType]);
+  }, [form.pickup, form.drop, travelDate, travelTime, form.vehicle, form.name, form.phone, rideType]);
 
   const missingRequired = () => {
     const missing: string[] = [];
     if (!form.name) missing.push("Name");
-    if (!form.phone) missing.push("Phone");
+    if (isPhoneEmpty(form.phone)) missing.push("Phone");
     if (!form.pickup) missing.push("Pickup location");
     if (rideType === "taxi" && !form.drop) missing.push("Drop location");
     if (!form.vehicle) missing.push("Vehicle");
@@ -126,6 +134,13 @@ export default function BookingForm() {
         vehicle: true,
       });
       setFormError(`Still need: ${missing.join(", ")}`);
+      return;
+    }
+
+    const contactError = validatePhone(form.phone) || validateEmail(form.email, { required: false });
+    if (contactError) {
+      setTouched((prev) => ({ ...prev, phone: true, email: true }));
+      setFormError(contactError);
       return;
     }
 
@@ -158,7 +173,7 @@ export default function BookingForm() {
         setForm({
           name: "",
           email: "",
-          phone: "",
+          phone: DEFAULT_PHONE_PREFIX,
           pickup: "",
           drop: "",
           vehicle: "",
@@ -327,30 +342,27 @@ export default function BookingForm() {
               />
             </div>
 
-            <div className="relative">
-              <Mail size={17} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100]" />
-              <Input
-                placeholder="Email (optional)"
-                value={form.email}
-                onChange={(e) => updateField("email", e.target.value)}
-                className="h-12 rounded-xl border border-[#2a2a2a] bg-[#111] pl-11 text-white transition-colors focus:border-[#ecb100]/60"
-              />
-            </div>
+            <EmailInput
+              icon={<Mail size={17} className="pointer-events-none absolute left-4 top-1/2 z-10 -translate-y-1/2 text-[#ecb100]" />}
+              placeholder="Email (optional)"
+              value={form.email}
+              onChange={(v) => updateField("email", v)}
+              showError={!!touched.email}
+              className="h-12 rounded-xl border border-[#2a2a2a] bg-[#111] pl-11 text-white transition-colors focus:border-[#ecb100]/60"
+            />
 
-            <div className="relative">
-              <Phone size={17} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100]" />
-              <Input
-                placeholder="Phone"
-                value={form.phone}
-                onChange={(e) => updateField("phone", e.target.value)}
-                onBlur={() => markTouched("phone")}
-                className={`h-12 rounded-xl border bg-[#111] pl-11 text-white transition-colors ${
-                  fieldError("phone", form.phone)
-                    ? "border-red-500/60"
-                    : "border-[#2a2a2a] focus:border-[#ecb100]/60"
-                }`}
-              />
-            </div>
+            <PhoneInput
+              icon={<Phone size={17} className="pointer-events-none absolute left-4 top-1/2 z-10 -translate-y-1/2 text-[#ecb100]" />}
+              value={form.phone}
+              onChange={(v) => updateField("phone", v)}
+              onBlur={() => markTouched("phone")}
+              showError={!!touched.phone}
+              className={`h-12 rounded-xl border bg-[#111] pl-11 text-white transition-colors ${
+                touched.phone && !isValidPhone(form.phone)
+                  ? "border-red-500/60"
+                  : "border-[#2a2a2a] focus:border-[#ecb100]/60"
+              }`}
+            />
           </div>
 
           {rideType === "taxi" && (

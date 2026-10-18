@@ -13,7 +13,7 @@ const res =
 await fetch(
 `${API_URL}/api/luxury-cars/${slug}`,
 {
-cache:"no-store"
+next: { revalidate: 300 }
 }
 );
 

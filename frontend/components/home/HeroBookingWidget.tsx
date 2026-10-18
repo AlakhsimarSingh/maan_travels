@@ -1,15 +1,25 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { CarFront, PlaneTakeoff, Compass, Car, Users } from "lucide-react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-// import BookingStep from "@/components/booking/BookingStep";
 import TaxiBookingForm from "@/components/booking/TaxiBookingForm";
-import TourBookingForm from "@/components/booking/TourBookingForm";
-import AirportTransferForm from "@/components/booking/AirportTransferForm";
 import BookingStep from "../booking/BookingStep";
+
+// Airport/Tour tabs aren't visible on load, so their forms are split into
+// separate chunks and only fetched when the tab is opened.
+const TabLoading = () => (
+  <div className="h-64 animate-pulse rounded-2xl border border-[#252525] bg-black/40" />
+);
+const AirportTransferForm = dynamic(() => import("@/components/booking/AirportTransferForm"), {
+  loading: TabLoading,
+});
+const TourBookingForm = dynamic(() => import("@/components/booking/TourBookingForm"), {
+  loading: TabLoading,
+});
 
 type Vehicle = {
   id: string;

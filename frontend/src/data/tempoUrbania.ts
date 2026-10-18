@@ -66,7 +66,7 @@ export const tempoUrbaniaVehicles = [
   "Air Conditioning",
   "Premium Interiors",
   "Large Luggage Space",
-  "Experienced Chauffeur"
+  "Experienced Taxi Driver"
  ],
 
 },

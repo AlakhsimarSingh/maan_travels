@@ -87,7 +87,7 @@ export async function fetchAirportTransferData(): Promise<AirportTransferData> {
       ? vehiclesData.vehicles
       : [];
 
-  // Airport transfers use chauffeur-driven taxi fleet vehicles, matching
+  // Airport transfers use taxi fleet vehicles, matching
   // the same default the old client-side useVehicles() hook used.
   const vehicles = allVehicles.filter((v) => v.isTaxiFleet === true);
 

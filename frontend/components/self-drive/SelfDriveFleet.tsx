@@ -1,48 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 import SelfDriveCard from "./SelfDriveCard";
 import SelfDriveBookingForm from "./SelfDriveBookingForm";
 
-import { getActiveVehicles } from "@/src/services/vehicleService";
-
-export default function SelfDriveFleet() {
-  const [vehicles, setVehicles] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
+// Vehicles are fetched on the server (see app/self-drive/page.tsx) so the
+// fleet is in the initial HTML instead of loading after hydration.
+export default function SelfDriveFleet({ vehicles }: { vehicles: any[] }) {
   const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null);
   const [bookingVehicle, setBookingVehicle] = useState<any | null>(null);
 
   const bookingRef = useRef<HTMLDivElement | null>(null);
-
-  /* ---------------- FETCH SELF DRIVE VEHICLES ---------------- */
-  const fetchVehicles = async () => {
-    try {
-      setLoading(true);
-
-      const res = await getActiveVehicles();
-
-      if (res?.success) {
-        const selfDriveVehicles = (res.vehicles || []).filter(
-          (v: any) => v.isSelfDrive === true && v.available === true
-        );
-
-        setVehicles(selfDriveVehicles);
-      } else {
-        setVehicles([]);
-      }
-    } catch (err) {
-      console.error("Self drive fetch error:", err);
-      setVehicles([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchVehicles();
-  }, []);
 
   return (
     <section id="fleet" className="py-24 scroll-mt-20">
@@ -59,13 +28,7 @@ export default function SelfDriveFleet() {
         </div>
 
         {/* LOADING STATE */}
-        {loading ? (
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-64 rounded-xl bg-[#1b1b1b] animate-pulse" />
-            ))}
-          </div>
-        ) : vehicles.length === 0 ? (
+        {vehicles.length === 0 ? (
           <div className="rounded-2xl border border-[#252525] bg-[#141414] p-12 text-center">
             <p className="text-[#8a8a8a]">
               No self-drive vehicles are available right now. Please check back shortly.

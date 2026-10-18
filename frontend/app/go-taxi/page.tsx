@@ -4,10 +4,12 @@ import BookingForm from "@/components/booking/BookingForm";
 export const metadata = {
 
 title:
-"Go Taxi Booking Punjab | Maan Travels",
+"Taxi Service in Jalandhar | One Way & Outstation Cabs",
 
 description:
-"Book reliable taxi services in Punjab with Maan Travels. Airport transfers, one way taxi, round trips and outstation cab services with professional drivers."
+"Book a taxi in Jalandhar 24/7 — one way taxi, round trip and outstation cabs to Delhi, Amritsar, Ludhiana, Chandigarh, Ambala, Manali, Shimla and Jaipur. Sedans, SUVs and MPVs with professional drivers.",
+
+alternates: { canonical: "/go-taxi" },
 
 };
 
@@ -87,7 +89,7 @@ text-[#8a8a8a]
 
 >
 
-Comfortable city rides, airport transfers and outstation taxi services across Punjab with professional chauffeurs.
+Comfortable city rides, airport transfers and outstation taxi services across Punjab with professional taxi drivers.
 
 </p>
 

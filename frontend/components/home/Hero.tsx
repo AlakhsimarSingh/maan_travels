@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import Reveal from "@/components/common/Reveal";
 import HeroBookingWidget from "./HeroBookingWidget";
 
 type Vehicle = {
@@ -25,28 +24,28 @@ export default function Hero({ vehicles = [] }: { vehicles?: Vehicle[] }) {
       <div className="relative z-10 mx-auto flex max-w-7xl items-center px-6 lg:min-h-[calc(90vh-80px)]">
         <div className="grid w-full items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <div>
-            <Reveal>
+            <div className="hero-rise">
               <p className="mb-5 uppercase tracking-[0.4em] text-[#ecb100]">
                 Premium Taxi Service
               </p>
-            </Reveal>
+            </div>
 
-            <Reveal delay={100}>
+            <div className="hero-rise" style={{ animationDelay: "100ms" }}>
               <h1 className="mb-6 text-5xl font-bold leading-tight text-white md:text-7xl">
-                Luxury Travel
-                <span className="block text-[#ecb100]">Across India</span>
+                Jalandhar Taxi
+                <span className="block text-[#ecb100]">To Delhi &amp; Beyond</span>
               </h1>
-            </Reveal>
+            </div>
 
-            <Reveal delay={200}>
+            <div className="hero-rise" style={{ animationDelay: "200ms" }}>
               <p className="mb-10 max-w-xl text-lg leading-relaxed text-[#c7c7c7]">
-                Premium taxi services, airport taxi services, luxury tours, corporate
-                travel, wedding transportation, and outstation journeys tailored for
-                comfort and style.
+                Delhi to Jalandhar and Jalandhar to Delhi taxi, airport cabs, outstation
+                trips, wedding cars and tours across Punjab, Delhi, Haryana, Himachal
+                and Rajasthan, tailored for comfort and style.
               </p>
-            </Reveal>
+            </div>
 
-            <Reveal delay={300}>
+            <div className="hero-rise" style={{ animationDelay: "300ms" }}>
               <div className="flex flex-wrap gap-4">
                 <Button
                   size="lg"
@@ -65,12 +64,12 @@ export default function Hero({ vehicles = [] }: { vehicles?: Vehicle[] }) {
                   <Link href="/fleet">Explore Fleet</Link>
                 </Button>
               </div>
-            </Reveal>
+            </div>
           </div>
 
-          <Reveal delay={200} className="flex justify-center lg:justify-end">
+          <div className="hero-rise flex justify-center lg:justify-end" style={{ animationDelay: "200ms" }}>
             <HeroBookingWidget vehicles={vehicles} />
-          </Reveal>
+          </div>
         </div>
       </div>
     </section>

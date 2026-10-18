@@ -33,7 +33,7 @@ export default function AboutHero() {
           <div className="relative rounded-3xl overflow-hidden border border-[#252525]">
             <Image
               src="/images/about-luxury.jpg"
-              alt="Luxury chauffeur travel"
+              alt="Luxury taxi travel"
               width={800}
               height={600}
               priority

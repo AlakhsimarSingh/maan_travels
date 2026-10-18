@@ -10,9 +10,9 @@ import FeedbackLayout from "@/components/feedback/FeedbackLayout";
 import { buildMetadata, buildBreadcrumbLd } from "@/src/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Customer Reviews & Feedback | Maan Travels",
+  title: "Customer Reviews | Taxi Service in Jalandhar",
   description:
-    "Read genuine reviews from Maan Travels customers about our chauffeur-driven cars, airport transfers and tours across Punjab and North India — or share your own experience.",
+    "Read genuine reviews of Maan Travels, Jalandhar — Delhi to Jalandhar taxi, airport transfers and tours across Punjab and North India — or share your own experience.",
   path: "/feedback",
 });
 

@@ -83,7 +83,7 @@ export default function AirportHero({ airports, selectedAirport, onSelectAirport
 
           <div className="mt-10 flex flex-wrap gap-6 text-sm text-[#8a8a8a]">
             <span>✓ 24/7 Availability</span>
-            <span>✓ Professional Chauffeurs</span>
+            <span>✓ Professional Taxi Drivers</span>
             <span>✓ On-Time Pickup</span>
           </div>
         </div>

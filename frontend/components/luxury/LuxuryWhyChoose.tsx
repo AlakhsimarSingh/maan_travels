@@ -19,7 +19,7 @@ const reasons = [
 
   {
     icon:<UserRound size={26}/>,
-    title:"Professional Chauffeurs",
+    title:"Professional Taxi Drivers",
     description:
       "Experienced and well-trained drivers ensuring a safe and comfortable journey."
   },

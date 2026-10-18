@@ -5,9 +5,9 @@ import { buildMetadata, buildBreadcrumbLd, siteUrl } from "@/src/lib/seo";
 import { fetchAirportTransferData } from "@/src/lib/fetchAirportTransferData";
 
 export const metadata = buildMetadata({
-  title: "Airport Transfers in Punjab | Maan Travels",
+  title: "Airport Taxi Jalandhar | Delhi, Amritsar & Chandigarh",
   description:
-    "Book reliable, chauffeur-driven airport transfers to and from Amritsar, Chandigarh and Delhi airports. Flight monitoring, professional drivers, 24/7 availability.",
+    "Book airport taxi from Jalandhar to Delhi IGI, Amritsar and Chandigarh airports, and airport pickup to Jalandhar, Ludhiana and Phagwara. Flight tracking, fixed fares, 24/7.",
   path: "/airport-transfer",
 });
 
@@ -30,7 +30,7 @@ export default async function AirportTransferPage() {
     areaServed: { "@type": "State", name: "Punjab" },
     url: pageUrl,
     description:
-      "Chauffeur-driven airport transfer service with flight monitoring and 24/7 availability across Punjab and North India.",
+      "Airport taxi service with flight monitoring and 24/7 availability across Punjab and North India.",
   };
 
   const breadcrumbLd = buildBreadcrumbLd([

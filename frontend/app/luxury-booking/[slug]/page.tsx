@@ -13,14 +13,20 @@ type MetaProps = {
   params: Promise<{ slug: string }>;
 };
 
+// Render each car on its first visit, then serve it from cache (ISR)
+// instead of server-rendering on every request.
+export function generateStaticParams() {
+  return [];
+}
+
 export async function generateMetadata({ params }: MetaProps): Promise<Metadata> {
   const { slug } = await params;
   const res = await getLuxuryCarBySlug(slug);
   const name = res?.car?.name || "Luxury Car";
 
   return {
-    title: `Book ${name} | Maan Travels`,
-    description: `Reserve the ${name} with a professional chauffeur from Maan Travels.`,
+    title: `Book ${name} on Rent in Jalandhar`,
+    description: `Reserve the ${name} with a professional taxi driver from Maan Travels.`,
     robots: { index: false, follow: true },
   };
 }
@@ -71,7 +77,7 @@ export default async function LuxuryBookingPage({
             </h1>
 
             <p className="mt-3 text-[#8a8a8a]">
-              Luxury Chauffeur Service
+              Luxury Taxi Service
             </p>
 
             <div className="mt-8 space-y-3">
@@ -84,7 +90,7 @@ export default async function LuxuryBookingPage({
               <div className="rounded-xl border border-[#252525] bg-black/30 p-4">
                 <p className="text-xs text-[#8a8a8a] uppercase">Service</p>
                 <p className="mt-1 text-white">
-                  With Professional Chauffeur
+                  With Professional Taxi Driver
                 </p>
               </div>
 

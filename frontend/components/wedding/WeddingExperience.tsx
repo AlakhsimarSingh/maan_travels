@@ -104,7 +104,7 @@ export default function WeddingExperience({ cars }: { cars: LuxuryCar[] }) {
 
           <p className="mt-6 max-w-2xl text-lg leading-8 text-[#c7c7c7]">
             {active?.description ||
-              "Create a grand wedding entrance with premium luxury cars, chauffeur-driven across Punjab."}
+              "Create a grand wedding entrance with premium luxury cars and professional taxi drivers across Punjab."}
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4">

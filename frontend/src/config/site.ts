@@ -15,5 +15,5 @@ export const siteConfig = {
   },
 
   description:
-    "Premium chauffeur-driven cars, airport transfers, luxury tours, corporate travel and outstation journeys across India.",
+    "Premium taxi cars, airport transfers, luxury tours, corporate travel and outstation journeys across India.",
 };

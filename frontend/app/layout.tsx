@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 
 import ConditionalLayout from "@/components/layout/ConditionalLayout";
+import { PRIMARY_KEYWORDS, SECONDARY_KEYWORDS } from "@/src/config/seoLocations";
 
 import "./globals.css";
 
@@ -15,13 +16,17 @@ import ScrollToTop from "@/components/common/ScrollToTop";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Maan Travels | Premium Chauffeur-Driven Travel in North India",
+    default: "Maan Travels | Delhi to Jalandhar Taxi & Jalandhar to Delhi Cab",
     template: "%s | Maan Travels",
   },
   description:
-    "Premium chauffeur-driven cars, airport transfers, luxury tours and outstation journeys across Punjab, Himachal Pradesh, Jammu & Kashmir, Rajasthan and Delhi.",
-      verification: {
-    google: "4eX_X3JpHX77FIrG5ryniNQt_9zVpozQ_y6hPnxIHSQ",  // ← add this
+    "Jalandhar's trusted taxi service — Delhi to Jalandhar and Jalandhar to Delhi taxi, airport cabs, one-way and outstation taxis across Punjab, Delhi, Haryana, Himachal Pradesh and Rajasthan. Available 24/7.",
+  keywords: [...PRIMARY_KEYWORDS, ...SECONDARY_KEYWORDS],
+  applicationName: "Maan Travels",
+  category: "travel",
+  formatDetection: { telephone: true },
+  verification: {
+    google: "4eX_X3JpHX77FIrG5ryniNQt_9zVpozQ_y6hPnxIHSQ",
   },
   icons: {
     icon: [
@@ -36,7 +41,7 @@ export const metadata: Metadata = {
     siteName: "Maan Travels",
     type: "website",
     locale: "en_IN",
-    images: [{ url: "/og-default.jpg" }],
+    images: [{ url: "/og-default.jpg", width: 1200, height: 630, alt: "Maan Travels taxi service, Jalandhar" }],
   },
   twitter: {
     card: "summary_large_image",
@@ -45,7 +50,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en-IN" className="dark">
       <body
         className={`
           ${geistSans.variable}

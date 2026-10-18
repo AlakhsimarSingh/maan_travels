@@ -1,26 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useGallery } from "@/src/hooks/useGallery";
+import type { GalleryImage } from "@/src/hooks/useGallery";
 import GalleryCard from "./GalleryCard";
 import ImageLightbox from "./ImageLightbox";
 
 const categories = ["All", "Luxury Cars", "Tempo Traveller", "Wedding Cars", "Tours"];
 
-export default function GalleryGrid() {
-  const { images, loading } = useGallery();
+export default function GalleryGrid({ images }: { images: GalleryImage[] }) {
   const [active, setActive] = useState("All");
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const filtered = active === "All" ? images : images.filter((img) => img.category === active);
-
-  if (loading) {
-    return (
-      <section className="py-24">
-        <div className="mx-auto max-w-7xl px-6 text-center text-white/40">Loading gallery...</div>
-      </section>
-    );
-  }
 
   return (
     <section className="py-24">

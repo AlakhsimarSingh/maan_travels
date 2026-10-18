@@ -15,6 +15,12 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
+// Render each car on its first visit, then serve it from cache (ISR)
+// instead of server-rendering on every request.
+export function generateStaticParams() {
+  return [];
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const res = await getLuxuryCarBySlug(slug);
@@ -30,10 +36,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const car = res.car;
 
   return buildMetadata({
-    title: `${car.name} Rental in Punjab | Maan Travels`,
+    title: `${car.name} on Rent in Jalandhar & Punjab`,
     description:
       car.description ||
-      `Rent the ${car.name} with a professional chauffeur for weddings, corporate events and VIP travel across Punjab.`,
+      `Rent the ${car.name} with a professional taxi driver for weddings, corporate events and VIP travel across Punjab.`,
     path: `/luxury-cars/${car.slug}`,
     image: car.image,
   });
@@ -87,7 +93,7 @@ export default async function LuxuryCarDetailsPage({ params }: Props) {
 
               <p className="mt-5 leading-relaxed text-[#8a8a8a]">
                 Maan Travels provides premium luxury car rental services with professional
-                chauffeur support. Perfect for weddings, corporate travel, airport transfers
+                taxi driver support. Perfect for weddings, corporate travel, airport transfers
                 and special occasions.
               </p>
 

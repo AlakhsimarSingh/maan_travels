@@ -29,6 +29,8 @@ import {
 
 import { API_URL } from "@/src/services/bookingService";
 import { useBookingStatus } from "@/src/hooks/useBookingStatus";
+import { EmailInput, PhoneInput } from "@/components/common/ContactInputs";
+import { DEFAULT_PHONE_PREFIX, isValidPhone, validateEmail, validatePhone } from "@/src/lib/contactValidation";
 
 type Location = { id: string; name: string };
 
@@ -73,7 +75,7 @@ export default function TourBookingForm({
 
   const [form, setForm] = useState({
     name: "",
-    phone: "",
+    phone: DEFAULT_PHONE_PREFIX,
     email: "",
     pickupCity: prefillPickupCity || "",
     destination: prefillDestination || "",
@@ -87,6 +89,7 @@ export default function TourBookingForm({
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [paymentSummary, setPaymentSummary] = useState<{ total: number; paid: number } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showContactErrors, setShowContactErrors] = useState(false);
 
   const { success, bookingId, done, reset } = useBookingStatus();
 
@@ -124,6 +127,14 @@ export default function TourBookingForm({
   };
 
   const submitBooking = async () => {
+    const contactError = validatePhone(form.phone) || validateEmail(form.email, { required: false });
+    if (contactError) {
+      setShowContactErrors(true);
+      setOpenStep(startIndex + 1);
+      alert(contactError);
+      return;
+    }
+
     if (locked && !form.pickupAddress.trim()) {
       alert("Please enter your exact pickup address");
       return;
@@ -183,7 +194,7 @@ export default function TourBookingForm({
         done(resData.booking?.id);
         setForm({
           name: "",
-          phone: "",
+          phone: DEFAULT_PHONE_PREFIX,
           email: "",
           pickupCity: "",
           destination: "",
@@ -207,7 +218,7 @@ export default function TourBookingForm({
   const minDate = tomorrow.toISOString().split("T")[0];
 
   const routeDone = !!((locked ? form.pickupAddress : form.pickupCity && form.destination) && form.travelDate);
-  const detailsDone = !!(form.name && form.phone);
+  const detailsDone = !!(form.name && isValidPhone(form.phone));
   const routeSummary = form.pickupCity && form.destination ? `${form.pickupCity} → ${form.destination}` : undefined;
 
   return (
@@ -356,18 +367,27 @@ export default function TourBookingForm({
 
           <div className="flex flex-col gap-1.5">
             <FieldLabel icon={Phone}>Mobile Number</FieldLabel>
-            <div className="relative">
-              <Phone size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/25" />
-              <Input placeholder="10-digit number" value={form.phone} onChange={(e) => updateField("phone", e.target.value)} className={fieldClass} aria-label="Mobile Number" />
-            </div>
+            <PhoneInput
+              icon={<Phone size={15} className="absolute left-3 top-1/2 z-10 -translate-y-1/2 text-white/25" />}
+              value={form.phone}
+              onChange={(v) => updateField("phone", v)}
+              showError={showContactErrors}
+              className={fieldClass}
+              aria-label="Mobile Number"
+            />
           </div>
 
           <div className="flex flex-col gap-1.5">
             <FieldLabel icon={Mail}>Email Address</FieldLabel>
-            <div className="relative">
-              <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/25" />
-              <Input placeholder="you@example.com" value={form.email} onChange={(e) => updateField("email", e.target.value)} className={fieldClass} aria-label="Email Address" />
-            </div>
+            <EmailInput
+              icon={<Mail size={15} className="absolute left-3 top-1/2 z-10 -translate-y-1/2 text-white/25" />}
+              placeholder="you@example.com"
+              value={form.email}
+              onChange={(v) => updateField("email", v)}
+              showError={showContactErrors}
+              className={fieldClass}
+              aria-label="Email Address"
+            />
           </div>
         </div>
 

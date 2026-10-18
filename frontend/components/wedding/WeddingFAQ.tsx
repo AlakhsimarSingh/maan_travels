@@ -9,8 +9,8 @@ const faqs = [
     a: "We provide Mercedes Maybach, G-Wagon, Range Rover, Jaguar, Fortuner Legender and premium SUVs.",
   },
   {
-    q: "Are wedding cars chauffeur driven?",
-    a: "Yes. All luxury wedding cars are provided with professional chauffeurs.",
+    q: "Do wedding cars come with a taxi driver?",
+    a: "Yes. All luxury wedding cars are provided with professional taxi drivers.",
   },
   {
     q: "Can I book cars for multiple wedding functions?",

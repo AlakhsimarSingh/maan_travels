@@ -26,6 +26,7 @@ export default function TempoUrbaniaCard({
           src={vehicle.imageUrl || "/images/fallback.jpg"}
           alt={`${vehicle.name} — ${vehicle.category}`}
           fill
+          sizes="(min-width: 1280px) 620px, (min-width: 768px) 50vw, 100vw"
           className="object-cover"
         />
 

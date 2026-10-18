@@ -8,9 +8,9 @@ import { buildMetadata, buildBreadcrumbLd, siteUrl } from "@/src/lib/seo";
 import { fetchTempoVehicles } from "@/src/lib/fetchTempoVehicles";
 
 export const metadata = buildMetadata({
-  title: "Tempo Traveller & Urbania Rental Punjab",
+  title: "Tempo Traveller on Rent in Jalandhar | Urbania Hire Punjab",
   description:
-    "Book premium Tempo Traveller and Force Urbania rentals in Punjab for family trips, weddings, corporate tours and group travel with professional chauffeurs.",
+    "Hire a 12, 17 or 26 seater Tempo Traveller or Force Urbania in Jalandhar for family trips, weddings and tours to Delhi, Himachal and Rajasthan. AC vehicles with professional drivers.",
   path: "/tempo-traveller-urbania",
 });
 
@@ -68,7 +68,7 @@ export default async function Page() {
         name: "Do you provide drivers with the vehicle?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Yes, all Tempo Traveller and Urbania rentals include professional chauffeurs for a safe and comfortable journey.",
+          text: "Yes, all Tempo Traveller and Urbania rentals include professional taxi drivers for a safe and comfortable journey.",
         },
       },
     ],

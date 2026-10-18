@@ -17,7 +17,7 @@ const benefits = [
   },
 
   {
-    title: "Professional Chauffeurs",
+    title: "Professional Taxi Drivers",
     description:
       "Experienced drivers focused on safety, comfort and punctuality.",
     icon: ShieldCheck,
@@ -97,7 +97,7 @@ max-w-2xl
 text-[#8a8a8a]
 "
 >
-Comfortable vehicles, professional chauffeurs and reliable service
+Comfortable vehicles, professional taxi drivers and reliable service
 for every airport journey.
 </p>
 

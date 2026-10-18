@@ -1,11 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
+import dynamic from "next/dynamic";
 import { X } from "lucide-react";
 
-import AirportTransferForm from "@/components/booking/AirportTransferForm";
-import TaxiBookingForm from "@/components/booking/TaxiBookingForm";
-import TourBookingForm from "@/components/booking/TourBookingForm";
+// The modal is mounted on every page but closed by default, so the forms
+// are loaded on demand instead of being bundled into every page's JS.
+const AirportTransferForm = dynamic(() => import("@/components/booking/AirportTransferForm"));
+const TaxiBookingForm = dynamic(() => import("@/components/booking/TaxiBookingForm"));
+const TourBookingForm = dynamic(() => import("@/components/booking/TourBookingForm"));
 import { useBookingModal } from "@/src/store/bookingModalStore";
 
 export default function BookingModal() {

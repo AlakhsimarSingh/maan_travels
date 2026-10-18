@@ -5,16 +5,16 @@ export const services = [
     title: "Luxury Car Rental",
 
     shortDescription:
-      "Premium chauffeur driven cars for business travel, weddings and luxury journeys.",
+      "Premium taxi cars for business travel, weddings and luxury journeys.",
 
     heroImage:
-      "/services/luxury-cars.jpg",
+      "/images/about-luxury.jpg",
 
     description:
       "Experience comfortable and stylish transportation with our premium fleet of luxury sedans and SUVs.",
 
     features: [
-      "Professional Chauffeurs",
+      "Professional Taxi Drivers",
       "Premium Vehicles",
       "Corporate Travel",
       "Wedding Transportation",
@@ -46,7 +46,7 @@ export const services = [
       "Reliable airport pickup and drop services with professional drivers.",
 
     heroImage:
-      "/services/airport.jpg",
+      "/images/hero-bg.jpg",
 
     description:
       "Enjoy stress-free airport transfers with punctual pickup, flight tracking and premium vehicles.",

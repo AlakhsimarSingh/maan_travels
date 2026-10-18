@@ -129,7 +129,7 @@ leading-7
 
 Book luxury cars for weddings, corporate events,
 airport transfers and VIP travel across Punjab with
-professional chauffeurs and premium vehicles.
+professional taxi drivers and premium vehicles.
 
 </p>
 

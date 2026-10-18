@@ -21,8 +21,10 @@ async function handleResponse(res: Response, fallbackMessage: string) {
 
 
 export const getPublicLuxuryCars = async () => {
-  const res = await fetch(`${API_URL}/api/luxury-cars`);
-  // No credentials: "include" — this is a public endpoint
+  // No credentials: "include" — this is a public endpoint. Revalidate so the
+  // statically rendered /luxury-cars page picks up admin changes (without it
+  // the list was frozen at build time).
+  const res = await fetch(`${API_URL}/api/luxury-cars`, { next: { revalidate: 300 } });
   return handleResponse(res, "Failed to fetch luxury cars");
 };
 /* ---------------- GET ALL (ADMIN) ----------------

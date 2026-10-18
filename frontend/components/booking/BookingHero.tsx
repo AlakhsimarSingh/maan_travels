@@ -72,7 +72,7 @@ export default function BookingHero() {
             text-[#c7c7c7]
           "
         >
-          Premium chauffeur services,
+          Premium taxi services,
           airport transfers and customized
           tours across India.
         </p>

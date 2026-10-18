@@ -5,7 +5,7 @@ const features = [
   {
     icon: ShieldCheck,
     title: "Safe & Reliable Travel",
-    desc: "Every ride is backed by trained chauffeurs and verified vehicles.",
+    desc: "Every ride is backed by trained taxi drivers and verified vehicles.",
   },
   {
     icon: Clock,

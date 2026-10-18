@@ -27,7 +27,7 @@ function Counter({ value, suffix = "" }: { value: number; suffix?: string }) {
 
 const STATS = [
   { icon: CarFront, value: 50, suffix: "+", label: "Luxury Vehicles" },
-  { icon: Clock3, value: 24, suffix: "/7", label: "Chauffeur Availability" },
+  { icon: Clock3, value: 24, suffix: "/7", label: "Taxi Availability" },
   { icon: Award, value: 15, suffix: "+", label: "Years Of Excellence" },
   { icon: ShieldCheck, value: 10000, suffix: "+", label: "Rides Completed" },
 ];
@@ -35,7 +35,7 @@ const STATS = [
 const BADGES = [
   { icon: MapPinned, label: "Punjab · Himachal · J&K · Rajasthan · Delhi" },
   { icon: Headset, label: "24/7 Live Booking Support" },
-  { icon: ShieldCheck, label: "Verified, Background-Checked Chauffeurs" },
+  { icon: ShieldCheck, label: "Verified, Background-Checked Taxi Drivers" },
   { icon: Award, label: "On-Time Guarantee" },
 ];
 

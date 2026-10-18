@@ -23,6 +23,13 @@ import BookingSuccess from "@/components/common/BookingSuccess";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 import { cn } from "@/lib/utils";
+import {
+  DEFAULT_PHONE_PREFIX,
+  PHONE_PLACEHOLDER,
+  formatPhoneInput,
+  isPhoneEmpty,
+  validatePhone,
+} from "@/src/lib/contactValidation";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
@@ -63,7 +70,7 @@ export default function SelfDriveBookingForm({
 
   const [form, setForm] = useState<FormState>({
     name: "",
-    phone: "",
+    phone: DEFAULT_PHONE_PREFIX,
     license: "",
     requirements: "",
   });
@@ -95,9 +102,8 @@ export default function SelfDriveBookingForm({
     const next: FormErrors = {};
 
     if (!form.name.trim()) next.name = "Enter your full name";
-    if (!form.phone.trim()) next.phone = "Enter a phone number";
-    else if (!/^\+?\d{10,13}$/.test(form.phone.replace(/\s/g, "")))
-      next.phone = "Enter a valid phone number";
+    if (isPhoneEmpty(form.phone)) next.phone = "Enter a phone number";
+    else next.phone = validatePhone(form.phone) ?? undefined;
 
     if (!form.license.trim()) next.license = "Driving license number is required";
 
@@ -253,11 +259,11 @@ export default function SelfDriveBookingForm({
 
             <Input
               icon={<Phone size={18} />}
-              placeholder="Phone number"
+              placeholder={PHONE_PLACEHOLDER}
               type="tel"
               value={form.phone}
               error={errors.phone}
-              onChange={(v) => handleChange("phone", v)}
+              onChange={(v) => handleChange("phone", formatPhoneInput(v))}
             />
           </div>
 

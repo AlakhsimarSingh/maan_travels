@@ -39,30 +39,30 @@ const FILTER_SEO: Record <
   { title: string; description: string; heading: string; eyebrow: string }
 > = {
   all: {
-    title: "Our Fleet | Sedans, SUVs, Tempo Travellers & Luxury Cars | Maan Travels",
+    title: "Taxi Fleet in Jalandhar | Sedans, SUVs & Luxury Cars",
     description:
-      "Explore Maan Travels' complete fleet — comfortable sedans, premium SUVs, MPVs, tempo travellers and luxury chauffeur-driven cars available across Punjab and North India.",
+      "Explore Maan Travels' complete fleet — comfortable sedans, premium SUVs, MPVs, tempo travellers and luxury taxi cars available across Punjab and North India.",
     heading: "Premium Vehicles",
     eyebrow: "Our Fleet",
   },
   luxury: {
-    title: "Luxury Chauffeur Cars | Maan Travels",
+    title: "Luxury Taxi Cars in Jalandhar & Punjab",
     description:
-      "Browse Maan Travels' luxury fleet — premium chauffeur-driven cars for weddings, events and special occasions across Punjab and North India.",
+      "Browse Maan Travels' luxury fleet — premium taxi cars for weddings, events and special occasions across Punjab and North India.",
     heading: "Luxury Cars",
     eyebrow: "Luxury Fleet",
   },
   "self-drive": {
-    title: "Self Drive Car Rentals | Maan Travels",
+    title: "Self Drive Car Rentals in Jalandhar",
     description:
       "Rent a self-drive car from Maan Travels — well-maintained vehicles available by the day across Punjab, with flexible pickup and return.",
     heading: "Self Drive Rentals",
     eyebrow: "Self Drive",
   },
   taxi: {
-    title: "Taxi Fleet | Sedans, SUVs & MPVs | Maan Travels",
+    title: "Taxi Fleet | Sedans, SUVs & MPVs in Jalandhar",
     description:
-      "Maan Travels' chauffeur-driven taxi fleet — sedans, SUVs and MPVs for outstation trips, airport transfers and local travel across Punjab.",
+      "Maan Travels' taxi fleet — sedans, SUVs and MPVs for outstation trips, airport transfers and local travel across Punjab.",
     heading: "Taxi Fleet",
     eyebrow: "Taxi Fleet",
   },
@@ -107,7 +107,7 @@ export async function generateMetadata({
     description: seo.description,
     alternates: { canonical: canonicalUrl },
     openGraph: {
-      title: seo.title,
+      title: `${seo.title} | Maan Travels`,
       description: seo.description,
       type: "website",
       url: canonicalUrl,
@@ -162,10 +162,10 @@ export default async function FleetPage({
             {filtered.length > 0
               ? `Choose from ${filtered.length}+ well-maintained vehicles${
                   activeFilter === "all"
-                    ? " — comfortable sedans, premium SUVs, tempo travellers and luxury cars, all driven by professional chauffeurs."
+                    ? " — comfortable sedans, premium SUVs, tempo travellers and luxury cars, all driven by professional taxi drivers."
                     : "."
                 }`
-              : "Comfortable sedans, premium SUVs and luxury vehicles driven by professional chauffeurs."}
+              : "Comfortable sedans, premium SUVs and luxury vehicles driven by professional taxi drivers."}
           </p>
         </Reveal>
 

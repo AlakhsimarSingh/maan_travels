@@ -27,6 +27,14 @@ import { Calendar } from "@/components/ui/calendar";
 import BookingSuccess from "@/components/common/BookingSuccess";
 import { createWeddingBooking } from "@/src/services/bookingService";
 import { useBookingStatus } from "@/src/hooks/useBookingStatus";
+import { FieldError } from "@/components/common/ContactInputs";
+import {
+  DEFAULT_PHONE_PREFIX,
+  PHONE_PLACEHOLDER,
+  formatPhoneInput,
+  isPhoneEmpty,
+  validatePhone,
+} from "@/src/lib/contactValidation";
 
 export default function WeddingBookingForm({ car }: { car: any }) {
   const [date, setDate] = useState<Date>();
@@ -34,7 +42,7 @@ export default function WeddingBookingForm({ car }: { car: any }) {
 
   const [form, setForm] = useState({
     name: "",
-    phone: "",
+    phone: DEFAULT_PHONE_PREFIX,
     pickup: "",
     venue: "",
     guests: "",
@@ -60,7 +68,7 @@ export default function WeddingBookingForm({ car }: { car: any }) {
   const submitBooking = async () => {
     const missing: string[] = [];
     if (!form.name) missing.push("name");
-    if (!form.phone) missing.push("phone");
+    if (isPhoneEmpty(form.phone)) missing.push("phone");
     if (!form.pickup) missing.push("pickup");
     if (!form.venue) missing.push("venue");
     if (!date) missing.push("date");
@@ -68,6 +76,13 @@ export default function WeddingBookingForm({ car }: { car: any }) {
     if (missing.length > 0) {
       setTouched({ name: true, phone: true, pickup: true, venue: true });
       setFormError("Please fill in all required fields to continue.");
+      return;
+    }
+
+    const phoneError = validatePhone(form.phone);
+    if (phoneError) {
+      setTouched((prev) => ({ ...prev, phone: true }));
+      setFormError(phoneError);
       return;
     }
 
@@ -101,7 +116,7 @@ export default function WeddingBookingForm({ car }: { car: any }) {
 
       setForm({
         name: "",
-        phone: "",
+        phone: DEFAULT_PHONE_PREFIX,
         pickup: "",
         venue: "",
         guests: "",
@@ -129,7 +144,7 @@ export default function WeddingBookingForm({ car }: { car: any }) {
           </p>
           <h2 className="mt-3 text-3xl font-bold text-white">Book {car.name}</h2>
           <p className="mt-2 text-[#8a8a8a]">
-            Royal wedding arrival experience with premium chauffeur service.
+            Royal wedding arrival experience with premium taxi service.
           </p>
         </div>
 
@@ -148,11 +163,12 @@ export default function WeddingBookingForm({ car }: { car: any }) {
 
               <FieldInput
                 icon={<Phone size={18} />}
-                placeholder="Phone number"
+                placeholder={PHONE_PLACEHOLDER}
+                type="tel"
                 value={form.phone}
-                onChange={(v) => updateField("phone", v)}
+                onChange={(v) => updateField("phone", formatPhoneInput(v))}
                 onBlur={() => markTouched("phone")}
-                error={fieldError("phone", form.phone)}
+                error={touched.phone && (isPhoneEmpty(form.phone) || validatePhone(form.phone))}
               />
             </div>
           </FormSection>
@@ -301,7 +317,7 @@ export default function WeddingBookingForm({ car }: { car: any }) {
         <div className="sticky top-24 overflow-hidden rounded-3xl border border-[#252525] bg-[#141414] shadow-2xl">
           {car.image && (
             <div className="relative h-40 w-full">
-              <Image src={car.image} alt={car.name} fill className="object-cover" />
+              <Image src={car.image} alt={car.name} fill sizes="(min-width: 1024px) 400px, 100vw" className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-transparent" />
             </div>
           )}
@@ -368,25 +384,29 @@ function FieldInput({
   value: string;
   onChange: (v: string) => void;
   onBlur?: () => void;
-  error?: boolean;
+  /** true highlights the field; a string also shows it as a message. */
+  error?: boolean | string | null;
   type?: string;
 }) {
   return (
-    <div className="relative">
-      <div className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100]">
-        {icon}
-      </div>
+    <div>
+      <div className="relative">
+        <div className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#ecb100]">
+          {icon}
+        </div>
 
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onBlur={onBlur}
-        placeholder={placeholder}
-        className={`h-12 w-full rounded-xl border bg-black/40 pl-12 pr-4 text-white outline-none transition-colors placeholder:text-[#666] ${
-          error ? "border-red-500/60" : "border-[#252525] focus:border-[#ecb100]"
-        }`}
-      />
+        <input
+          type={type}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onBlur={onBlur}
+          placeholder={placeholder}
+          className={`h-12 w-full rounded-xl border bg-black/40 pl-12 pr-4 text-white outline-none transition-colors placeholder:text-[#666] ${
+            error ? "border-red-500/60" : "border-[#252525] focus:border-[#ecb100]"
+          }`}
+        />
+      </div>
+      {typeof error === "string" && <FieldError message={error} />}
     </div>
   );
 }

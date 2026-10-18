@@ -23,7 +23,7 @@ export default function CTASection() {
           </h2>
 
           <p className="mb-10 max-w-2xl text-lg text-[#c7c7c7]">
-            Book luxury chauffeur-driven cars, airport transfers and customized tours across India.
+            Book a taxi from Jalandhar to Delhi, Amritsar, Chandigarh, Manali, Shimla, Jaipur and beyond, plus airport transfers and custom tours across Punjab, Haryana, Himachal and Rajasthan.
           </p>
 
           <div className="flex flex-wrap gap-5">

@@ -9,9 +9,9 @@ import { getPublicLuxuryCars } from "@/src/services/luxuryCarService";
 import { buildMetadata, buildBreadcrumbLd } from "@/src/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Luxury Car Rental in Punjab | Mercedes Maybach, G-Wagon, Range Rover",
+  title: "Luxury Car Rental in Jalandhar & Punjab",
   description:
-    "Book luxury cars in Punjab with Maan Travels. Premium Mercedes Maybach, G-Wagon, Range Rover, Defender, Jaguar and Fortuner Legender rental services for weddings, corporate events and VIP travel.",
+    "Book luxury cars in Jalandhar, Ludhiana, Amritsar and across Punjab with Maan Travels. Mercedes Maybach, G-Wagon, Range Rover, Defender, Jaguar and Fortuner Legender rental services for weddings, corporate events and VIP travel.",
   path: "/luxury-cars",
 });
 

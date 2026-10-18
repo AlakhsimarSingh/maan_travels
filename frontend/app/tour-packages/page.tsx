@@ -3,9 +3,9 @@ import { fetchTourLocations } from "@/src/lib/FetchTourLocations";
 import { buildMetadata, buildBreadcrumbLd, siteUrl } from "@/src/lib/seo";
 
 export const metadata = buildMetadata({
-  title: "Tour Packages Punjab | Himachal, Kashmir, Rajasthan & Religious Tours",
+  title: "Taxi Tour Packages from Jalandhar & Punjab",
   description:
-    "Book customized tour packages from Punjab to Manali, Shimla, Kashmir, Dalhousie, Rajasthan and religious destinations with Maan Travels.",
+    "Book custom taxi tour packages from Jalandhar and Punjab to Manali, Shimla, Dharamshala, Kashmir, Vaishno Devi, Jaipur and Udaipur. Sedans, SUVs and Tempo Travellers with drivers.",
   path: "/tour-packages",
 });
 
@@ -34,7 +34,7 @@ export default async function Page() {
     ],
     url: pageUrl,
     description:
-      "Customized chauffeur-driven tour packages from Punjab to Himachal Pradesh, Kashmir, Rajasthan and religious destinations across North India.",
+      "Customized taxi tour packages from Punjab to Himachal Pradesh, Kashmir, Rajasthan and religious destinations across North India.",
   };
 
   const breadcrumbLd = buildBreadcrumbLd([

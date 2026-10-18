@@ -10,6 +10,14 @@ import {
 import { PaymentScreenshot } from "@/components/admin/PaymentScreenshot";
 import { updatePaymentStatus, updateBookingStatus } from "@/src/services/bookingAdminService";
 import { API_URL } from "@/src/services/bookingService";
+import { FieldError } from "@/components/common/ContactInputs";
+import {
+  DEFAULT_PHONE_PREFIX,
+  formatPhoneInput,
+  isPhoneEmpty,
+  isValidPhone,
+  validatePhone,
+} from "@/src/lib/contactValidation";
 
 // ── Types ──────────────────────────────────────────────────────
 const paymentStatusColor: Record<string, string> = {
@@ -57,7 +65,7 @@ export default function BookingDetailsModal({
   // never persisted to the booking or the database.
   const [showDriverForm, setShowDriverForm] = useState(false);
   const [driverName, setDriverName] = useState("");
-  const [driverPhone, setDriverPhone] = useState("");
+  const [driverPhone, setDriverPhone] = useState(DEFAULT_PHONE_PREFIX);
   const [carNumber, setCarNumber] = useState("");
 
   useEffect(() => {
@@ -67,7 +75,7 @@ export default function BookingDetailsModal({
     setNotifyType(null);
     setShowDriverForm(false);
     setDriverName("");
-    setDriverPhone("");
+    setDriverPhone(DEFAULT_PHONE_PREFIX);
     setCarNumber("");
   }, [booking?.id, booking?.paymentStatus, booking?.status]);
 
@@ -150,7 +158,7 @@ export default function BookingDetailsModal({
     }
   };
 
-  const driverFormValid = driverName.trim() && driverPhone.trim() && carNumber.trim();
+  const driverFormValid = driverName.trim() && isValidPhone(driverPhone) && carNumber.trim();
 
   const handleSendDriverDetails = async () => {
     if (!driverFormValid) return;
@@ -440,13 +448,17 @@ function ModalContent({
               placeholder="Driver name"
               className="w-full rounded-lg border border-[#252525] bg-[#141414] px-3 py-2.5 text-sm text-white placeholder:text-[#555] outline-none focus:border-[#ecb100]/50"
             />
-            <input
-              value={driverPhone}
-              onChange={(e) => onDriverPhoneChange(e.target.value)}
-              placeholder="Driver phone number"
-              inputMode="tel"
-              className="w-full rounded-lg border border-[#252525] bg-[#141414] px-3 py-2.5 text-sm text-white placeholder:text-[#555] outline-none focus:border-[#ecb100]/50"
-            />
+            <div>
+              <input
+                value={driverPhone}
+                onChange={(e) => onDriverPhoneChange(formatPhoneInput(e.target.value))}
+                placeholder="Driver phone, e.g. +91 9501038811"
+                type="tel"
+                inputMode="tel"
+                className="w-full rounded-lg border border-[#252525] bg-[#141414] px-3 py-2.5 text-sm text-white placeholder:text-[#555] outline-none focus:border-[#ecb100]/50"
+              />
+              <FieldError message={isPhoneEmpty(driverPhone) ? null : validatePhone(driverPhone)} />
+            </div>
             <input
               value={carNumber}
               onChange={(e) => onCarNumberChange(e.target.value.toUpperCase())}

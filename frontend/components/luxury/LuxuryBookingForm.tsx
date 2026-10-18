@@ -20,6 +20,15 @@ import Reveal from "@/components/common/Reveal";
 
 import { API_URL } from "@/src/services/bookingService";
 import { useBookingStatus } from "@/src/hooks/useBookingStatus";
+import { FieldError } from "@/components/common/ContactInputs";
+import {
+  DEFAULT_PHONE_PREFIX,
+  PHONE_PLACEHOLDER,
+  formatPhoneInput,
+  isPhoneEmpty,
+  isValidPhone,
+  validatePhone,
+} from "@/src/lib/contactValidation";
 import BookingProgress from "../shared/BookingProgress";
 
 export function LuxuryBookingForm({ car }: { car: any }) {
@@ -27,7 +36,7 @@ export function LuxuryBookingForm({ car }: { car: any }) {
 
   const [form, setForm] = useState({
     name: "",
-    phone: "",
+    phone: DEFAULT_PHONE_PREFIX,
     pickup: "",
     destination: "",
     hours: "",
@@ -36,6 +45,7 @@ export function LuxuryBookingForm({ car }: { car: any }) {
   });
 
   const [loading, setLoading] = useState(false);
+  const [phoneTouched, setPhoneTouched] = useState(false);
 
   const { success, bookingId, done, reset } = useBookingStatus();
 
@@ -47,20 +57,27 @@ export function LuxuryBookingForm({ car }: { car: any }) {
 
   /* ---------------- PROGRESS STEPS ---------------- */
   const steps = [
-    { label: "Your Details", complete: Boolean(form.name && form.phone) },
+    { label: "Your Details", complete: Boolean(form.name && isValidPhone(form.phone)) },
     { label: "Trip Info", complete: Boolean(form.pickup && form.destination) },
     { label: "Schedule", complete: Boolean(eventDate && form.hours && form.eventType) },
     {
       label: "Ready",
       complete: Boolean(
-        form.name && form.phone && form.pickup && form.destination && eventDate && form.hours && form.eventType
+        form.name && isValidPhone(form.phone) && form.pickup && form.destination && eventDate && form.hours && form.eventType
       ),
     },
   ];
 
   const submitBooking = async () => {
-    if (!form.name || !form.phone || !form.pickup || !form.destination || !eventDate || !form.hours || !form.eventType) {
+    if (!form.name || isPhoneEmpty(form.phone) || !form.pickup || !form.destination || !eventDate || !form.hours || !form.eventType) {
       alert("Please fill all required fields");
+      return;
+    }
+
+    const phoneError = validatePhone(form.phone);
+    if (phoneError) {
+      setPhoneTouched(true);
+      alert(phoneError);
       return;
     }
 
@@ -87,7 +104,7 @@ export function LuxuryBookingForm({ car }: { car: any }) {
 
       if (resData.success) {
         done(resData.bookingId || resData.booking?.id);
-        setForm({ name: "", phone: "", pickup: "", destination: "", hours: "", eventType: "", requirements: "" });
+        setForm({ name: "", phone: DEFAULT_PHONE_PREFIX, pickup: "", destination: "", hours: "", eventType: "", requirements: "" });
         setEventDate(undefined);
       } else {
         alert(resData.message || "Booking failed");
@@ -112,7 +129,7 @@ export function LuxuryBookingForm({ car }: { car: any }) {
         </div>
 
         <h2 className="relative mt-3 text-3xl font-bold text-white">Book {car.name}</h2>
-        <p className="relative mt-2 text-[#8a8a8a]">Premium chauffeur driven luxury experience</p>
+        <p className="relative mt-2 text-[#8a8a8a]">Premium luxury taxi experience</p>
       </Reveal>
 
       {totalAmount > 0 && (
@@ -135,7 +152,17 @@ export function LuxuryBookingForm({ car }: { car: any }) {
         <div className="relative mt-8 grid gap-6 md:grid-cols-2">
 
           <FieldInput icon={<User size={18} />} placeholder="Full Name" value={form.name} onChange={(e) => updateField("name", e.target.value)} />
-          <FieldInput icon={<Phone size={18} />} placeholder="Phone Number" value={form.phone} onChange={(e) => updateField("phone", e.target.value)} />
+          <div>
+            <FieldInput
+              icon={<Phone size={18} />}
+              placeholder={PHONE_PLACEHOLDER}
+              type="tel"
+              value={form.phone}
+              onChange={(e) => updateField("phone", formatPhoneInput(e.target.value))}
+              onBlur={() => setPhoneTouched(true)}
+            />
+            <FieldError message={phoneTouched && !isPhoneEmpty(form.phone) ? validatePhone(form.phone) : null} />
+          </div>
           <FieldInput icon={<MapPin size={18} />} placeholder="Pickup Location" value={form.pickup} onChange={(e) => updateField("pickup", e.target.value)} />
           <FieldInput icon={<MapPin size={18} />} placeholder="Destination / Venue" value={form.destination} onChange={(e) => updateField("destination", e.target.value)} />
 
@@ -215,18 +242,26 @@ function FieldInput({
   placeholder,
   value,
   onChange,
+  onBlur,
+  type = "text",
 }: {
   icon: React.ReactNode;
   placeholder: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onBlur?: () => void;
+  type?: string;
 }) {
   return (
     <div className="relative">
       <div className="absolute left-4 top-3.5 text-[#ecb100]">{icon}</div>
       <input
+        type={type}
+        inputMode={type === "tel" ? "tel" : undefined}
+        autoComplete={type === "tel" ? "tel" : undefined}
         value={value}
         onChange={onChange}
+        onBlur={onBlur}
         placeholder={placeholder}
         className="w-full rounded-xl border border-[#252525] bg-black/40 py-3 pl-12 pr-4 text-white outline-none transition-colors placeholder:text-[#666] focus:border-[#ecb100]"
       />

@@ -34,7 +34,7 @@ text:
 
 {
 icon:<ShieldCheck size={22}/>,
-title:"Professional Chauffeurs",
+title:"Professional Taxi Drivers",
 text:
 "Experienced drivers ensure a safe, comfortable and premium travel experience."
 }
@@ -90,7 +90,7 @@ leading-8
 text-[#8a8a8a]
 ">
 
-Maan Travels provides premium Tempo Traveller and Force Urbania rental services in Punjab for comfortable group transportation. Whether you are planning a family holiday, wedding event, corporate trip or a Himachal tour, our luxury AC travellers offer spacious interiors, professional chauffeurs and reliable service.
+Maan Travels provides premium Tempo Traveller and Force Urbania rental services in Punjab for comfortable group transportation. Whether you are planning a family holiday, wedding event, corporate trip or a Himachal tour, our luxury AC travellers offer spacious interiors, professional taxi drivers and reliable service.
 
 </p>
 

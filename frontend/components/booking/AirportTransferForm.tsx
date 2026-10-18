@@ -16,6 +16,8 @@ import { useBookingStatus } from "@/src/hooks/useBookingStatus";
 import { useVehicles } from "@/src/hooks/useVehicles";
 import { API_URL } from "@/src/services/bookingService";
 import BookingStep from "./BookingStep";
+import { PhoneInput } from "@/components/common/ContactInputs";
+import { DEFAULT_PHONE_PREFIX, isValidPhone, validatePhone } from "@/src/lib/contactValidation";
 
 type Direction = "TO_AIRPORT" | "FROM_AIRPORT";
 
@@ -58,7 +60,7 @@ export default function AirportTransferForm({
     vehicle: vehicleId || "",
     passengers: "",
     name: "",
-    phone: "",
+    phone: DEFAULT_PHONE_PREFIX,
     suitcases: "",
     handbags: "",
   });
@@ -68,6 +70,7 @@ export default function AirportTransferForm({
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [paymentSummary, setPaymentSummary] = useState<{ total: number; paid: number } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showContactErrors, setShowContactErrors] = useState(false);
 
   const { success, bookingId, done, reset } = useBookingStatus();
 
@@ -108,7 +111,7 @@ export default function AirportTransferForm({
 
   const availableCities = useMemo(
     () => cities.filter((c) => (direction === "TO_AIRPORT" ? c.canPickup : c.canDrop)),
-    [cities]
+    [cities, direction]
   );
 
   const selectedAirportName = airports.find((a) => a.id === selectedAirportId)?.name || prefillAirport || "";
@@ -153,6 +156,14 @@ export default function AirportTransferForm({
       !form.suitcases || !form.handbags
     ) {
       alert("Please fill all required fields");
+      return;
+    }
+
+    const phoneError = validatePhone(form.phone);
+    if (phoneError) {
+      setShowContactErrors(true);
+      setOpenStep(startIndex + 2);
+      alert(phoneError);
       return;
     }
 
@@ -226,7 +237,7 @@ export default function AirportTransferForm({
     : undefined;
   const routeDone = !!(selectedAirportId && selectedCityId && form.pickup);
   const scheduleDone = !!(travelDate && form.time && form.vehicle && form.passengers);
-  const detailsDone = !!(form.name && form.phone && form.suitcases && form.handbags);
+  const detailsDone = !!(form.name && isValidPhone(form.phone) && form.suitcases && form.handbags);
 
   return (
     <div className="space-y-2.5">
@@ -382,7 +393,7 @@ export default function AirportTransferForm({
           </div>
 
           <label htmlFor="phone" className="sr-only">Phone Number</label>
-          <Input id="phone" name="phone" value={form.phone} onChange={handleChange} placeholder="Phone Number" className={fieldClass} />
+          <PhoneInput id="phone" name="phone" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} showError={showContactErrors} className={fieldClass} />
 
           <div className="relative h-11">
             <Luggage size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 z-10 text-[#ecb100]" />

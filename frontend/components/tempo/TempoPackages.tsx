@@ -23,7 +23,7 @@ const packages = [
   "8 Hours / 80 KM Package",
   "Airport Transfers",
   "Hotel Pickup & Drop",
-  "Professional Chauffeur"
+  "Professional Taxi Driver"
  ]
 
 },

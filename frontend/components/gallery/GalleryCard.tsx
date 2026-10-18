@@ -28,6 +28,8 @@ export default function GalleryCard({ image, description, category, index, onCli
       <img
         src={resolveImageUrl(image, API_URL)}
         alt={description || category}
+        loading={index < 3 ? "eager" : "lazy"}
+        decoding="async"
         className="h-auto w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
       />
 

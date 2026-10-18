@@ -1,16 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Calculator, MapPin, Navigation, Loader2 } from "lucide-react";
 
 import VehicleSelector from "./VehicleSelector";
 import CalculatorStep from "./CalculatorStep";
 import FareResult from "./FareResult";
-
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  process.env.NEXT_PUBLIC_BACKEND_URL ||
-  "http://localhost:5000";
 
 type Vehicle = {
   id: string;
@@ -20,10 +15,10 @@ type Vehicle = {
   imageUrl?: string | null;
 };
 
-export default function TravelCostCalculator() {
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+// Vehicles are passed in from the server-rendered page, so the selector is
+// already populated in the initial HTML instead of fetching after hydration.
+export default function TravelCostCalculator({ vehicles }: { vehicles: Vehicle[] }) {
   const [vehicle, setVehicle] = useState("");
-  const [loadingVehicles, setLoadingVehicles] = useState(true);
 
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
@@ -33,22 +28,6 @@ export default function TravelCostCalculator() {
   const [distance, setDistance] = useState<number | null>(null);
   const [routeError, setRouteError] = useState("");
   const [routeMeta, setRouteMeta] = useState<{ origin: string; destination: string } | null>(null);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        setLoadingVehicles(true);
-        const res = await fetch(`${API_URL}/api/vehicles`);
-        const data = await res.json();
-        const taxiOnly = (data?.vehicles || []).filter((v: any) => v.isTaxiFleet);
-        setVehicles(taxiOnly);
-      } catch (err) {
-        console.error("Failed to load vehicles", err);
-      } finally {
-        setLoadingVehicles(false);
-      }
-    })();
-  }, []);
 
   const selectedVehicle = vehicles.find((v) => v.id === vehicle);
 
@@ -219,19 +198,11 @@ export default function TravelCostCalculator() {
 
           {/* STEP 2 — VEHICLE */}
           <CalculatorStep step={2} title="Choose your vehicle">
-            {loadingVehicles ? (
-              <div className="grid gap-4 sm:grid-cols-3">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-20 animate-pulse rounded-2xl bg-black/30" />
-                ))}
-              </div>
-            ) : (
-              <VehicleSelector
-                vehicles={vehicles}
-                selected={vehicle}
-                setSelected={setVehicle}
-              />
-            )}
+            <VehicleSelector
+              vehicles={vehicles}
+              selected={vehicle}
+              setSelected={setVehicle}
+            />
           </CalculatorStep>
 
           {/* STEP 3 — RESULT */}

@@ -270,7 +270,7 @@ export default function VehicleModal({
             <div className="grid gap-3 sm:grid-cols-2">
               <FleetToggle
                 label="Taxi Fleet"
-                description="Chauffeur-driven bookings"
+                description="Taxi bookings"
                 checked={form.isTaxiFleet}
                 onChange={(v) => setField("isTaxiFleet", v)}
               />

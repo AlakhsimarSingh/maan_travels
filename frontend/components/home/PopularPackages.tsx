@@ -22,7 +22,7 @@ const packages = [
     price: "₹34,999",
     image: "/packages/kashmir.jpg",
     highlights: [
-      "Private Chauffeur",
+      "Private Taxi",
       "Houseboat Stay",
       "Sightseeing",
     ],

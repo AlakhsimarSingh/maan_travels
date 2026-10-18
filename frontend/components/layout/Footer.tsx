@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { Phone, Mail, MapPin, ArrowUpRight } from "lucide-react";
 
 import { siteConfig } from "@/src/config/site";
+import { ALL_SERVED_CITIES, STATES } from "@/src/config/seoLocations";
 import { InstagramIcon, FacebookIcon } from "@/components/icons/SocialIcons";
 
 const services = [
@@ -229,19 +230,59 @@ export default function Footer({ cars = [] }: { cars?: FooterCar[] }) {
           __html: JSON.stringify({
             "@context": "https://schema.org",
             "@type": "TravelAgency",
+            "@id": "https://www.maantravels.com/#business",
             name: "Maan Tour And Travels",
+            alternateName: ["Maan Travels", "Maan Travels Jalandhar", "Maan Taxi Service Jalandhar"],
+            description:
+              "Taxi service in Jalandhar, Punjab — Delhi to Jalandhar and Jalandhar to Delhi taxi, airport cabs, one-way and outstation taxis across Punjab, Delhi, Haryana, Himachal Pradesh and Rajasthan, available 24/7.",
             url: "https://www.maantravels.com",
             logo: "https://www.maantravels.com/icon-512.png",
-            image: "https://www.maantravels.com/og-image.jpg",
+            image: "https://www.maantravels.com/og-default.jpg",
             telephone: siteConfig.contact.phone,
             email: siteConfig.contact.email,
+            priceRange: "₹₹",
+            currenciesAccepted: "INR",
+            paymentAccepted: "Cash, UPI, Bank Transfer",
+            openingHoursSpecification: {
+              "@type": "OpeningHoursSpecification",
+              dayOfWeek: [
+                "Monday",
+                "Tuesday",
+                "Wednesday",
+                "Thursday",
+                "Friday",
+                "Saturday",
+                "Sunday",
+              ],
+              opens: "00:00",
+              closes: "23:59",
+            },
             areaServed: [
-              "Punjab",
-              "Himachal Pradesh",
-              "Jammu and Kashmir",
-              "Rajasthan",
-              "Delhi",
+              ...ALL_SERVED_CITIES.map((name) => ({ "@type": "City", name })),
+              ...STATES.map((name) => ({ "@type": "State", name })),
             ],
+            hasOfferCatalog: {
+              "@type": "OfferCatalog",
+              name: "Taxi services",
+              itemListElement: [
+                "Delhi to Jalandhar Taxi",
+                "Jalandhar to Delhi Taxi",
+                "Delhi Airport to Jalandhar Taxi",
+                "Jalandhar to Amritsar Airport Taxi",
+                "Jalandhar to Chandigarh Taxi",
+                "One Way Taxi from Jalandhar",
+                "Outstation Taxi Punjab, Haryana, Himachal & Rajasthan",
+                "Jalandhar to Manali, Shimla & Dharamshala Taxi",
+                "Local Taxi in Jalandhar",
+                "Tempo Traveller on Rent in Jalandhar",
+                "Wedding Car Rental in Punjab",
+                "Luxury Car Rental in Punjab",
+                "Tour Packages from Jalandhar",
+              ].map((name) => ({
+                "@type": "Offer",
+                itemOffered: { "@type": "Service", name },
+              })),
+            },
             sameAs: [
               siteConfig.social.instagram,
               siteConfig.social.facebook,
