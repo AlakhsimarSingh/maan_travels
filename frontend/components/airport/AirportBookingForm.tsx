@@ -6,7 +6,7 @@ import { CalendarDays, Clock, MapPin, MapPinned, Users, Luggage, ArrowRightLeft 
 
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar } from "@/components/ui/lazy-calendar";
 import { format } from "date-fns";
 
 import BookingSuccess from "../common/BookingSuccess";

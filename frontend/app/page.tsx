@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
 import Hero from "@/components/home/Hero";
 import FleetSection from "@/components/home/FleetSection";
@@ -208,26 +209,58 @@ export default async function Home() {
       <Hero vehicles={taxiVehicles} />
       <TrustMarquee />
 
-      <FleetSection vehicles={vehicles} />
-      <WhyChooseUs />
+      {/* Everything below the hero is wrapped in <Below>: content-visibility
+          lets the browser skip layout/paint until it scrolls near the
+          viewport, and each Suspense boundary hydrates as its own small task
+          instead of one long main-thread block. Visually identical. */}
+      <Below>
+        <FleetSection vehicles={vehicles} />
+      </Below>
+      <Below>
+        <WhyChooseUs />
+      </Below>
       <section className="pt-12">
-        <RouteSection title="Popular Airport Taxi Transfers" routes={grouped.airport} vehicles={taxiVehicles} type="airport" />
-        <RouteSection title="Local Taxi Within Jalandhar & City" routes={grouped.local} vehicles={taxiVehicles} type="taxi" />
-        <RouteSection title="Popular Taxi Tour Routes" routes={grouped.tour} vehicles={taxiVehicles} type="tour" />
-        <RouteSection title="Popular Taxi Destinations from Jalandhar" routes={grouped.destination} vehicles={taxiVehicles} type="taxi" />
-        <RouteSection title="Popular One Way Taxi Routes" routes={grouped.one_way} vehicles={taxiVehicles} type="taxi" />
+        <Below>
+          <RouteSection title="Popular Airport Taxi Transfers" routes={grouped.airport} vehicles={taxiVehicles} type="airport" />
+        </Below>
+        <Below>
+          <RouteSection title="Local Taxi Within Jalandhar & City" routes={grouped.local} vehicles={taxiVehicles} type="taxi" />
+        </Below>
+        <Below>
+          <RouteSection title="Popular Taxi Tour Routes" routes={grouped.tour} vehicles={taxiVehicles} type="tour" />
+        </Below>
+        <Below>
+          <RouteSection title="Popular Taxi Destinations from Jalandhar" routes={grouped.destination} vehicles={taxiVehicles} type="taxi" />
+        </Below>
+        <Below>
+          <RouteSection title="Popular One Way Taxi Routes" routes={grouped.one_way} vehicles={taxiVehicles} type="taxi" />
+        </Below>
       </section>
-      <Testimonials testimonials={testimonials} />
+      <Below>
+        <Testimonials testimonials={testimonials} />
+      </Below>
 
-      <section className="pt-10 pb-8">
-        <Reveal>
-          <TravelCostCalculator
-            vehicles={taxiVehicles.map((v) => ({ ...v, price: v.price ?? 0 }))}
-          />
-        </Reveal>
-      </section>
+      <Below>
+        <section className="pt-10 pb-8">
+          <Reveal>
+            <TravelCostCalculator
+              vehicles={taxiVehicles.map((v) => ({ ...v, price: v.price ?? 0 }))}
+            />
+          </Reveal>
+        </section>
+      </Below>
 
-      <CTASection />
+      <Below>
+        <CTASection />
+      </Below>
     </>
+  );
+}
+
+function Below({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="cv-auto">
+      <Suspense>{children}</Suspense>
+    </div>
   );
 }

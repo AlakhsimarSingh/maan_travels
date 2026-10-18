@@ -63,9 +63,9 @@ export default function Navbar() {
           <Image
             src="/icon-emblem.png"
             alt=""
-            width={218}
-            height={197}
-            priority
+            width={53}
+            height={48}
+            loading="eager"
             className="h-11 w-auto object-contain sm:h-12"
           />
 

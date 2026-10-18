@@ -8,7 +8,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar } from "@/components/ui/lazy-calendar";
 
 export default function FeedbackDatePicker({
   value,

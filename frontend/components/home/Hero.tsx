@@ -15,7 +15,7 @@ export default function Hero({ vehicles = [] }: { vehicles?: Vehicle[] }) {
   return (
     <section className="relative overflow-hidden pt-24 pb-16 lg:min-h-[90vh] lg:pb-0 lg:pt-20">
       <div className="absolute inset-0">
-        <Image src="/images/hero-bg.jpg" alt="" fill priority className="object-cover" />
+        <Image src="/images/hero-bg.jpg" alt="" fill sizes="100vw" loading="eager" fetchPriority="low" className="object-cover" />
       </div>
 
       <div className="absolute inset-0 bg-black/75" />

@@ -7,7 +7,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -161,24 +161,31 @@
   }
 }
 
+/* The two infinite route animations below only animate transform/opacity,
+   which the compositor runs without repainting. The previous box-shadow and
+   background-position versions forced a repaint of every route card on
+   every frame, which dominated mobile main-thread time. */
 @keyframes pulseDot {
   0% {
-    box-shadow: 0 0 0 0 rgba(236, 177, 0, 0.5);
+    transform: scale(1);
+    opacity: 0.5;
   }
   70% {
-    box-shadow: 0 0 0 6px rgba(236, 177, 0, 0);
+    transform: scale(2.7);
+    opacity: 0;
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(236, 177, 0, 0);
+    transform: scale(2.7);
+    opacity: 0;
   }
 }
 
 @keyframes dashFlow {
   from {
-    background-position: 0 0;
+    transform: translateX(0);
   }
   to {
-    background-position: -18px 0;
+    transform: translateX(-18px);
   }
 }
 
@@ -201,12 +208,32 @@
   inset: 0;
   border-radius: 50%;
   background: #ecb100;
+}
+
+/* Expanding ring around the dot. */
+.route-dot-pulse::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #ecb100;
   animation: pulseDot 2s ease-out infinite;
+  will-change: transform, opacity;
 }
 
 .route-line {
+  position: relative;
   flex: 1;
   height: 1px;
+  overflow: hidden;
+}
+
+/* Dashes live on an oversized pseudo-element that slides left by exactly one
+   pattern period, so the loop is seamless. */
+.route-line::before {
+  content: "";
+  position: absolute;
+  inset: 0 -18px 0 0;
   background-image: repeating-linear-gradient(
     to right,
     #3a3a3a 0,
@@ -216,10 +243,10 @@
   );
   background-size: 18px 1px;
   animation: dashFlow 1.4s linear infinite;
-  transition: background-image 0.3s ease;
+  will-change: transform;
 }
 
-.group:hover .route-line {
+.group:hover .route-line::before {
   background-image: repeating-linear-gradient(
     to right,
     #ecb100 0,
@@ -229,14 +256,22 @@
   );
 }
 
+/* Below-the-fold sections: the browser skips layout/paint (and their
+   animations) until they approach the viewport. The intrinsic size keeps
+   the scrollbar stable before they are rendered. */
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 900px;
+}
+
 .price-flash {
   animation: priceFlash 0.6s ease-out;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .card-enter,
-  .route-dot-pulse,
-  .route-line,
+  .route-dot-pulse::after,
+  .route-line::before,
   .price-flash {
     animation: none !important;
   }

@@ -22,7 +22,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar } from "@/components/ui/lazy-calendar";
 
 import BookingSuccess from "@/components/common/BookingSuccess";
 import { createWeddingBooking } from "@/src/services/bookingService";

@@ -19,7 +19,11 @@ export default function ConditionalLayout({ children }: { children: React.ReactN
 
       <BookingModal />
 
-      {!isAdmin && <Footer />}
+      {!isAdmin && (
+        <div className="cv-auto">
+          <Footer />
+        </div>
+      )}
       {!isAdmin && <FloatingActions />}
     </>
   );

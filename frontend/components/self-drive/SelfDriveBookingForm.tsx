@@ -17,7 +17,7 @@ import {
 import { format, differenceInCalendarDays } from "date-fns";
 
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar } from "@/components/ui/lazy-calendar";
 import BookingSuccess from "@/components/common/BookingSuccess";
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";

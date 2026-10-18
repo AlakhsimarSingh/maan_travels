@@ -21,7 +21,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar } from "@/components/ui/lazy-calendar";
 import BookingSuccess from "@/components/common/BookingSuccess";
 import Reveal from "@/components/common/Reveal";
 // import BookingProgress from "@/components/common/BookingProgress";

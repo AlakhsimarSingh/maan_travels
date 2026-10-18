@@ -7,8 +7,9 @@ import { PRIMARY_KEYWORDS, SECONDARY_KEYWORDS } from "@/src/config/seoLocations"
 
 import "./globals.css";
 
-const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"], preload: false });
+// Mono is only used for prices further down the page — don't preload it.
+const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"], preload: false });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.maantravels.com";
 import ScrollToTop from "@/components/common/ScrollToTop";
@@ -50,11 +51,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-IN" className="dark">
+    // Font variables live on <html> because `font-sans` is applied there.
+    <html lang="en-IN" className={`dark ${geistSans.variable} ${geistMono.variable}`}>
       <body
         className={`
-          ${geistSans.variable}
-          ${geistMono.variable}
           bg-[#0a0a0a]
           text-white
           min-h-screen
@@ -62,13 +62,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           flex-col
         `}
       >
-        {/* Google tag (gtag.js) */}
+        {/* Google tag (gtag.js). lazyOnload: fetched after the page has
+            loaded, so its ~170KB doesn't compete with the page's own CSS,
+            fonts and JS on mobile (afterInteractive also added a
+            high-priority preload). Page views are still recorded. */}
         <Script
-          async
           src="https://www.googletagmanager.com/gtag/js?id=AW-17937825732"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
-        <Script id="gtag-init" strategy="afterInteractive">
+        <Script id="gtag-init" strategy="lazyOnload">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
